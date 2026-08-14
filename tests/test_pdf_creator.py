@@ -37,7 +37,7 @@ def test_handler_uploads_pdf_and_returns_presigned_url():
     # MCDC SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=F, untrusted_itinerary_present=F => TRUE
     # MCDC SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=F, untrusted_itinerary_present=T => TRUE
     # MCDC SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=T, untrusted_itinerary_present=F => TRUE
-    # MCDC SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE [known-issue] [ki: KI-pdf-md2pdf-ssti] -- md2pdf(..., raw=) evaluates untrusted Jinja; not a domain mutex
+    # mcdc:ignore:capability-gap SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE -- live SSTI: md2pdf(..., raw=) evaluates untrusted itinerary; tripwire is KI-pdf-md2pdf-ssti [reviewed: agent:grok] [ki: KI-pdf-md2pdf-ssti] [category: capability-gap]
     # mcdc:ignore:defensive SYS-REQ-008: expires_in_GE_60=F, expires_in_LE_900=T, itinerary_ready=F, presigned_pdf_url_returned=F, template_eval_active=F, untrusted_itinerary_present=F => FALSE -- logically unreachable; implementation preserves the guarantee [reviewed: REVIEW-1]
     # mcdc:ignore:defensive SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=F, itinerary_ready=F, presigned_pdf_url_returned=F, template_eval_active=F, untrusted_itinerary_present=F => FALSE -- logically unreachable; implementation preserves the guarantee [reviewed: REVIEW-1]
     # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=F, presigned_pdf_url_returned=F, template_eval_active=F, untrusted_itinerary_present=F => TRUE
@@ -45,7 +45,7 @@ def test_handler_uploads_pdf_and_returns_presigned_url():
     # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=F, untrusted_itinerary_present=F => TRUE
     # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=F, untrusted_itinerary_present=T => TRUE
     # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=T, untrusted_itinerary_present=F => TRUE
-    # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE [known-issue] [ki: KI-pdf-md2pdf-ssti] -- md2pdf(..., raw=) evaluates untrusted Jinja; not a domain mutex
+    # mcdc:ignore:capability-gap SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE -- live SSTI: md2pdf(..., raw=) evaluates untrusted itinerary; tripwire is KI-pdf-md2pdf-ssti [reviewed: agent:grok] [ki: KI-pdf-md2pdf-ssti] [category: capability-gap]
 
     # Verifies: SW-REQ-007
     # Verifies: SYS-REQ-008
@@ -190,6 +190,10 @@ def _pdf_handler_with_mocked_md2pdf(module_name, md2pdf_fn, event):
     reason="KI-pdf-md2pdf-ssti: unsandboxed Jinja until renderer is data-only",
 )
 def test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf():
+    # Verifies: SW-REQ-007
+    # Verifies: SYS-REQ-008
+    # MCDC SW-REQ-007: content_type_is_pdf=T, expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, object_stored_in_pdf_bucket=T, presigned_pdf_url_returned=T, temp_pdf_unlinked=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE [known-issue] [ki: KI-pdf-md2pdf-ssti]
+    # MCDC SYS-REQ-008: expires_in_GE_60=T, expires_in_LE_900=T, itinerary_ready=T, presigned_pdf_url_returned=T, template_eval_active=T, untrusted_itinerary_present=T => FALSE [known-issue] [ki: KI-pdf-md2pdf-ssti]
     # SW-REQ-007:silent_false_safety_reviewed:negative
     # SW-REQ-007:source_fragment_validated_before_composition:negative
     # SYS-REQ-008:silent_false_safety_reviewed:negative
