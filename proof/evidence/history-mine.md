@@ -62,7 +62,7 @@ Sampled diffs under `functions/`, `stacks/`, `webapp/`, `pipeline/`. Classificat
 
 | SHA | Date | Subject | Paths | Class | Notes |
 |-----|------|---------|-------|-------|-------|
-| 08848a5 | 2026-02-03 | Breaking changes in md2pdf | `functions/trip_planner/pdf_creator/index.py` | fix (API) / class-worsening | `md_content=` → `raw=`. Current SSTI path. See DEFECT-260814-MD2P. |
+| 08848a5 | 2026-02-03 | Breaking changes in md2pdf | `functions/trip_planner/pdf_creator/index.py` | fix (API) / class-worsening | `md_content=` → `raw=`. Current SSTI path. Live: KI-pdf-md2pdf-ssti. |
 | 6dc7231 | 2026-02-04 | Migrate from Langchain → Strands | `functions/most_popular_repo_strands/`, stacks, webapp | feature / migration | Ports PAT tool, no-timeout GET, unanchored `re.match`. Sibling of Bedrock actions. |
 | e46a8b3 | 2026-03-01 | Switch agents to Nova Pro | stacks / functions | feature | Model-id swap. |
 | fff85a4 | 2026-02-01 | Upgrade to Haiku 4.5 | stacks | feature | Model-id swap. |
@@ -70,12 +70,12 @@ Sampled diffs under `functions/`, `stacks/`, `webapp/`, `pipeline/`. Classificat
 | 2e0be65 | 2025-04-07 | Increase retries on Bedrock Agents client | `functions/.../agent/index.py` | fix | botocore retries=6. |
 | 329cf17 | 2024-12-02 | Trim READMEs to 5k chars | github_agent_actions, langchain | fix | 10000 → 5000. Range already on SW-REQ-006. |
 | 3d207b6 | 2024-06-26 | Use GitHub PAT for API calls | functions + stacks | feature | Introduces shared PAT on README tools. KIs: PAT-no-allowlist. |
-| 0a837eb | 2024-02-27 | Migrate movie pitch to native Bedrock | `stacks/movie_pitch_stack.py` | feature | Introduces `string_matches f'{i+1}*'`. DEFECT-260814-PTCH. |
+| 0a837eb | 2024-02-27 | Migrate movie pitch to native Bedrock | `stacks/movie_pitch_stack.py` | feature | Introduces `string_matches f'{i+1}*'`. Live: KI-moviepitch-pitch-glob-1star. |
 | 3d4f547 | 2024-03-08 | Actually insert the pitches into the chooser | `stacks/movie_pitch_stack.py` | fix | Wiring; glob selector left intact. |
 | 3d36db2 | 2024-03-13 | Enforce JSON schema validation | parse_json_response, stacks/util | feature | New validator Lambda. |
 | 36d293a | 2024-01-08 | Add demo of chaining Bedrock Agents | functions + stacks + webapp | feature | Introduces trending GET (no timeout), unanchored `re.search`, `agent/*` invoke. |
 | 69c9ad4 | 2024-04-26 | Deploy Bedrock Agent resources using CloudFormation | `stacks/most_popular_repo_bedrock_agent_stack.py` | feature | CFN wiring; `agent/*` SourceArn remains. |
-| 6fad924 | 2023-11-03 | Add CDK pipeline to deploy demo | `pipeline/pipeline_stack.py` | feature | First `actions=["*"], resources=["*"]`. DEFECT-260814-STAR. |
+| 6fad924 | 2023-11-03 | Add CDK pipeline to deploy demo | `pipeline/pipeline_stack.py` | feature | First `actions=["*"], resources=["*"]`. Live: KI-pipeline-deploy-demo-star-star. |
 | a71c85a | 2024-05-21 | Add simpler prompt chaining technique examples | pipeline + techniques | feature | Clones star-star onto DeployTechniqueExamples. |
 | f64685a | 2024-03-12 | Move Lambda function code around | functions/ | refactor | Path move `agents/` → `functions/`; pdf_creator behavior unchanged. |
 | 83b1536 | 2025-01-20 | Bedrock flows — connect input node in all cases | techniques_bedrock_flows | fix | Wiring. |
@@ -84,7 +84,7 @@ Sampled diffs under `functions/`, `stacks/`, `webapp/`, `pipeline/`. Classificat
 
 Cross-module porting note (role §4.2): `6dc7231` replaced Langchain with Strands and **copied** `requests.get` without `timeout=`, the unanchored GitHub URL regex, and the PAT README tool. A localized "fix" in one agent is not a closed class until both `github_agent_actions/index.py` and `most_popular_repo_strands/index.py` change.
 
-No CHG records were filed. Last-40 and sampled behavior commits that are genuine features (Strands migration, Nova/Haiku, PAT, pipeline, native Bedrock movie pitch, Bedrock Agents demo) predate the ledger; filing CHGs without a spec-update signal would fail `change_evidence_complete` honesty if those reviews later declared `feature`. The three records below are DEFECTs for live product bugs, not process tickets.
+No CHG records were filed. Last-40 and sampled behavior commits that are genuine features (Strands migration, Nova/Haiku, PAT, pipeline, native Bedrock movie pitch, Bedrock Agents demo) predate the ledger; filing CHGs without a spec-update signal would fail `change_evidence_complete` honesty if those reviews later declared `feature`. Live product bugs stay as KnownIssues only. A DEFECT is reserved for a product fix; none of these classes were repaired.
 
 ## 3. Recurring failure classes
 
@@ -110,21 +110,15 @@ Code-signal (role §5): no new detector. No measured precision/recall/leakage be
 
 ## 4. DEFECT / CHG IDs filed
 
-| ID | Kind | Class | Links | Disposition |
-|----|------|-------|-------|-------------|
-| DEFECT-260814-MD2P | DEFECT | untrusted_renderer (SSTI) | KI-pdf-md2pdf-ssti; sibling KI-pdf-weasyprint-ssrf | covered_by_known_issue |
-| DEFECT-260814-STAR | DEFECT | iam_wildcard | KI-pipeline-deploy-demo-star-star, KI-pipeline-deploy-examples-star-star; sibling KI-bedrock-agent-invoke-wildcard | covered_by_known_issue |
-| DEFECT-260814-PTCH | DEFECT | glob_choice | KI-moviepitch-pitch-glob-1star | covered_by_known_issue |
-
-No CHG records. No process defects invented. Specs/** not edited.
+None. No product class was fixed in this audit, so no DEFECT records. A DEFECT means the product change landed and can close a KnownIssue; these classes remain open KIs.
 
 Introducing commits (bisected, not fabricated):
 
-- SSTI interpolation: `92f2d3d53ac473af78ab8fc551cea77fa6342682` (first write). Current `raw=` call: `08848a57ff5166632edfb43ad1a7578709056d9e`.
-- Star-star IAM: `6fad9246642a22f315d10a09f1f970826de0687d`. Clone onto examples: `a71c85a00c5dc3a5d800dbe0db0a1b77731d15be`.
-- Pitch glob: `0a837eb9c84d8c13bbbe7ea1ac234b7bc99c3331`.
+- SSTI interpolation: `92f2d3d53ac473af78ab8fc551cea77fa6342682` (first write). Current `raw=` call: `08848a57ff5166632edfb43ad1a7578709056d9e`. Live: KI-pdf-md2pdf-ssti.
+- Star-star IAM: `6fad9246642a22f315d10a09f1f970826de0687d`. Clone onto examples: `a71c85a00c5dc3a5d800dbe0db0a1b77731d15be`. Live: KI-pipeline-deploy-demo-star-star, KI-pipeline-deploy-examples-star-star.
+- Pitch glob: `0a837eb9c84d8c13bbbe7ea1ac234b7bc99c3331`. Live: KI-moviepitch-pitch-glob-1star.
 
-None of the three ever worked correctly; they are new_defect-at-first-write, not regressions.
+None of the three ever worked correctly; they are first-write defects still present in the sample, not regressions and not repairs.
 
 ## 5. What specs should absorb (for the spec-owning agent)
 
@@ -141,13 +135,7 @@ Command: `proof audit --check problem_reports_reviewed --check change_evidence_c
 
 | Check | Color | Detail |
 |-------|-------|--------|
-| `problem_reports_reviewed` | **info** (`i`) | 3 report(s): 8 triage-debt. Exit 0. Errors 0, Warnings 0. |
+| `problem_reports_reviewed` | **green** (`✓`) | no DEFECT records (live bugs stay as KnownIssues) |
 | `change_evidence_complete` | **green** (`✓`) | every in-branch-changed change-typed review has complete backing evidence |
 
-Triage-debt (advisory, expected — specs/** are owned by another agent; no obligation attach / new req / regression-test link was added):
-
-- DEFECT-260814-MD2P: no `hardening.added_obligations` for `untrusted_renderer`; `missing_requirement` without new/strengthened reqs; `missing_test_partition` without `hardening.regression_tests`
-- DEFECT-260814-STAR: same three for `iam_wildcard`
-- DEFECT-260814-PTCH: no `hardening.added_obligations` for `glob_choice`; `missing_test_partition` without `hardening.regression_tests`
-
-`proof problem-report validate`: 3 report(s), 0 dangerous, 0 advisory.
+No DEFECT triage-debt: unfixed product classes are tracked only as KnownIssues. `proof problem-report validate` has nothing to validate.

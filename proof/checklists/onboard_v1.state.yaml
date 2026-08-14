@@ -66,7 +66,7 @@ steps:
         status: confirmed
         confirmed_at: "2026-08-14T12:59:13Z"
         confirmed_by: agent:buffy
-        note: problem_reports_reviewed and change_evidence_complete pass
+        note: problem_reports_reviewed and change_evidence_complete pass (no DEFECT records; live bugs remain KnownIssues)
         check_results:
             - id: problem_reports_reviewed
               status: pass
