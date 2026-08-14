@@ -1,0 +1,47 @@
+component: json_parser_event
+variables:
+    - name: sfn_parser_invoked
+      type: bool
+      direction: input
+      description: True when SFN invokes the parse-JSON Lambda.
+    - name: response_string_and_schema_provided
+      type: bool
+      direction: output
+      description: True when the event includes response_string and json_schema.
+
+    - name: response_string_present
+      type: bool
+      direction: output
+      description: True when the SFN parser event includes response_string.
+    - name: json_schema_present
+      type: bool
+      direction: output
+      description: True when the SFN parser event includes json_schema.
+    - name: parser_lambda_targeted
+      type: bool
+      direction: output
+      description: True when the retry step LambdaInvoke targets the parse_json_response function.
+    - name: parser_lambda_invoked
+      type: bool
+      direction: output
+      description: True when the parse-JSON Lambda is invoked by the retry step.
+    - name: parser_event_shape
+      type: enum
+      direction: input
+      description: Parser Lambda event shape. sfn_keys is response_string plus json_schema. flows_node_inputs is node.inputs[0].value plus SCHEMA env.
+domain:
+    tables:
+        - name: parser_event_contract
+          source: functions/generic/parse_json_response/index.py vs techniques_bedrock_flows/functions/parse_json_response/index.py
+          inputs:
+            - name: parser_event_shape
+              type: enum
+              values: [sfn_keys, flows_node_inputs]
+          output:
+            name: response_string_and_schema_provided
+            type: bool
+          rows:
+            - parser_event_shape: sfn_keys
+              response_string_and_schema_provided: true
+            - parser_event_shape: flows_node_inputs
+              response_string_and_schema_provided: false

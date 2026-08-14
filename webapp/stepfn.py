@@ -10,6 +10,7 @@ default_region = boto3.session.Session().region_name
 
 
 # Methods for displaying the state machine's execution history
+# Implements: SYS-REQ-001
 def find_task_id(event, events_by_id):
     # The "Task" is the event where we first see the "Entered" state and which has a name
     if event["type"] == "WaitStateEntered":
@@ -48,6 +49,7 @@ known_event_types = [
 ]
 
 
+# Implements: SYS-REQ-001
 def get_task_status(event_type):
     if (
         event_type == "TaskStateEntered"
@@ -67,6 +69,7 @@ def get_task_status(event_type):
     raise Exception(f"Unknown event type {event_type}")
 
 
+# Implements: SYS-REQ-001
 def get_workflow_status_icon(status):
     if status == "RUNNING":
         return ":arrows_counterclockwise:"
@@ -77,6 +80,7 @@ def get_workflow_status_icon(status):
     raise Exception(f"Unknown event type {status}")
 
 
+# Implements: SYS-REQ-001
 def get_workflow_status_markdown(execution, execution_events):
     markdown = f"##### Status: {get_workflow_status_icon(execution['status'])} {execution['status'].title()}"
     markdown += f"\n\n##### Tasks"
@@ -112,21 +116,25 @@ def get_workflow_status_markdown(execution, execution_events):
 
 
 # Construct the state machine ARN by querying the region and account ID
+# Implements: SYS-REQ-001
 def get_state_machine_arn(name, region=default_region, sts_client=sts_client):
     return f"arn:aws:states:{region}:{sts_client.get_caller_identity()['Account']}:stateMachine:{name}"
 
 
 # Construct a unique execution name from the Streamlit session ID
+# Implements: SYS-REQ-001
 def get_execution_name(session_id):
     return f"streamlit-{session_id}-{str(uuid.uuid4())[-12:]}"
 
 
+# Implements: SYS-REQ-001
 def get_execution_arn(
     state_machine_name, execution_name, region=default_region, sts_client=sts_client
 ):
     return f"arn:aws:states:{region}:{sts_client.get_caller_identity()['Account']}:execution:{state_machine_name}:{execution_name}"
 
 
+# Implements: SYS-REQ-001
 def start_execution(
     state_machine_name,
     session_id,
@@ -143,6 +151,7 @@ def start_execution(
     return response["executionArn"]
 
 
+# Implements: SYS-REQ-001
 def continue_execution(task_token, task_output, client=sfn_client):
     client.send_task_success(
         taskToken=task_token,
@@ -150,6 +159,7 @@ def continue_execution(task_token, task_output, client=sfn_client):
     )
 
 
+# Implements: SYS-REQ-001
 def describe_execution(execution_arn, client=sfn_client):
     execution = client.describe_execution(executionArn=execution_arn)
     execution_events = []
@@ -161,6 +171,7 @@ def describe_execution(execution_arn, client=sfn_client):
     return get_workflow_status_markdown(execution, execution_events)
 
 
+# Implements: SYS-REQ-001
 def poll_for_execution_completion(execution_arn, callback_fn=None, client=sfn_client):
     while True:
         execution = client.describe_execution(executionArn=execution_arn)
@@ -179,6 +190,7 @@ def poll_for_execution_completion(execution_arn, callback_fn=None, client=sfn_cl
         time.sleep(1)
 
 
+# Implements: SW-REQ-003
 def poll_for_execution_task_token_or_completion(
     execution_arn, callback_fn=None, client=sfn_client
 ):
@@ -224,6 +236,7 @@ def poll_for_execution_task_token_or_completion(
         time.sleep(1)
 
 
+# Implements: SYS-REQ-001
 def is_execution_completed(execution_arn, client=sfn_client):
     response = client.describe_execution(executionArn=execution_arn)
     return response["status"] and response["status"] != "RUNNING"

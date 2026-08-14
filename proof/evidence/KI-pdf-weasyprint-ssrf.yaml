@@ -1,0 +1,21 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SW-REQ-007
+        - SYS-REQ-008
+        - INT-REQ-006
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_fetchable_markdown_url -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T12:14:20Z"
+      input_set:
+        - functions/trip_planner/pdf_creator/index.py
+        - tests/test_pdf_creator.py
+        - KI-pdf-weasyprint-ssrf
+      freshness_hashes:
+        functions/trip_planner/pdf_creator/index.py: sha256:abfacd866f113928cce2d1218f080a5409e7d146677f1db2b5a61523bbd1e274
+        tests/test_pdf_creator.py: sha256:65c347e98f03479ea98a3e20bf4d7dd6c4cbd40733dd6399b87819189bae6dfe
+      known_issues:
+        - KI-pdf-weasyprint-ssrf

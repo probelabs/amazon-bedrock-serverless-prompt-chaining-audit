@@ -1,0 +1,70 @@
+id: KI-pdf-weasyprint-ssrf
+title: Trip planner PDF rendering can fetch attacker-controlled URLs via WeasyPrint
+description: 'functions/trip_planner/pdf_creator/index.py:15-33 interpolates untrusted location/itinerary markdown and calls md2pdf(..., raw=itinerary_content) at index.py:30-33 with no restricted URL fetcher. md2pdf converts markdown to HTML; WeasyPrint default_url_fetcher retrieves remote and file resources. Entry: webapp/pages/3_Trip_Planner.py:72-81. Codex finding-4 (report.md#finding-4).'
+affected_requirements:
+    - SW-REQ-007
+    - SYS-REQ-008
+    - INT-REQ-006
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_fetchable_markdown_url -q
+evidence_manifests:
+    - proof/evidence/KI-pdf-weasyprint-ssrf.yaml
+severity: medium
+severity_basis: reproducer
+risk: security
+cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N
+affected_api: handler / md2pdf (functions/trip_planner/pdf_creator/index.py:15-33)
+attacker_input: Authenticated Cognito demo user or model itinerary containing markdown image syntax such as ![](http://127.0.0.1/poc)
+sanitizer: manual:ssrf
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_fetchable_markdown_url -q
+tripwire_mutation: Pass a deny-by-default url_fetcher to md2pdf/WeasyPrint, or strip markdown image/link URLs before raw=.
+reproduction_steps:
+    - Read proof/evidence/codex-security-CPeyWd/report.md#finding-4 and functions/trip_planner/pdf_creator/index.py:15-33.
+    - Run python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_fetchable_markdown_url -q
+    - The Reproduces test calls handler with itinerary '![](http://127.0.0.1/poc)' and asserts the URL is not passed through without a deny fetcher. It fails (xfail) while raw contains the URL unchanged.
+environment_note: No live AWS deployment, Bedrock invocation, or WeasyPrint native runtime in this host. Unit Reproduces tests assert the correct control and xfail while the defect remains.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not render untrusted markdown through WeasyPrint; isolate PDF Lambda egress if the stack is deployed. No live AWS in this environment.
+remediation: Supply WeasyPrint with a custom URL fetcher that denies all network and file URLs by default (or allowlists only required static assets), and sanitize markdown to remove images/links/HTML that introduce URLs.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - evidence path proof/evidence/codex-security-CPeyWd/report.md#finding-4
+customer_impact: Authenticated document-renderer SSRF from trip planner input; impact depends on what the Lambda network identity can reach.
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-13T15:18:18Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-13T15:18:35Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-13T15:18:35Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T15:20:22Z"
+      by: agent:grok
+      action: edit
+      detail: set-risk,add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: true
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). The bound test calls the handler/tool entry with attacker-shaped input. Current published aws-samples tree still contains the defect.

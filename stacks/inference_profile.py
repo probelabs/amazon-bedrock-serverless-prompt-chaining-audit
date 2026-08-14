@@ -3,6 +3,7 @@ from constructs import Construct
 import jsii
 
 
+# Implements: SW-REQ-010
 @jsii.implements(bedrock.IModel)
 class InferenceProfile:
     def __init__(self, scope: Construct, id: str, inference_profile_id: str):

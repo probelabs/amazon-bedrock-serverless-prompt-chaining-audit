@@ -1,0 +1,15 @@
+id: L-defi-callbacks
+title: No caller-supplied callback addresses in this Python CDK sample
+description: Enumerated Lambda and CDK Python for caller-supplied callback addresses. No msg.sender, no untrusted callback injection surface.
+status: closed
+severity: info
+kill_number: 0 callback sites
+kill_domain: callback_sandboxed
+sample_table:
+    - pair: functions/callbacks
+      mid_f: "0"
+      notes: zero_callback_sites
+    - pair: stacks/callbacks
+      mid_f: "0"
+      notes: zero_callback_sites
+kill_method: code-enumeration

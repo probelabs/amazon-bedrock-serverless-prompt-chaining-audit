@@ -1,0 +1,117 @@
+id: SYS-REQ-008
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the pdf_creator shall always satisfy (!itinerary_ready | presigned_pdf_url_returned) & (expires_in >= 60) & (expires_in <= 900) & (!untrusted_itinerary_present | !template_eval_active)
+description: When an itinerary is ready, the system shall return a presigned PDF URL with expires_in in 60-900 seconds. The system shall not evaluate a Jinja template when untrusted itinerary markdown is present.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: pdf_creator
+rationale: 'TripPlanner presents a downloadable itinerary from a private bucket. generate_presigned_url uses ExpiresIn=900. A zero-second window is not a usable download. Itinerary markdown is untrusted user location plus model text. Code passes it to md2pdf/WeasyPrint (KI-pdf-md2pdf-ssti, KI-pdf-weasyprint-ssrf). This requirement forbids template evaluation of that markdown. It does not claim a deny URL fetcher. Satisfying children: SW-REQ-007 INT-REQ-006.'
+tags: []
+variables:
+    - itinerary_ready
+    - presigned_pdf_url_returned
+    - expires_in
+    - untrusted_itinerary_present
+    - template_eval_active
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:44:51.493152336Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:33eedc0d3e16a389c28bfc27df7e8ba24ed4255ee5688fcb27e3da6b4e9b201d
+    review_history:
+        - reviewed_at: "2026-08-14T09:44:51.493152336Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - tests/test_pdf_creator.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-13T10:10:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-13T09:54:33Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:49:50Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - silent_false_safety_reviewed
+    - source_fragment_validated_before_composition
+obligation_suppressions:
+    - id: ssrf_protection
+      reason: SYS-REQ-008 owns the Jinja shall-not only. It explicitly does not claim a deny URL fetcher. WeasyPrint markdown-image SSRF is tracked as KI-pdf-weasyprint-ssrf, not as an owned FRETish guarantee.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:49:50Z"
+      framework_refs:
+        - CWE CWE-918,CWE-441
+        - NIST-800-53 SC-7
+        - OWASP-ASVS-v4 V14.4.1,V12.6.1
+obligation_hazards:
+    - class: boundary
+      worst_case: expires_in below 60 seconds expires before the user can open the download link.
+      severity: low
+    - class: error_handling
+      worst_case: A ready itinerary returns no presigned URL so the user cannot download the PDF.
+      severity: medium
+    - class: silent_false_safety_reviewed
+      worst_case: Domain mutex and MC/DC defensive ignore mark untrusted+template as unreachable while md2pdf(..., raw=) still evaluates Jinja, so auditors treat the SSTI shall-not as preserved.
+      severity: high
+    - class: source_fragment_validated_before_composition
+      worst_case: Untrusted location or itinerary markdown is interpolated into an f-string and passed to md2pdf raw, so unsandboxed Jinja evaluates attacker-controlled template expressions inside the PDF Lambda (KI-pdf-md2pdf-ssti).
+      severity: high
+hazard_review:
+    reviewed_at: "2026-08-14T10:49:51Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          applied:
+            - source_fragment_validated_before_composition
+            - silent_false_safety_reviewed
+          suppressed:
+            - ssrf_protection
+          rationale: Owned SSTI shall-not maps to source_fragment_validated_before_composition; leftover mutex/MC/DC false safety maps to silent_false_safety_reviewed. ssrf_protection is suppressed because this requirement disclaims a deny URL fetcher (KI-pdf-weasyprint-ssrf).
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-13T09:54:57Z"
+          from: draft
+          to: review
+          reason: Split kitchen-sink SYS-REQ-001 children into honest system parents; FRETish compiled and vars declared.
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=3; known_issue:KI-pdf-md2pdf-ssti=failing | known_issue:KI-pdf-weasyprint-ssrf=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

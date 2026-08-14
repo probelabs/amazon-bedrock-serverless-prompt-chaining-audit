@@ -1,0 +1,87 @@
+id: KI-webapp-shared-task-role-any-token
+title: Shared Fargate task role can SendTaskSuccess for any demo waitForTaskToken
+description: |-
+    stacks/webapp_stack.py:77-91 grants grant_read, grant_start_execution, and
+    grant_task_response on every PromptChainDemo-* state machine to the single
+    Streamlit Fargate task role. IAM therefore allows that role to
+    SendTaskSuccess/SendTaskFailure for any paused demo execution (Movie Pitch
+    waitForTaskToken and any other human-gate). Codex 2026-08-14 HIGH candidate
+    "Shared Fargate role can complete any demo SFN task token". Earlier
+    CPeyWd rejected unprivileged IDOR (needs UI/task-role compromise). This KI
+    records the over-broad grant anyway.
+    The Streamlit Movie Pitch path does not accept a user-supplied token:
+    4_Movie_Pitch.py:55-57 passes only st.session_state.movie_pitch_task_token
+    set from this session's poll. No live unprivileged reproducer exists in
+    this host (no AWS, no second-session IDOR widget). Characterization test
+    test_movie_pitch_continue_does_not_take_a_user_supplied_task_token records
+    that the UI path cannot feed another execution's token.
+affected_requirements:
+    - SYS-REQ-001
+    - SW-REQ-003
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_webapp_task_role.py::test_fargate_task_role_does_not_grant_task_response_on_every_demo -q
+evidence_manifests:
+    - proof/evidence/KI-webapp-shared-task-role-any-token.yaml
+severity: medium
+severity_basis: reproducer
+risk: security
+cve_surface: possible
+cvss: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N
+affected_api: grant_task_response (stacks/webapp_stack.py:89-91); send_task_success (webapp/stepfn.py:155-159)
+attacker_input: A process that already holds the Fargate task-role credentials (compromised Streamlit container, stolen task creds). Not a Cognito form field.
+sanitizer: manual:shared-task-role
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_webapp_task_role.py::test_fargate_task_role_does_not_grant_task_response_on_every_demo -q
+tripwire_mutation: Stop calling grant_task_response on the shared task role for every demo; scope SendTaskSuccess to the current execution or a per-session role.
+reproduction_steps:
+    - Read stacks/webapp_stack.py:77-91 and webapp/pages/4_Movie_Pitch.py:54-58.
+    - Run python3 -m pytest --rootdir=/workspace /workspace/tests/test_webapp_task_role.py -q
+    - The Reproduces test xfails while grant_task_response remains on all seven machines.
+    - "The characterization test passes: Movie Pitch continue uses only session_state, so an unprivileged user cannot supply another token."
+environment_note: No live AWS. Unprivileged IDOR via Streamlit is not reproducible here because the UI never takes a token field. The IAM grant is reproduced by the xfail tripwire.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not treat a stolen Fargate task role as scoped to one session. Cognito users do not receive those credentials through the form path.
+remediation: Scope task-response IAM to the execution that session started, or use a per-user task role. Do not grant_task_response on every PromptChainDemo machine to one shared role.
+dedup_armor: >
+    Distinct from KI-bedrock-agent-invoke-wildcard (Lambda resource policy
+    agent/*) and the pipeline star-star KIs (CodeBuild deploy roles). This is
+    the Streamlit Fargate task role SendTaskSuccess grant across all demos.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - proof/evidence/adhd-threat-spec-red.md shared ECS role + task-token cluster.
+    - CPeyWd rejected unprivileged IDOR; this KI still records the grant.
+customer_impact: Anyone who obtains the Fargate task-role credentials can complete any paused demo execution. A Cognito user using only the Movie Pitch form cannot, because the token is session-bound.
+owner: agent:grok
+review_date: "2026-09-14"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-14T12:10:00Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T12:10:00Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-14
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Offline sample: unit Reproduces xfail proves the over-broad grant.
+        Untrusted-attacker IDOR via Streamlit is not claimed; characterization
+        test proves the form path has no token field. No live AWS.
+    not_applicable:
+        untrusted_attacker: Not an unprivileged web PoC. Cognito users never receive task-role credentials; the form does not accept a foreign task token. Evidence that the unprivileged path cannot happen is test_movie_pitch_continue_does_not_take_a_user_supplied_task_token.
+        reachability_verified: 'local-behavioral unit assertion (IAM grant / session-bound token): no live Fargate or second Cognito session in this host'
+        attacker_profitability: Confused deputy after container compromise; no unprivileged profit path shown

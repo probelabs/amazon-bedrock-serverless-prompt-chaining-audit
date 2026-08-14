@@ -16,6 +16,7 @@ github_token_secret_name = os.environ.get("GITHUB_TOKEN_SECRET")
 
 
 ### Tools ###
+# Implements: SW-REQ-006
 @tool
 def get_trending_github_repositories(input: str) -> str:
     """Retrieves the GitHub Trending Repositories webpage.
@@ -49,6 +50,7 @@ def get_trending_github_repositories(input: str) -> str:
     return "\n".join(response_text)
 
 
+# Implements: SW-REQ-006
 @tool
 def get_github_repository_readme(input: str) -> str:
     """Retrieves the content of a GitHub repository's README file.
@@ -90,6 +92,7 @@ def get_github_repository_readme(input: str) -> str:
 
 
 ### Agents ###
+# Implements: SW-REQ-006
 def lookup_trending_repo_agent(event, context):
     from pydantic import BaseModel, Field, field_validator
     
@@ -99,6 +102,7 @@ def lookup_trending_repo_agent(event, context):
         
         @field_validator("url")
         @classmethod
+        # Implements: SW-REQ-006
         def validate_github_url(cls, value: str) -> str:
             import re
             pattern = r"https:\/\/github\.com(?:\/[^\s\/]+){2}"
@@ -130,6 +134,7 @@ def lookup_trending_repo_agent(event, context):
     }
 
 
+# Implements: SW-REQ-006
 def summarize_repo_readme_agent(event, context):
     llm = BedrockModel(
         model_id="us.amazon.nova-pro-v1:0",

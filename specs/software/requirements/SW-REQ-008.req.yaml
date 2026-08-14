@@ -1,0 +1,105 @@
+id: SW-REQ-008
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the alarms_stack shall always satisfy (!failed_execution_metric_present | composite_alarm_defined) & (alarm_threshold = 1) & (demo_alarm_count = 7) & (evaluation_periods = 1) & sns_topic_defined & topic_name_is_notifications & alarm_action_is_sns & (!demo_workflow_failed | demo_metric_failed_alarmed)
+description: AlarmsStack shall define a metric_failed alarm per named demo (demo_alarm_count = 7) with alarm_threshold = 1 and evaluation_periods = 1, a composite alarm, and the notifications SNS topic. Technique stacks are not alarmed.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-005
+component: alarms_stack
+rationale: Operators subscribe to one topic. Per-demo alarms use CloudWatch threshold 1 and feed the composite. AlarmsStack lists seven PromptChainDemo names only. Technique stacks have no metric_failed alarm.
+tags: []
+variables:
+    - failed_execution_metric_present
+    - composite_alarm_defined
+    - alarm_threshold
+    - demo_alarm_count
+    - evaluation_periods
+    - sns_topic_defined
+    - topic_name_is_notifications
+    - alarm_action_is_sns
+    - demo_metric_failed_alarmed
+    - demo_workflow_failed
+traces:
+    satisfies:
+        - SYS-REQ-005
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:47.799487219Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:96392a0bbe3a909fab1027e97136aa780bd4da0476e902d345b8c11a26a421e5
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:27.937481282Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for SW-REQ-008.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-005.req.yaml
+            - stacks/alarms_stack.py
+            - test_cdk_stacks.py
+            - tests/test_alarms_stack.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:57Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T06:30:10Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: alarm_threshold is not 1 so the first PromptChainDemo failure does not raise the per-demo alarm.
+      severity: low
+    - class: error_handling
+      worst_case: The composite alarm has no SNS action so a demo failure never notifies the operator.
+      severity: medium
+    - class: nominal
+      worst_case: Fewer than seven demo alarms are defined so a named PromptChainDemo failure is not watched.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:45Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+nominal_evidence_exemptions:
+    - obligation_class: boundary
+      reason: SW-REQ-008 boundary is the alarm_threshold=1 miss; the formula has no valid-input success outcome on that class, so boundary:nominal would be a false happy-path witness.
+      reviewer: agent:grok
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

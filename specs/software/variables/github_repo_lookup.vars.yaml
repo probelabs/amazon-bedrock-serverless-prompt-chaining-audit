@@ -1,0 +1,62 @@
+component: github_repo_lookup
+variables:
+    - name: extracted_url_is_invalid
+      type: bool
+      direction: input
+      description: True when the URL is not https://github.com/owner/repo or is the example repo.
+    - name: lookup_rejects_url
+      type: bool
+      direction: output
+      description: True when the lookup rejects the URL.
+    - name: readme_len
+      type: int
+      direction: input
+      description: Character length of the fetched README before truncation.
+      range:
+        max: 100000
+        min: 0
+    - name: readme_truncated
+      type: bool
+      direction: output
+      description: True when the returned README text is truncated to 5000 characters.
+    - name: status_code
+      type: int
+      direction: input
+      description: HTTP status from GET github.com/trending. Non-200 raises.
+      range:
+        max: 599
+        min: 100
+    - name: trending_fetch_raises
+      type: bool
+      direction: output
+      description: True when trending GET raises because status_code is not 200.
+    - name: url_matches_https_github_owner_repo
+      type: bool
+      direction: input
+      description: True when the URL matches the https GitHub owner/repo regex used by validate_github_url.
+    - name: example_repo_url
+      type: bool
+      direction: input
+      description: True when the URL contains the documented example github.com/orgname/reponame.
+    - name: extract_attempt_count
+      type: int
+      direction: input
+      description: Bedrock Agent invoke_agent attempts used to extract a repository URL. lookup_trending_repo_agent loops range(3).
+      range:
+        max: 3
+        min: 0
+    - name: repo_url_extracted
+      type: bool
+      direction: output
+      description: True when a non-example GitHub URL is extracted before extract_attempt_count reaches 3.
+    - name: requests_timeout_s
+      type: int
+      direction: output
+      description: Timeout in seconds for requests.get to github.com/trending. Code currently omits timeout. Spec bound that SHALL hold is 1-30.
+      range:
+        max: 30
+        min: 1
+    - name: url_is_full_github_repo
+      type: bool
+      direction: input
+      description: True when repo_url fullmatch ^https://github.com/[^/]+/[^/]+$. Intended contract is the anchored owner/repo URL. Code uses unanchored re.match and re.search (KI-github-url-unanchored-match).

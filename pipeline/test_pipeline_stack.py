@@ -4,6 +4,7 @@ from aws_cdk.assertions import Template
 from pipeline_stack import PipelineStack
 
 
+# Verifies: SYS-REQ-006
 def test_pipeline_stack_synthesizes_properly():
     app = cdk.App()
 

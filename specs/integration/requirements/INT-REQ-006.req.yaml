@@ -1,0 +1,124 @@
+id: INT-REQ-006
+version: 1
+status: review
+priority: shall
+category: interface
+req_type: guarantee
+fretish: the s3_pdf shall always satisfy (!pdf_upload_requested | object_stored_in_pdf_bucket) & (expires_in >= 60) & (expires_in <= 900) & (!pdf_upload_requested | presigned_get_url_returned)
+description: The PDF interface shall store the itinerary object in PDF_BUCKET and return a presigned GET URL with expires_in in 60-900 seconds.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-008
+component: s3_pdf
+rationale: The TripPlanner bucket is private with a short lifecycle. generate_presigned_url uses ExpiresIn=900. A zero-second window is not a usable download. The spec lower bound is 60 seconds. Itinerary markdown is untrusted and is passed to md2pdf/WeasyPrint (KI-pdf-md2pdf-ssti, KI-pdf-weasyprint-ssrf). This requirement does not claim sanitization or a deny URL fetcher.
+tags: []
+variables:
+    - pdf_upload_requested
+    - object_stored_in_pdf_bucket
+    - expires_in
+    - presigned_get_url_returned
+traces:
+    satisfies:
+        - SYS-REQ-008
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:44:49.76800731Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:e5280065973d4bef3fc319a9f7ffb918f1a9a7312e1c345d7e87eb76dd034f63
+    review_history:
+        - reviewed_at: "2026-08-13T12:20:14.206217616Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Citation-backed review of INT-REQ-006 against current link targets.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-008.req.yaml
+            - tests/test_pdf_creator.py
+        - reviewed_at: "2026-08-14T09:44:49.76800731Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - functions/trip_planner/pdf_creator/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-008.req.yaml
+            - tests/test_pdf_creator.py
+    components:
+        - pdf_creator
+        - s3_pdf
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:14:16Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T06:32:19Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: expires_in below 60 seconds expires before the user can open the download link.
+      severity: low
+    - class: error_handling
+      worst_case: PutObject or presign fails so the itinerary object is missing and no GET URL is returned.
+      severity: medium
+    - class: nominal
+      worst_case: The object is not stored in PDF_BUCKET so the presigned URL points at a missing key.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:47Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+interface:
+    caller: pdf_creator
+    callee: s3_pdf
+    type: api_call
+    signature: PutObject+Presign(bucket,key) -> url
+    producer: s3_pdf
+    consumer:
+        - pdf_creator
+    owner: team:sample
+    version: 1.0.0
+    compatibility_policy: semver-lax
+    risk_tier: 2
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=4; known_issue:KI-obligation-evidence-gaps=none | known_issue:KI-pdf-md2pdf-ssti=failing | known_issue:KI-pdf-weasyprint-ssrf=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

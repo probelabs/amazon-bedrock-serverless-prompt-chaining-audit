@@ -1,0 +1,12 @@
+id: L-defi-balance
+title: No token balance-delta accounting in this sample
+description: No ERC20/balanceOf/safeTransfer accounting exists.
+status: closed
+severity: info
+kill_number: 0 balanceOf sites
+kill_domain: accounting_delta_safe
+sample_table:
+    - pair: functions/balanceOf
+      mid_f: "0"
+      notes: no_token_ledger
+kill_method: code-enumeration

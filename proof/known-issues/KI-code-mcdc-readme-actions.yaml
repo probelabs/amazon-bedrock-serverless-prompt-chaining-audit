@@ -1,0 +1,47 @@
+id: KI-code-mcdc-readme-actions
+title: One README-length decision still uncovered in github_agent_actions
+description: 'Withdrawn. A clean remasure (`proof mcdc measure ./functions --engine python`, using project.commands.test) persists Decisions 17/17 and github_agent_actions 7/7. The earlier 16/17 report came from a failed `-- python3 -m pytest` launch (adapter ran bare `-m pytest`) or a stale persist, not an uncovered polarity. test_readme_truncated_when_longer_than_5000 drives len(readme_content)>5000.'
+affected_requirements:
+    - SW-REQ-006
+severity: low
+severity_basis: risk
+risk: correctness
+reproduction_steps:
+    - proof mcdc measure ./functions --engine python
+    - proof mcdc report --view hotspots
+    - Confirm Decisions 17/17 and no github_agent_actions hotspot.
+environment_note: 'Do not remasure with `-- python3 -m pytest`: the adapter strips the interpreter and runs bare `-m pytest` via sh. Use project.commands.test via `proof mcdc measure ./functions --engine python`.'
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+remediation: Closed by remasuring with project.commands.test. No product change required.
+notes:
+    - 'Withdrawn after clean remasure: proof mcdc measure ./functions --engine python used project.commands.test (python3 -m pytest --rootdir=/workspace /workspace/tests) and persisted Decisions 17/17, Conditions 17/17, github_agent_actions 7/7. The earlier 16/17 persist was from a failed -- python3 -m pytest launch (adapter ran bare -m pytest) or a stale artifact, not an uncovered polarity. test_readme_truncated_when_longer_than_5000 drives len>5000.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:49:47Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:49:47Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-12T20:54:45Z"
+      by: human:dev
+      action: edit
+      detail: append-note,set-status=withdrawn
+    - at: "2026-08-12T20:55:24Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-12T21:03:16Z"
+      by: human:dev
+      action: edit
+      detail: append-note,set-status=withdrawn
+    - at: "2026-08-12T21:03:16Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12

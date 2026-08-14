@@ -1,0 +1,40 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SYS-REQ-001
+        - SW-REQ-003
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_webapp_task_role.py::test_fargate_task_role_does_not_grant_task_response_on_every_demo -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T11:54:46Z"
+      input_set:
+        - stacks/webapp_stack.py
+        - tests/test_webapp_task_role.py
+        - KI-webapp-shared-task-role-any-token
+      freshness_hashes:
+        stacks/webapp_stack.py: sha256:0b51b47562387fab43c804056d97169134dee3bd0d224793289d4bc9e39d7126
+        tests/test_webapp_task_role.py: sha256:7db98da8f21961e56ed18089fa5cbb119fa4b720c33e8a6cb34c4b05ae2f30e6
+      known_issues:
+        - KI-webapp-shared-task-role-any-token
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SYS-REQ-001
+        - SW-REQ-003
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_webapp_task_role.py::test_movie_pitch_continue_does_not_take_a_user_supplied_task_token -q --tb=short
+      status: pass
+      observed_result: characterization_unprivileged_path_not_viable
+      executed_at: "2026-08-14T11:54:46Z"
+      input_set:
+        - webapp/pages/4_Movie_Pitch.py
+        - webapp/stepfn.py
+        - tests/test_webapp_task_role.py
+        - KI-webapp-shared-task-role-any-token
+      freshness_hashes:
+        tests/test_webapp_task_role.py: sha256:7db98da8f21961e56ed18089fa5cbb119fa4b720c33e8a6cb34c4b05ae2f30e6
+        webapp/pages/4_Movie_Pitch.py: sha256:82204d779cac238dd3a5cf0543c982dae092e577437f251c3658536b0689972f
+        webapp/stepfn.py: sha256:80f0c1af480f36c80467f9b3adfe83001d1199319824735695229b9eb0b6f4dd
+      known_issues:
+        - KI-webapp-shared-task-role-any-token

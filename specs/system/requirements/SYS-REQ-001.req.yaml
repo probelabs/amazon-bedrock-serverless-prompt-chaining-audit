@@ -1,0 +1,196 @@
+id: SYS-REQ-001
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the demo_orchestrator shall always satisfy !demo_execution_started | !named_demo_exists | (demo_execution_reaches_terminal & execution_name_prefixed & terminal_status_is_recognized & start_execution_called & execution_arn_returned)
+description: When a named demo exists and StartExecution is issued, the demo orchestrator shall take that execution (streamlit-<session>- prefix) to a recognized terminal success or failure state.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: demo_orchestrator
+rationale: 'Streamlit starts PromptChainDemo state machines. text_input has no max_chars today; the spec bound that SHALL hold is 1-4000. WebappStack ALB uses Cognito. docker-compose has no Cognito. The Fargate task role shares start_execution, send_task_success, and list_executions (KI-webapp-shared-task-role-any-token). That shared role is a residual, not unprivileged IDOR.'
+tags: []
+variables:
+    - demo_execution_started
+    - demo_execution_reaches_terminal
+    - named_demo_exists
+    - execution_name_prefixed
+    - terminal_status_is_recognized
+    - start_execution_called
+    - execution_arn_returned
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:44:50.730673093Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+    review_history:
+        - reviewed_at: "2026-08-13T13:21:59.1875576Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: re-verified current SYS-REQ-001 link targets after meal_planner/movie_pitch remapped to SYS-REQ-003/004
+          source: proof trace review --citation
+          citations:
+            - functions/generic/merge_map_output/index.py
+            - specs/REQUIREMENTS.md:13
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - stacks/blog_post_stack.py:11
+            - stacks/most_popular_repo_bedrock_agent_stack.py
+            - stacks/most_popular_repo_strands_stack.py
+            - stacks/story_writer_stack.py
+            - stacks/trip_planner_stack.py
+            - stacks/webapp_stack.py
+            - test_cdk_stacks.py
+            - tests/test_bedrock_agent_lookup.py
+            - tests/test_github_repo.py
+            - tests/test_meal_choose_winner.py
+            - tests/test_merge_map_output.py
+            - tests/test_parse_json_response.py
+            - tests/test_pdf_creator.py
+            - tests/test_stepfn.py
+            - tests/test_util.py
+            - webapp/pages/1_Blog_Post.py
+            - webapp/pages/2_Story_Writer.py
+            - webapp/pages/3_Trip_Planner.py
+            - webapp/pages/4_Movie_Pitch.py
+            - webapp/pages/5_Meal_Planner.py
+            - webapp/pages/6_Most_Popular_Repo_(Bedrock_Agents).py
+            - webapp/pages/6_Most_Popular_Repo_(Strands).py
+            - webapp/stepfn.py
+        - reviewed_at: "2026-08-14T09:44:50.730673093Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - functions/generic/merge_map_output/index.py
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - stacks/blog_post_stack.py
+            - stacks/most_popular_repo_bedrock_agent_stack.py
+            - stacks/most_popular_repo_strands_stack.py
+            - stacks/story_writer_stack.py
+            - stacks/trip_planner_stack.py
+            - stacks/webapp_stack.py
+            - test_cdk_stacks.py
+            - tests/test_bedrock_agent_lookup.py
+            - tests/test_github_repo.py
+            - tests/test_meal_choose_winner.py
+            - tests/test_merge_map_output.py
+            - tests/test_parse_json_response.py
+            - tests/test_pdf_creator.py
+            - tests/test_stepfn.py
+            - tests/test_util.py
+            - webapp/pages/1_Blog_Post.py
+            - webapp/pages/2_Story_Writer.py
+            - webapp/pages/3_Trip_Planner.py
+            - webapp/pages/4_Movie_Pitch.py
+            - webapp/pages/5_Meal_Planner.py
+            - webapp/pages/6_Most_Popular_Repo_(Bedrock_Agents).py
+            - webapp/pages/6_Most_Popular_Repo_(Strands).py
+            - webapp/stepfn.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+    gaps_reviewed_at: "2026-08-13T10:05:49.654724985Z"
+    gaps_reviewed_by: agent:grok
+    gap_reviews:
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-001|demo_execution_reaches_terminal
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-001.demo_execution_reaches_terminal is the Step Functions terminal status (SUCCEEDED/FAILED/TIMED_OUT/ABORTED) observed by webapp/stepfn.py:is_execution_completed and get_workflow_status_icon, not a child FRETish output. INT-REQ-001 (specs/integration/requirements/INT-REQ-001.req.yaml) covers the Bedrock Messages invoke a running demo must complete; INT-REQ-002 (specs/integration/requirements/INT-REQ-002.req.yaml) covers StartExecution that begins the run. No extra child is required for the AWS execution-lifecycle terminal state.'
+          reviewed_at: "2026-08-13T10:05:49.654724985Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-001|cognito_auth_enforced
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-001.cognito_auth_enforced is WebappStack ALB AuthenticateCognitoAction. No child FRETish names that flag; INT-REQ-001/002 cover invoke and StartExecution, not ALB auth. Residual is documented in the parent rationale (compose has no Cognito).'
+          reviewed_at: "2026-08-14T12:30:00Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-001|compose_without_cognito
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-001.compose_without_cognito is local docker-compose ingress. Children INT-REQ-001/002 do not model compose; the parent rationale records that docker-compose has no Cognito.'
+          reviewed_at: "2026-08-14T12:30:00Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-001|max_input_chars
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-001.max_input_chars is the Streamlit text_input bound 1-4000. Children do not own the widget; webapp pages implement it. Spec bound that SHALL hold is parent-level.'
+          reviewed_at: "2026-08-14T12:30:00Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-001|shared_task_role_granted
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-001.shared_task_role_granted is the Fargate task role grant_start_execution/send_task_success/list_executions. INT-REQ-002 covers the StartExecution call, not the IAM grant. Residual is one shared role, not a missing child.'
+          reviewed_at: "2026-08-14T12:30:00Z"
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:34Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:50:25Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_suppressions:
+    - id: enforcement_identity_consistent
+      reason: The Fargate task role sharing start_execution, send_task_success, and list_executions is a residual called out in the rationale, not an IDOR guarantee. This requirement owns execution lifecycle, not per-session IAM binding.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:25Z"
+      framework_refs:
+        - CWE CWE-863,CWE-284
+        - NIST-800-53 AC-3,AC-6
+        - OWASP-ASVS-v4 V4.1.3,V4.2.1
+obligation_hazards:
+    - class: boundary
+      worst_case: An unbounded location, story, or ingredients string is sent into Bedrock prompts and can exhaust the execution.
+      severity: medium
+    - class: error_handling
+      worst_case: A failed StartExecution or poll error leaves the Streamlit user with no terminal status and a stuck spinner.
+      severity: medium
+    - class: nominal
+      worst_case: A started demo never reaches a recognized terminal status so the user never sees a result or typed error.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-14T10:50:25Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          suppressed:
+            - enforcement_identity_consistent
+          rationale: No domain auth class is owned. Shared Fargate task role is residual, not IDOR; enforcement_identity_consistent is suppressed.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T11:48:32Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=2; known_issue:KI-spec-mcdc-row-witnesses=none | known_issue:KI-webapp-shared-task-role-any-token=failing
+          changed_by: agent:auto-derive

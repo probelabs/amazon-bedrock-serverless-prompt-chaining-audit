@@ -1,0 +1,108 @@
+component: technique_stacks
+variables:
+    - name: technique_execution_requested
+      type: bool
+      direction: input
+      description: True when an operator requests a named technique execution.
+    - name: named_technique_exists
+      type: bool
+      direction: output
+      description: True when the named SFN or implemented Flows technique stack is constructed.
+    - name: technique_name_is_documented_sfn
+      type: bool
+      direction: input
+      description: True when the name is one of the nine documented SFN techniques.
+    - name: sfn_technique_stack_defined
+      type: bool
+      direction: output
+      description: True when technique_stacks.py constructs that SFN stack.
+    - name: sfn_stack_count
+      type: int
+      direction: output
+      description: Number of SFN technique stacks constructed by techniques_step_functions/technique_stacks.py. Must be >= 9.
+      range:
+        max: 20
+        min: 0
+    - name: flows_stack_count
+      type: int
+      direction: output
+      description: Number of implemented Flows technique stacks constructed by techniques_bedrock_flows/technique_stacks.py. Must be >= 6.
+      range:
+        max: 10
+        min: 0
+
+    - name: human_input_technique_defined
+      type: bool
+      direction: output
+      description: True when the documented HumanInput SFN technique stack is constructed.
+
+    - name: flows_technique_stack_defined
+      type: bool
+      direction: output
+      description: True when an implemented Flows technique stack is constructed.
+    - name: model_invocation_technique_defined
+      type: bool
+      direction: output
+      description: True when the documented ModelInvocation SFN technique stack is constructed.
+    - name: technique_name
+      type: enum
+      direction: input
+      description: Documented technique stack short name from techniques_step_functions/technique_stacks.py.
+domain:
+    tables:
+        - name: sfn_technique_catalog
+          source: techniques_step_functions/technique_stacks.py
+          inputs:
+            - name: technique_name
+              type: enum
+              values: [ModelInvocation, PromptTemplating, SequentialChain, ParallelChain, ConditionalChain, HumanInput, Map, AwsServiceInvocation, Validation]
+          output:
+            name: sfn_technique_stack_defined
+            type: bool
+          rows:
+            - technique_name: ModelInvocation
+              sfn_technique_stack_defined: true
+            - technique_name: PromptTemplating
+              sfn_technique_stack_defined: true
+            - technique_name: SequentialChain
+              sfn_technique_stack_defined: true
+            - technique_name: ParallelChain
+              sfn_technique_stack_defined: true
+            - technique_name: ConditionalChain
+              sfn_technique_stack_defined: true
+            - technique_name: HumanInput
+              sfn_technique_stack_defined: true
+            - technique_name: Map
+              sfn_technique_stack_defined: true
+            - technique_name: AwsServiceInvocation
+              sfn_technique_stack_defined: true
+            - technique_name: Validation
+              sfn_technique_stack_defined: true
+        - name: flows_technique_catalog
+          source: techniques_bedrock_flows/technique_stacks.py
+          inputs:
+            - name: technique_name
+              type: enum
+              values: [ModelInvocation, PromptTemplating, SequentialChain, ParallelChain, ConditionalChain, HumanInput, Map, AwsServiceInvocation, Validation]
+          output:
+            name: flows_technique_stack_defined
+            type: bool
+          rows:
+            - technique_name: ModelInvocation
+              flows_technique_stack_defined: true
+            - technique_name: PromptTemplating
+              flows_technique_stack_defined: true
+            - technique_name: SequentialChain
+              flows_technique_stack_defined: true
+            - technique_name: ParallelChain
+              flows_technique_stack_defined: true
+            - technique_name: ConditionalChain
+              flows_technique_stack_defined: true
+            - technique_name: HumanInput
+              flows_technique_stack_defined: false
+            - technique_name: Map
+              flows_technique_stack_defined: true
+            - technique_name: AwsServiceInvocation
+              flows_technique_stack_defined: false
+            - technique_name: Validation
+              flows_technique_stack_defined: false

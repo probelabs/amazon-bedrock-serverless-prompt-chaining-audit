@@ -1,0 +1,97 @@
+{
+  "documentType": "codex-security.scan-manifest",
+  "scan": {
+    "artifacts": [
+      {
+        "mediaType": "application/json",
+        "path": "findings.json",
+        "sha256": "c78e2a1c91ec0ca58a7c6f346cea468cefc1e934a6d41f2c903a64aad43e62e1"
+      },
+      {
+        "mediaType": "application/json",
+        "path": "coverage.json",
+        "sha256": "2cf26905f2d8f39336d5f900a23c28ba095c6498919cacfb7e6a6bd0cd82af4b"
+      },
+      {
+        "mediaType": "application/octet-stream",
+        "path": "artifacts/02_discovery/candidate_ledger.jsonl",
+        "sha256": "7752d3d243018b596b8b4642785a50a0d81feb9d666a3a133be11761a06451f6"
+      }
+    ],
+    "completedAt": "2026-08-13T05:48:24.017903Z",
+    "coverageRef": "coverage.json",
+    "findingsRef": "findings.json",
+    "id": "2f573ce7-f9b5-4f17-a45c-bba7c5f59e5e",
+    "producer": {
+      "name": "codex-security-plugin",
+      "version": "0.1.14"
+    },
+    "scope": {
+      "artifactsReviewed": [
+        "artifacts/01_context/threat_model.md",
+        "artifacts/01_context/security_guidance.md",
+        "artifacts/02_discovery/in_scope_files.txt",
+        "artifacts/02_discovery/candidate_ledger.jsonl",
+        "artifacts/03_coverage/repository_coverage_ledger.md"
+      ],
+      "context": "Threat model generated during this scan; no repository SECURITY.md policy found.",
+      "excludePaths": [],
+      "includePaths": [
+        "."
+      ],
+      "limitations": [
+        "No live AWS deployment, Bedrock invocation, or WeasyPrint native runtime in this environment.",
+        "GitHub PAT scopes are operator-configured and not present in the repository.",
+        "PNG screenshots and binary assets were inventoried without pixel-level analysis."
+      ],
+      "runtimeStatus": "Static review with dependency source inspection and local Jinja SSTI probes; AWS runtime (Lambda/ECS) not executed in this host.",
+      "summary": "Repository-wide standard security scan of the Amazon Bedrock serverless prompt-chaining sample (Streamlit webapp, Step Functions/Bedrock Flows demos, Lambdas, CDK stacks, and optional CodePipeline).",
+      "validationMode": "compact standard-scan static validation with library-source confirmation and Jinja probe artifacts"
+    },
+    "sealedAt": "2026-08-13T05:48:24.017903Z",
+    "startedAt": "2026-08-13T05:37:30.360787Z",
+    "status": "completed",
+    "target": {
+      "displayName": "workspace",
+      "kind": "git_worktree",
+      "revision": "92098a6052a8dae63f3cf4becd066489704c7068",
+      "snapshotDigest": "codex-security-snapshot/v1:sha256:711374b23039d4108d030d214aa09c1799528d726c8449bf8afad28df36fd060",
+      "targetId": "target_sha256_9c826f8d9cc2afc996b79e2289250a22b530769679c01fccbc0c30eb7a86c6d4"
+    },
+    "threatModel": {
+      "assets": [
+        "AWS account privileges (especially CodeBuild deploy roles)",
+        "GitHub PAT in Secrets Manager",
+        "Cognito demo user access",
+        "User prompts and generated content",
+        "S3 itinerary PDFs and presigned URLs",
+        "Step Functions task tokens"
+      ],
+      "assumptions": [
+        "Demos are invite-only Cognito users when webapp stack is deployed as designed",
+        "Model outputs are untrusted when fed to tools and renderers",
+        "GitHub PAT scope is an operator choice the code should still constrain"
+      ],
+      "attackerCapabilities": [
+        "Authenticated Cognito demo user submitting free-text workflow inputs",
+        "Indirect influence via model outputs and scraped GitHub content",
+        "Pipeline source or CodeStar connection compromise for CI stages"
+      ],
+      "securityObjectives": [
+        "Prevent RCE/SSTI and SSRF from demo inputs",
+        "Constrain GitHub PAT tool use to intended public repositories",
+        "Keep deploy-time IAM least-privilege",
+        "Preserve Cognito gate on the demo UI"
+      ],
+      "summary": "AWS sample for serverless Bedrock prompt chaining with a Cognito-protected Streamlit UI, Step Functions/Lambda workflows, GitHub-PAT agent tools, S3 PDF generation, and an optional high-privilege CodePipeline. Primary risks are untrusted content reaching PDF/template renderers, over-broad agent tool access to GitHub with a PAT, and unrestricted CI deploy roles.",
+      "trustBoundaries": [
+        "Internet browser to ALB/Cognito to Streamlit ECS",
+        "Shared ECS task role to Step Functions APIs",
+        "Step Functions to Lambda/Bedrock/tools",
+        "Lambda to GitHub API, S3, and WeasyPrint fetches",
+        "CodePipeline/CodeBuild to AWS control plane"
+      ]
+    }
+  },
+  "schemaVersion": "1.0"
+}

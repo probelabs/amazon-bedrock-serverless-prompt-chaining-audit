@@ -1,0 +1,19 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SYS-REQ-006
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pipeline_deploy_iam.py::test_deploy_demo_app_role_has_no_star_star_policy -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T10:02:26Z"
+      input_set:
+        - pipeline/pipeline_stack.py
+        - tests/test_pipeline_deploy_iam.py
+        - KI-pipeline-deploy-demo-star-star
+      freshness_hashes:
+        pipeline/pipeline_stack.py: sha256:3b3c682e10807cba64a245e739b2f8204e4e0ca1d8ee6c97f02927544ccca5b9
+        tests/test_pipeline_deploy_iam.py: sha256:3fa2732fd0e315f1fdd6a6375b02d33326f45baeab6edd6d9bf7f324f6788f02
+      known_issues:
+        - KI-pipeline-deploy-demo-star-star

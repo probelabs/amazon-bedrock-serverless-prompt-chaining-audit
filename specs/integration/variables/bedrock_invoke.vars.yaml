@@ -1,0 +1,35 @@
+component: bedrock_invoke
+variables:
+    - name: invoke_requested
+      type: bool
+      direction: input
+      description: True when a chain requests Bedrock InvokeModel.
+    - name: messages_api_body_sent
+      type: bool
+      direction: output
+      description: True when the task payload uses the Messages API body.
+    - name: max_tokens_to_sample
+      type: int
+      direction: output
+      description: max_tokens field sent on the Messages API body. Default 250, always greater than 0.
+      range:
+        max: 4096
+        min: 1
+
+    - name: anthropic_version_is_bedrock
+      type: bool
+      direction: output
+      description: True when the Messages body sets anthropic_version to bedrock-2023-05-31.
+    - name: claude_model_id_set
+      type: bool
+      direction: output
+      description: True when the invoke task uses a non-empty Claude model or inference-profile id.
+
+    - name: content_type_is_json
+      type: bool
+      direction: output
+      description: True when the InvokeModel content type is application/json.
+    - name: anthropic_messages_role_user
+      type: bool
+      direction: output
+      description: True when the Messages body includes a user role turn.

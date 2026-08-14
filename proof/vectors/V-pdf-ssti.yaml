@@ -1,0 +1,20 @@
+id: V-pdf-ssti
+title: PDF creator unsandboxed Jinja SSTI and advertised shall-not
+description: Hunt the owned SYS-REQ-008/SW-REQ-007 Jinja shall-not against live md2pdf(..., raw=) and the leftover domain.mutex / MC/DC false-safety that marked the both-true row unreachable.
+priority: P0
+status: closed-ki
+related_roles:
+    - hazard-analysis
+related_obligation_classes:
+    - source_fragment_validated_before_composition
+    - silent_false_safety_reviewed
+stacks:
+    - python
+related_known_issues:
+    - KI-pdf-md2pdf-ssti
+close_note: 'Campaign confirms KI-pdf-md2pdf-ssti: pdf_creator interpolates untrusted location/itinerary into markdown and calls md2pdf(..., raw=). Domain mutex and defensive MC/DC ignore were dropped so the both-true row is a failing witness, not an advertised unreachable guarantee. No new product KI. SSRF remains KI-pdf-weasyprint-ssrf and is not claimed on these requirements.'
+campaign_log:
+    - at: "2026-08-14T10:51:00Z"
+      status: closed-ki
+      note: 'Campaign confirms KI-pdf-md2pdf-ssti: pdf_creator interpolates untrusted location/itinerary into markdown and calls md2pdf(..., raw=). Domain mutex and defensive MC/DC ignore were dropped so the both-true row is a failing witness, not an advertised unreachable guarantee. No new product KI. SSRF remains KI-pdf-weasyprint-ssrf and is not claimed on these requirements.'
+      actor: agent:grok

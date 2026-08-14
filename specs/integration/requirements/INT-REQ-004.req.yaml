@@ -1,0 +1,123 @@
+id: INT-REQ-004
+version: 1
+status: review
+priority: shall
+category: interface
+req_type: guarantee
+fretish: the github_http shall always satisfy (!trending_fetch_requested | trending_http_get_issued) & (status_code = 200 | trending_fetch_raises) & (!trending_fetch_requested | user_agent_header_set) & (requests_timeout_s >= 1) & (requests_timeout_s <= 30)
+description: A trending-page fetch shall issue HTTP GET to github.com/trending with a User-Agent header, a requests_timeout_s in 1-30, and a non-200 status_code shall raise.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-007
+component: github_http
+rationale: Both agent implementations scrape github.com/trending with requests.get and no timeout today (KI-github-trending-no-timeout). The spec bound that SHALL hold is requests_timeout_s in 1-30. README fetch uses the GitHub API and a PAT with no repo allowlist (SW-REQ-006, KI-github-*-pat-no-allowlist).
+tags: []
+variables:
+    - trending_fetch_requested
+    - trending_http_get_issued
+    - status_code
+    - trending_fetch_raises
+    - user_agent_header_set
+    - requests_timeout_s
+traces:
+    satisfies:
+        - SYS-REQ-007
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:18.476063007Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:5b501c537bf08c48b3ffbbf162d8bc7c64e175b35794b06cae65bba85ee51a20
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:24.696007763Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for INT-REQ-004.
+          source: proof trace review --citation
+          citations:
+            - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-007.req.yaml
+            - tests/test_github_repo.py
+    components:
+        - github_repo_lookup
+        - github_http
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:14:15Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:50:24Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+    - request_timeout_bounded
+obligation_hazards:
+    - class: boundary
+      worst_case: requests.get with no timeout hangs the trending fetch until the Lambda times out.
+      severity: medium
+    - class: error_handling
+      worst_case: A non-200 github.com/trending response is treated as success and the scrape continues on error HTML.
+      severity: medium
+    - class: nominal
+      worst_case: The trending GET is never issued so the agent has no repository list to rank.
+      severity: low
+    - class: request_timeout_bounded
+      worst_case: Interface GET to github.com/trending issues requests.get with no timeout so a hung origin blocks the trending fetch (KI-github-trending-no-timeout).
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-14T10:50:24Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          applied:
+            - request_timeout_bounded
+          rationale: INT-REQ-004 FRETish owns requests_timeout_s in 1-30 on the trending HTTP GET. That is request_timeout_bounded; code currently has no timeout (KI-github-trending-no-timeout).
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+interface:
+    caller: github_repo_lookup
+    callee: github_http
+    type: api_call
+    signature: GET https://github.com/trending -> html
+    producer: github_http
+    consumer:
+        - github_repo_lookup
+    owner: team:sample
+    version: 1.0.0
+    compatibility_policy: breaking-allowed-with-migration
+    risk_tier: 2
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=4; known_issue:KI-github-bedrock-readme-pat-no-allowlist=failing | known_issue:KI-github-strands-readme-pat-no-allowlist=failing | known_issue:KI-obligation-evidence-gaps=none | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

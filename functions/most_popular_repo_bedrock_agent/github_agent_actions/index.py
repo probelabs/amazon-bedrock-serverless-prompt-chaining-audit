@@ -11,6 +11,7 @@ github_token_secret_name = os.environ.get("GITHUB_TOKEN_SECRET")
 
 
 # Return the contents of the GitHub trending repositories page
+# Implements: INT-REQ-004
 def get_github_trending_page_agent_action():
     get_response = requests.get(
         "https://github.com/trending", headers={"User-Agent": "Mozilla/5.0"}
@@ -61,6 +62,7 @@ def get_github_repository_readme_agent_action(input):
         return f"Could not find a README for the repository {input}. It may not exist in the repository."
 
 
+# Implements: SW-REQ-006
 def handler(event, context):
     print(event)
 

@@ -1,0 +1,131 @@
+{
+  "completeness": "complete",
+  "deferred": [],
+  "documentType": "codex-security.coverage",
+  "excludePaths": [],
+  "explicitExclusions": [
+    {
+      "pattern": "**/.git/**",
+      "reason": "VCS metadata excluded from review inventory tooling"
+    },
+    {
+      "pattern": "**/__pycache__/**",
+      "reason": "Bytecode cache not security source"
+    }
+  ],
+  "includePaths": [
+    "."
+  ],
+  "inventoryStrategy": "repository",
+  "mode": "repository",
+  "openQuestions": [
+    {
+      "question": "What scopes does the operator-provisioned BedrockPromptChainGitHubToken PAT actually have in real deployments?"
+    },
+    {
+      "question": "Is the optional pipeline stack deployed in the environments that matter for this sample?"
+    }
+  ],
+  "scanId": "2f573ce7-f9b5-4f17-a45c-bba7c5f59e5e",
+  "schemaVersion": "1.0",
+  "surfaces": [
+    {
+      "disposition": "reported",
+      "id": "surface_trip_planner_pdf",
+      "label": "Trip planner PDF generation",
+      "notes": "md2pdf Jinja SSTI and WeasyPrint URL fetch",
+      "receiptRefs": [
+        "artifacts/02_discovery/candidate_ledger.jsonl"
+      ],
+      "riskArea": "SSTI/SSRF"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface_github_agent_tools",
+      "label": "GitHub agent README tools",
+      "notes": "Bedrock actions and Strands tool unrestricted PAT use",
+      "receiptRefs": [
+        "artifacts/02_discovery/candidate_ledger.jsonl"
+      ],
+      "riskArea": "Authorization/secrets"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface_pipeline_deploy_iam",
+      "label": "CodePipeline deploy IAM",
+      "notes": "DeployExamples and DeployDemoApp star-star policies",
+      "receiptRefs": [
+        "artifacts/02_discovery/candidate_ledger.jsonl"
+      ],
+      "riskArea": "Privilege escalation"
+    },
+    {
+      "disposition": "rejected",
+      "id": "surface_webapp_cognito",
+      "label": "Streamlit Cognito auth",
+      "notes": "Weak password complexity suppressed; invite-only pool",
+      "receiptRefs": [
+        "artifacts/02_discovery/candidate_ledger.jsonl"
+      ],
+      "riskArea": "Authentication"
+    },
+    {
+      "disposition": "rejected",
+      "id": "surface_task_tokens",
+      "label": "Shared ECS task role / task tokens",
+      "notes": "No direct user IDOR; needs prior compromise",
+      "receiptRefs": [
+        "artifacts/02_discovery/candidate_ledger.jsonl"
+      ],
+      "riskArea": "Confused deputy"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface_json_parser",
+      "label": "JSON response parse/repair",
+      "notes": "Developer-fixed schemas; bounded repair loop",
+      "receiptRefs": [],
+      "riskArea": "Injection"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface_prompt_demos",
+      "label": "Other prompt-chaining demos",
+      "notes": "Residual LLM integrity/cost without additional high-impact sinks",
+      "receiptRefs": [],
+      "riskArea": "Prompt injection"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface_technique_stacks",
+      "label": "Technique SFN/Flows samples",
+      "notes": "Educational stacks reviewed for dangerous sinks",
+      "receiptRefs": [],
+      "riskArea": "Demo orchestration"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface_secrets_source",
+      "label": "Source secret scanning",
+      "notes": "No hardcoded cloud credentials found",
+      "receiptRefs": [],
+      "riskArea": "Secrets"
+    },
+    {
+      "disposition": "not_applicable",
+      "id": "surface_local_compose",
+      "label": "docker-compose local AWS mount",
+      "notes": "Developer workstation trust model",
+      "receiptRefs": [],
+      "riskArea": "Local development"
+    },
+    {
+      "disposition": "not_applicable",
+      "id": "surface_docs_proof",
+      "label": "Docs/specs/proof/tests",
+      "notes": "Inventoried; not live privileged surfaces",
+      "receiptRefs": [],
+      "riskArea": "Non-runtime"
+    }
+  ]
+}

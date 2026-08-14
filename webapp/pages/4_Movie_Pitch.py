@@ -19,6 +19,7 @@ if "previous_movie_pitches" not in st.session_state:
     st.session_state.previous_movie_pitches = []
 
 
+# Implements: SYS-REQ-001
 def display_state_machine_status(status_markdown):
     if execution_status_container:
         execution_status_container.empty()
@@ -27,6 +28,7 @@ def display_state_machine_status(status_markdown):
             st.markdown(status_markdown)
 
 
+# Implements: SYS-REQ-001
 def display_no_state_machine_status():
     if execution_status_container:
         execution_status_container.empty()
@@ -35,6 +37,7 @@ def display_no_state_machine_status():
             st.write("Not started yet.")
 
 
+# Implements: SYS-REQ-001
 def execute_state_machine(movie_description):
     input = {"movie_description": movie_description}
     execution_arn = stepfn.start_execution(
@@ -48,6 +51,7 @@ def execute_state_machine(movie_description):
     )
 
 
+# Implements: SYS-REQ-001
 def continue_state_machine(task_result):
     stepfn.continue_execution(
         st.session_state.movie_pitch_task_token, {"Payload": task_result}
@@ -58,6 +62,7 @@ def continue_state_machine(task_result):
     )
 
 
+# Implements: SYS-REQ-001
 def handle_stepfn_response(response):
     if response["status"] == "SUCCEEDED":
         output = json.loads(response["output"])

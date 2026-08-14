@@ -14,6 +14,7 @@ from stacks.validation_chain import ValidationChain
 import os
 
 
+# Implements: SW-REQ-009
 app = App()
 env = Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-west-2")
 ModelInvocation(

@@ -12,7 +12,9 @@ from constructs import Construct
 from .util import get_bedrock_iam_policy_statement, get_lambda_bundling_options
 
 
+# Implements: SYS-REQ-001
 class MostPopularRepoStrandsStack(Stack):
+    # Implements: SYS-REQ-001
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 

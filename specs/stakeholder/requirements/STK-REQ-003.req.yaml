@@ -1,0 +1,111 @@
+id: STK-REQ-003
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: ""
+description: The technique operator shall execute an isolated prompt-chaining technique example.
+formalization_strategy: informal
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+component: technique_operator
+rationale: The repository teaches chaining patterns with separate Step Functions and Bedrock Flows technique stacks.
+tags: []
+variables: []
+traces:
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:18.6186269Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:62939ee7159c78ba0867d41f2938f476f4829e22c14ca41cafe8357fb2b14943
+    review_history:
+        - reviewed_at: "2026-08-12T20:34:46.029671888Z"
+          reviewed_by: agent:grok
+          method: inspection
+          rationale: Citation-backed review of STK-REQ-003.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+verification:
+    assurance_level: E
+    formalization_status: none
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:00Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T09:24:07Z"
+obligation_checklist:
+    - nominal
+    - error_handling
+    - boundary
+obligation_hazards:
+    - class: boundary
+      worst_case: HumanInput is missing from the SFN catalog or stack counts fall below 9 and 6 so a documented pattern cannot be executed.
+      severity: medium
+    - class: error_handling
+      worst_case: The live alias is missing but the system still invokes the flow, so a failed technique looks successful.
+      severity: medium
+    - class: nominal
+      worst_case: A documented technique name has no stack so the operator cannot run that isolated example.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-12T20:25:41Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+acceptance_review:
+    reviewed_at: "2026-08-14T11:02:12Z"
+    reviewed_by: agent:ac-sweep
+    disposition: reviewed
+    templates_applied:
+        - AC-EMPTY
+    notes: 'Operator starts 9 SFN + 6 Flows via live. Missing live alias fails closed. Dual-surface n/a: live is a routing name. SYS-REQ-011 IAM star-star is assumption+KIs, not a passing success AC. INT Messages body is not user-visible.'
+stakeholder:
+    persona: Technique operator
+    story: An operator deploys a technique stack and starts the named technique execution to observe one chaining pattern.
+    acceptance_criteria:
+        - id: AC-001
+          text: The operator starts one documented SFN technique. The nine names are ModelInvocation, PromptTemplating, SequentialChain, ParallelChain, ConditionalChain, HumanInput, Map, AwsServiceInvocation, and Validation. The system starts the Techniques-<name> state machine. The operator sees a completed execution status.
+          verification_method: test
+          derived_reqs:
+            - SYS-REQ-006
+            - SYS-REQ-011
+        - id: AC-002
+          text: The operator starts one documented Flows technique. The six names are ModelInvocation, PromptTemplating, SequentialChain, ParallelChain, ConditionalChain, and Map. The system invokes the Flows-<name> flow through the live alias. The operator sees completion reason SUCCESS.
+          verification_method: test
+          derived_reqs:
+            - SYS-REQ-006
+        - id: AC-003
+          text: The operator starts a named Flows technique. The live alias is missing. The system does not invoke the flow. The system raises an error for the missing live alias.
+          verification_method: test
+          derived_reqs:
+            - SYS-REQ-006
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

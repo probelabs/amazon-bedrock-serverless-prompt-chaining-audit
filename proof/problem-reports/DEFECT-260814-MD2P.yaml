@@ -1,0 +1,88 @@
+schema_version: 1
+id: DEFECT-260814-MD2P
+title: Trip planner PDF path evaluates untrusted markdown as Jinja2 (SSTI)
+description: |
+  functions/trip_planner/pdf_creator/index.py interpolates event["location"] and
+  event["itinerary"] into a markdown f-string and passes it to md2pdf(..., raw=).
+  md2pdf always runs unsandboxed jinja2.Template(raw).render(). An authenticated
+  demo user can inject {{7*7}} (or worse) via the Trip Planner location field and
+  achieve code execution inside the PDF Lambda.
+  First written at 92f2d3d (agents/trip_planner/pdf_creator, md_content=).
+  08848a5 switched the call to raw= to follow an md2pdf API break; that is the
+  current Jinja path. The class is untrusted interpolation into the renderer,
+  present since first write — not a previously-correct regression.
+  Live failure mode: KI-pdf-md2pdf-ssti. Sibling renderer class: KI-pdf-weasyprint-ssrf.
+introduced_in: 92f2d3d53ac473af78ab8fc551cea77fa6342682
+source:
+    type: audit_finding
+    repo: amazon-bedrock-serverless-prompt-chaining
+    commit: 08848a57ff5166632edfb43ad1a7578709056d9e
+    reference: proof/known-issues/KI-pdf-md2pdf-ssti.yaml
+    date: "2026-08-13"
+classification:
+    surface: security_behavior
+    defect_class: untrusted_renderer
+    severity: high
+    security_relevant: true
+root_cause:
+    missing_requirement: true
+    missing_test_partition: true
+    missing_mcdc_variable: false
+    notes: |
+      SW-REQ-007 / SYS-REQ-008 / INT-REQ-006 specify upload, ContentType, unlink,
+      and expires_in 60-900. They do not constrain the renderer to data-only
+      (no Jinja, no URL fetch). The original product tests never asserted that
+      location/itinerary stay uninterpreted. Codex finding-3 plus the library
+      probe (builtins_open_exposed: True) made the class visible.
+impact_analysis:
+    affected_requirements:
+        - SW-REQ-007
+        - SYS-REQ-008
+        - INT-REQ-006
+    affected_code:
+        - functions/trip_planner/pdf_creator/index.py
+        - webapp/pages/3_Trip_Planner.py
+    affected_evidence:
+        - proof/known-issues/KI-pdf-md2pdf-ssti.yaml
+        - proof/evidence/KI-pdf-md2pdf-ssti.yaml
+        - proof/evidence/codex-security-CPeyWd/report.md
+        - proof/evidence/codex-security-CPeyWd/artifacts/02_discovery/validation_artifacts/candidate-8f0e6e3f7eec765a/jinja_ssti_probe.txt
+disposition:
+    status: covered_by_known_issue
+    known_issues:
+        - KI-pdf-md2pdf-ssti
+    rationale: |
+      The SSTI path is still live in shipped code. The DEFECT is the historical
+      provenance record; the live failure mode is KI-pdf-md2pdf-ssti
+      (ship_with_known_issue, reviewed). Do not claim covered_by_requirement —
+      the specs still model expires_in, not data-only rendering.
+    reviewer: agent:grok
+    reviewed_at: "2026-08-14T08:27:00Z"
+hardening:
+    added_obligations:
+        - requirement: SW-REQ-007
+          obligation_class: malformed_input
+    strengthened_requirements:
+        - SYS-REQ-008
+        - SW-REQ-007
+    regression_tests:
+        - tests/test_pdf_creator.py
+    proposed_classes:
+        - untrusted_input_bounded
+    sibling_sweep:
+        scope:
+            - functions/trip_planner/pdf_creator/index.py
+            - functions/**/*.py
+        checked_at: "2026-08-14"
+        reviewer: agent:grok
+        result: "found: KI-pdf-weasyprint-ssrf (same untrusted markdown into WeasyPrint URL fetcher)"
+        found:
+            - KI-pdf-weasyprint-ssrf
+history:
+    - at: "2026-08-14T06:26:27Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T08:27:00Z"
+      by: agent:grok
+      action: disposition
+      detail: covered_by_known_issue KI-pdf-md2pdf-ssti

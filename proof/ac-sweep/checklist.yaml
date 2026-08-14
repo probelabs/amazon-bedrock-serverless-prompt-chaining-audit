@@ -1,0 +1,19 @@
+version: 1
+updated_at: "2026-08-14T11:02:12Z"
+updated_by: agent:ac-sweep
+items:
+  - id: STK-REQ-001
+    status: done
+    acceptance_review: true
+    ac_count: 5
+    notes: "Named-demo result, MoviePitch pause, fail-closed error, status/payload dual-eq, Story/Meal story+recipe keys. SYS-REQ-009 no user surface. Parser name/description/score not projected. SSTI not a passing AC."
+  - id: STK-REQ-002
+    status: done
+    acceptance_review: true
+    ac_count: 2
+    notes: "Operator-observable fail to SNS/composite; AC-DUAL-EQ threshold vs alarm_name. STE100 rewrite."
+  - id: STK-REQ-003
+    status: done
+    acceptance_review: true
+    ac_count: 3
+    notes: "Start 9 SFN, start 6 Flows via live, missing live alias fail-closed. IAM star-star not a passing AC. INT Messages body not user-visible."

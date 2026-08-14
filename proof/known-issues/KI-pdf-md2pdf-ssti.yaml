@@ -1,0 +1,76 @@
+id: KI-pdf-md2pdf-ssti
+title: Trip planner PDF path evaluates attacker-controlled markdown as Jinja2 (SSTI)
+description: 'functions/trip_planner/pdf_creator/index.py:15-33 interpolates event["location"] and event["itinerary"] into a markdown f-string and passes it to md2pdf(..., raw=itinerary_content) at index.py:30-33. md2pdf always runs unsandboxed jinja2.Template(raw).render(). Entry: webapp/pages/3_Trip_Planner.py:72-81 location_text -> execute_state_machine (webapp/pages/3_Trip_Planner.py:38-44). Library probe: artifacts/02_discovery/validation_artifacts/candidate-8f0e6e3f7eec765a/jinja_ssti_probe.txt (probe1: visit to 49; builtins_open_exposed: True). Codex finding-3 (report.md#finding-3).'
+affected_requirements:
+    - SW-REQ-007
+    - SYS-REQ-008
+    - INT-REQ-006
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf -q
+evidence_manifests:
+    - proof/evidence/KI-pdf-md2pdf-ssti.yaml
+severity: high
+severity_basis: reproducer
+risk: security
+cve_surface: likely
+cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+affected_api: handler / md2pdf (functions/trip_planner/pdf_creator/index.py:15-33)
+attacker_input: Authenticated Cognito demo user location field and model-generated itinerary (e.g. location={{7*7}}) reaching pdf_creator.handler
+sanitizer: manual:ssti
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf -q
+tripwire_mutation: Stop passing untrusted location/itinerary through md2pdf(..., raw=); escape or reject Jinja before render.
+reproduction_steps:
+    - Read proof/evidence/codex-security-CPeyWd/report.md#finding-3 and functions/trip_planner/pdf_creator/index.py:15-33.
+    - 'Read the library probe proof/evidence/codex-security-CPeyWd/artifacts/02_discovery/validation_artifacts/candidate-8f0e6e3f7eec765a/jinja_ssti_probe.txt (probe1: visit to 49; builtins_open_exposed: True).'
+    - Run python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf -q
+    - 'The Reproduces test calls handler({location: ''{{7*7}}'', itinerary: ''x''}) with md2pdf mocked and asserts the Jinja marker is escaped or rejected. It fails (xfail) because raw still contains unevaluated {{7*7}}.'
+environment_note: No live AWS deployment, Bedrock invocation, or WeasyPrint native runtime in this host. Unit Reproduces tests assert the correct control and xfail while the defect remains.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not feed untrusted location/itinerary into the trip planner PDF path until the renderer is data-only. No live AWS in this environment.
+remediation: Do not pass untrusted content through Jinja. Prefer a markdown-to-PDF path that disables template rendering, or escape/sandbox untrusted strings before any template engine; treat location and itinerary as data only.
+dedup_armor: >
+    Distinct from the pipeline star-star KIs: this is a Jinja2 SSTI sink in
+    pdf_creator.handler/md2pdf, not an IAM PolicyStatement. Distinct from
+    KI-pdf-weasyprint-ssrf (same file, different sink: template render vs URL
+    fetch). Merging would collapse RCE and SSRF into one ticket.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - evidence path proof/evidence/codex-security-CPeyWd/report.md#finding-3
+customer_impact: An authenticated demo user can achieve server-side template injection and code execution inside the PDF Lambda.
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-13T15:18:18Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-13T15:18:35Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-13T15:18:35Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T15:20:22Z"
+      by: agent:grok
+      action: edit
+      detail: set-risk,add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: true
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). The bound test calls the handler/tool entry with attacker-shaped input. Current published aws-samples tree still contains the defect.

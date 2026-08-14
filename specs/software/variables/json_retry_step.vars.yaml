@@ -1,0 +1,48 @@
+component: json_retry_step
+variables:
+    - name: chain_fails
+      type: bool
+      direction: output
+      description: True when the retry step transitions to Fail.
+    - name: parse_error_count
+      type: int
+      direction: input
+      description: Count of TASKS_FAILED parse catches. The chain Fails when this value is >= 3.
+      range:
+        max: 10
+        min: 0
+    - name: parse_failed
+      type: bool
+      direction: input
+      description: True when the parser Lambda reports TASKS_FAILED.
+    - name: error_counter_incremented
+      type: bool
+      direction: output
+      description: True when parse_error_count is incremented after a parse failure.
+    - name: retry_choice_taken
+      type: bool
+      direction: input
+      description: True when the parse-error Choice routes below the retry limit.
+    - name: fix_json_prompted
+      type: bool
+      direction: output
+      description: True when the retry path re-prompts the model to fix JSON.
+    - name: retry_limit_is_three
+      type: bool
+      direction: output
+      description: True when the Choice compares parse_error_count against 3.
+    - name: schema_provided
+      type: bool
+      direction: input
+      description: True when the parser step is given a json_schema.
+    - name: parser_rejects_or_retries
+      type: bool
+      direction: output
+      description: True when the retry step re-prompts or fails the chain.
+    - name: parse_error_increment
+      type: int
+      direction: output
+      description: Amount added to parse_error_count on each TASKS_FAILED catch. The step adds 1.
+      range:
+        max: 1
+        min: 1

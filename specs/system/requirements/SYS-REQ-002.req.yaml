@@ -1,0 +1,130 @@
+id: SYS-REQ-002
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the json_validation shall always satisfy (!model_output_fails_schema | parser_rejects_or_retries) & (parse_error_count < 3 | parser_rejects_or_retries) & (!schema_provided | retry_limit_is_three) & (!model_output_fails_schema | invalid_payload_rejected) & parser_lambda_invoked
+description: Invalid model JSON shall be rejected or retried. When parse_error_count is 3 or greater, the chain shall fail. When a schema is provided the retry Choice shall compare against 3.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: json_validation
+rationale: 'StoryWriter and MealPlanner and the Validation technique depend on structured JSON. Unchecked model text must not continue the chain. Satisfying children: INT-REQ-003 SW-REQ-001 SW-REQ-002.'
+tags: []
+variables:
+    - model_output_fails_schema
+    - parse_error_count
+    - parser_rejects_or_retries
+    - schema_provided
+    - retry_limit_is_three
+    - parser_lambda_invoked
+    - invalid_payload_rejected
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:30:27.039890479Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:9515a44f40e03f4eecd4e475f7cec8b313e20f10cda738b92d9c54c86dc4dbd1
+    review_history:
+        - reviewed_at: "2026-08-14T09:30:27.039890479Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: manual trace review via proof trace review
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - techniques_step_functions/functions/parse_json_response/index.py
+            - tests/test_parse_json_response.py
+            - tests/test_util.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+    gaps_reviewed_at: "2026-08-14T09:40:52.039891069Z"
+    gaps_reviewed_by: agent:grok
+    gap_reviews:
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-002|invalid_payload_rejected
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-002 names parser_rejects_or_retries for the CDK retry-or-Fail Choice. Child SW-REQ-001 is the Lambda raise; SW-REQ-002 is the parse_error_count < 3 Fail bound; INT-REQ-003 is the parser event contract. No extra child is required for the parent retry-or-reject identifier.'
+          reviewed_at: "2026-08-14T09:40:52.039891069Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-002|model_output_fails_schema
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-002 names parser_rejects_or_retries for the CDK retry-or-Fail Choice. Child SW-REQ-001 is the Lambda raise; SW-REQ-002 is the parse_error_count < 3 Fail bound; INT-REQ-003 is the parser event contract. No extra child is required for the parent retry-or-reject identifier.'
+          reviewed_at: "2026-08-14T09:40:52.039891069Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-002|parser_lambda_invoked
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-002 names parser_rejects_or_retries for the CDK retry-or-Fail Choice. Child SW-REQ-001 is the Lambda raise; SW-REQ-002 is the parse_error_count < 3 Fail bound; INT-REQ-003 is the parser event contract. No extra child is required for the parent retry-or-reject identifier.'
+          reviewed_at: "2026-08-14T09:40:52.039891069Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-002|parser_rejects_or_retries
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-002 names parser_rejects_or_retries for the CDK retry-or-Fail Choice. Child SW-REQ-001 is the Lambda raise; SW-REQ-002 is the parse_error_count < 3 Fail bound; INT-REQ-003 is the parser event contract. No extra child is required for the parent retry-or-reject identifier.'
+          reviewed_at: "2026-08-14T09:40:52.039891069Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-002|schema_provided
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-002 names parser_rejects_or_retries for the CDK retry-or-Fail Choice. Child SW-REQ-001 is the Lambda raise; SW-REQ-002 is the parse_error_count < 3 Fail bound; INT-REQ-003 is the parser event contract. No extra child is required for the parent retry-or-reject identifier.'
+          reviewed_at: "2026-08-14T09:40:52.039891069Z"
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:34Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:32:52Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - malformed_input
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: parse_error_count is not less than 3 but the chain continues, so invalid JSON is retried without bound.
+      severity: medium
+    - class: error_handling
+      worst_case: Invalid model JSON is neither rejected nor retried, so unstructured text continues into later states.
+      severity: medium
+    - class: malformed_input
+      worst_case: A schema-mismatched payload is accepted so later states treat invalid fields as structured data.
+      severity: medium
+    - class: nominal
+      worst_case: The parser Lambda is never invoked so model text bypasses schema validation.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:42Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

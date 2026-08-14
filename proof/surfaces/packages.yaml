@@ -1,0 +1,18 @@
+functions:
+  path_prefixes:
+    - functions/
+webapp:
+  path_prefixes:
+    - webapp/
+stacks:
+  path_prefixes:
+    - stacks/
+techniques_step_functions:
+  path_prefixes:
+    - techniques_step_functions/
+techniques_bedrock_flows:
+  path_prefixes:
+    - techniques_bedrock_flows/
+pipeline:
+  path_prefixes:
+    - pipeline/

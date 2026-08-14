@@ -1,0 +1,22 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SW-REQ-006
+        - SYS-REQ-007
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_trending_gets_pass_bounded_timeout -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T12:59:00Z"
+      input_set:
+        - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+        - functions/most_popular_repo_strands/index.py
+        - tests/test_github_repo.py
+        - KI-github-trending-no-timeout
+      freshness_hashes:
+        functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py: sha256:fe00c734aa30d1d503d701552d9ff9e1257936812332a7887dd358a1f1d94c55
+        functions/most_popular_repo_strands/index.py: sha256:20dae3ee6a74c3e5882f4d925bbd9a33a8ecab6f7d01a5734fef03b048931e61
+        tests/test_github_repo.py: sha256:5324319c465b6c1f0142665ae20c19b26a743fa2cfef7a6fc8a2b89a8a598a3b
+      known_issues:
+        - KI-github-trending-no-timeout

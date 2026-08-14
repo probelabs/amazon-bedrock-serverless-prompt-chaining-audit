@@ -1,0 +1,9 @@
+id: REVIEW-8
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-008
+decision: approved
+comment: FRETish !failed_execution_metric_present | composite_alarm_defined matches AlarmsStack creating per-demo metric_failed alarms and a composite SNS alarm.
+citations:
+    - stacks/alarms_stack.py:12@AlarmsStack

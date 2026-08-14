@@ -1,0 +1,73 @@
+component: sfn_api
+variables:
+    - name: start_requested
+      type: bool
+      direction: input
+      description: True when the webapp starts a demo.
+    - name: start_execution_called
+      type: bool
+      direction: output
+      description: True when StartExecution is called.
+    - name: execution_arn_returned
+      type: bool
+      direction: output
+      description: True when StartExecution returns an executionArn.
+
+    - name: demo_execution_reaches_terminal
+      type: bool
+      direction: output
+      description: True when a started demo execution is observed in a terminal SFN status.
+    - name: execution_name_prefixed
+      type: bool
+      direction: output
+      description: True when the StartExecution name uses the streamlit-<session>- prefix.
+
+    - name: named_demo_exists
+      type: bool
+      direction: output
+      description: True when StartExecution targets a PromptChainDemo state machine.
+    - name: terminal_status_is_recognized
+      type: bool
+      direction: output
+      description: True when the client treats SUCCEEDED/FAILED/TIMED_OUT/ABORTED as completed.
+    - name: execution_name_suffix_len
+      type: int
+      direction: output
+      description: Hex characters appended after streamlit-<session>-. get_execution_name uses uuid4[-12:], so this value is 12.
+      range:
+        max: 12
+        min: 12
+    - name: execution_arn_includes_account
+      type: bool
+      direction: output
+      description: True when get_state_machine_arn / get_execution_arn embed the STS caller account id.
+    - name: demo_name
+      type: enum
+      direction: input
+      description: PromptChainDemo suffix passed to StartExecution via webapp pages.
+domain:
+    tables:
+        - name: demo_catalog
+          source: webapp/pages PromptChainDemo-* StartExecution targets
+          inputs:
+            - name: demo_name
+              type: enum
+              values: [BlogPost, TripPlanner, StoryWriter, MoviePitch, MealPlanner, MostPopularRepoBedrockAgents, MostPopularRepoStrands]
+          output:
+            name: named_demo_exists
+            type: bool
+          rows:
+            - demo_name: BlogPost
+              named_demo_exists: true
+            - demo_name: TripPlanner
+              named_demo_exists: true
+            - demo_name: StoryWriter
+              named_demo_exists: true
+            - demo_name: MoviePitch
+              named_demo_exists: true
+            - demo_name: MealPlanner
+              named_demo_exists: true
+            - demo_name: MostPopularRepoBedrockAgents
+              named_demo_exists: true
+            - demo_name: MostPopularRepoStrands
+              named_demo_exists: true

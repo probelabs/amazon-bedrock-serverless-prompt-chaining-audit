@@ -1,0 +1,110 @@
+component: alarms_stack
+variables:
+    - name: failed_execution_metric_present
+      type: bool
+      direction: input
+      description: True when a demo state machine exposes metric_failed.
+    - name: composite_alarm_defined
+      type: bool
+      direction: output
+      description: True when the stack defines the composite alarm and SNS target.
+    - name: alarm_threshold
+      type: int
+      direction: output
+      description: CloudWatch Alarm threshold for metric_failed SUM. AlarmsStack sets this to 1.
+      range:
+        max: 1
+        min: 1
+
+    - name: demo_alarm_count
+      type: int
+      direction: output
+      description: Number of per-demo metric_failed alarms defined by AlarmsStack. The stack defines 7.
+      range:
+        max: 20
+        min: 0
+    - name: sns_topic_defined
+      type: bool
+      direction: output
+      description: True when AlarmsStack defines the bedrock-serverless-prompt-chaining-notifications topic.
+
+    - name: topic_name_is_notifications
+      type: bool
+      direction: output
+      description: True when the SNS topic name is bedrock-serverless-prompt-chaining-notifications.
+    - name: alarm_action_is_sns
+      type: bool
+      direction: output
+      description: True when the composite alarm action is SnsAction.
+    - name: evaluation_periods
+      type: int
+      direction: output
+      description: CloudWatch Alarm evaluation_periods. AlarmsStack sets this to 1.
+      range:
+        max: 1
+        min: 1
+    - name: demo_workflow_failed
+      type: bool
+      direction: input
+      description: True when a PromptChainDemo state machine records a failed execution.
+    - name: stack_family
+      type: enum
+      direction: input
+      description: Deployed stack family. demo is PromptChainDemo. technique is Techniques- or Flows-.
+    - name: alarm_metric
+      type: enum
+      direction: input
+      description: CloudWatch metric AlarmsStack can watch. Code uses metric_failed (ExecutionsFailed SUM) only.
+    - name: demo_name
+      type: enum
+      direction: input
+      description: PromptChainDemo suffix AlarmsStack watches. The stack iterates seven names.
+    - name: demo_metric_failed_alarmed
+      type: bool
+      direction: output
+      description: True when stack_family is demo so ExecutionsFailed is alarmed. Technique stacks have no alarm.
+domain:
+    tables:
+        - name: stack_family_alarm_metric
+          source: stacks/alarms_stack.py watches PromptChainDemo metric_failed only
+          inputs:
+            - name: stack_family
+              type: enum
+              values: [demo, technique]
+            - name: alarm_metric
+              type: enum
+              values: [executions_failed]
+          output:
+            name: demo_metric_failed_alarmed
+            type: bool
+          rows:
+            - stack_family: demo
+              alarm_metric: executions_failed
+              demo_metric_failed_alarmed: true
+            - stack_family: technique
+              alarm_metric: executions_failed
+              demo_metric_failed_alarmed: false
+        - name: demo_alarm_catalog
+          source: stacks/alarms_stack.py name_suffix list
+          inputs:
+            - name: demo_name
+              type: enum
+              values: [BlogPost, TripPlanner, StoryWriter, MoviePitch, MealPlanner, MostPopularRepoBedrockAgents, MostPopularRepoStrands]
+          output:
+            name: demo_metric_failed_alarmed
+            type: bool
+          rows:
+            - demo_name: BlogPost
+              demo_metric_failed_alarmed: true
+            - demo_name: TripPlanner
+              demo_metric_failed_alarmed: true
+            - demo_name: StoryWriter
+              demo_metric_failed_alarmed: true
+            - demo_name: MoviePitch
+              demo_metric_failed_alarmed: true
+            - demo_name: MealPlanner
+              demo_metric_failed_alarmed: true
+            - demo_name: MostPopularRepoBedrockAgents
+              demo_metric_failed_alarmed: true
+            - demo_name: MostPopularRepoStrands
+              demo_metric_failed_alarmed: true

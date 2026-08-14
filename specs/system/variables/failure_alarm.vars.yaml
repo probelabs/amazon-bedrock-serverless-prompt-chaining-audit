@@ -1,0 +1,68 @@
+component: failure_alarm
+variables:
+    - name: demo_workflow_failed
+      type: bool
+      direction: input
+      description: True when a PromptChainDemo state machine records a failed execution.
+    - name: alarm_notification_published
+      type: bool
+      direction: output
+      description: True when SNS receives the composite alarm notification.
+    - name: failed_count
+      type: int
+      direction: input
+      description: Count of PromptChainDemo ExecutionsFailed samples in the alarm period. Notification is required when this value is not < 1.
+      range:
+        max: 100000
+        min: 0
+
+    - name: composite_alarm_defined
+      type: bool
+      direction: output
+      description: True when the failure-alarm stack defines the composite alarm.
+    - name: sns_topic_defined
+      type: bool
+      direction: output
+      description: True when the notifications SNS topic is defined as the alarm action.
+
+    - name: failed_execution_metric_present
+      type: bool
+      direction: input
+      description: True when a demo state machine exposes metric_failed.
+    - name: alarm_action_is_sns
+      type: bool
+      direction: output
+      description: True when the composite alarm action is SnsAction.
+    - name: stack_family
+      type: enum
+      direction: input
+      description: Deployed stack family. demo is PromptChainDemo. technique is Techniques- or Flows-.
+    - name: alarm_metric
+      type: enum
+      direction: input
+      description: CloudWatch metric AlarmsStack can watch. Code uses metric_failed (ExecutionsFailed SUM) only.
+    - name: demo_metric_failed_alarmed
+      type: bool
+      direction: output
+      description: True when stack_family is demo so ExecutionsFailed is alarmed. Technique stacks have no alarm.
+domain:
+    tables:
+        - name: stack_family_alarm_metric
+          source: stacks/alarms_stack.py watches PromptChainDemo metric_failed only
+          inputs:
+            - name: stack_family
+              type: enum
+              values: [demo, technique]
+            - name: alarm_metric
+              type: enum
+              values: [executions_failed]
+          output:
+            name: demo_metric_failed_alarmed
+            type: bool
+          rows:
+            - stack_family: demo
+              alarm_metric: executions_failed
+              demo_metric_failed_alarmed: true
+            - stack_family: technique
+              alarm_metric: executions_failed
+              demo_metric_failed_alarmed: false

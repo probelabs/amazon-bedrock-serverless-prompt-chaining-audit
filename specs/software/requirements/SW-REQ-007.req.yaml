@@ -1,0 +1,140 @@
+id: SW-REQ-007
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the pdf_creator shall always satisfy (!itinerary_ready | presigned_pdf_url_returned) & (expires_in >= 60) & (expires_in <= 900) & (!itinerary_ready | object_stored_in_pdf_bucket) & (!itinerary_ready | content_type_is_pdf) & (!itinerary_ready | temp_pdf_unlinked) & (!untrusted_itinerary_present | !template_eval_active)
+description: The PDF creator shall upload the itinerary PDF to PDF_BUCKET with ContentType application/pdf, unlink the temporary file, and return a presigned GET URL with expires_in in 60-900 seconds. The handler shall not evaluate a Jinja template when untrusted itinerary markdown is present.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-008
+component: pdf_creator
+rationale: TripPlanner presents a downloadable itinerary. generate_presigned_url uses ExpiresIn=900. A zero-second window is not a usable download. The spec lower bound is 60 seconds. Itinerary markdown is untrusted user location plus model text. Code passes it to md2pdf/WeasyPrint (KI-pdf-md2pdf-ssti, KI-pdf-weasyprint-ssrf). This requirement forbids template evaluation of that markdown. It does not claim a deny URL fetcher.
+tags: []
+variables:
+    - itinerary_ready
+    - presigned_pdf_url_returned
+    - expires_in
+    - object_stored_in_pdf_bucket
+    - content_type_is_pdf
+    - temp_pdf_unlinked
+    - untrusted_itinerary_present
+    - template_eval_active
+traces:
+    satisfies:
+        - SYS-REQ-008
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:44:50.444026387Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:b9eaa1f7be987b8745603bffc0b41d7a9f90ea7787893107459c8f81b6947d98
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:27.656728046Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for SW-REQ-007.
+          source: proof trace review --citation
+          citations:
+            - functions/trip_planner/pdf_creator/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-008.req.yaml
+            - tests/test_pdf_creator.py
+        - reviewed_at: "2026-08-14T09:44:50.444026387Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - functions/trip_planner/pdf_creator/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-008.req.yaml
+            - tests/test_pdf_creator.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:57Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:49:51Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - malformed_input
+    - nominal
+    - silent_false_safety_reviewed
+    - source_fragment_validated_before_composition
+obligation_suppressions:
+    - id: ssrf_protection
+      reason: SW-REQ-007 forbids Jinja evaluation of untrusted itinerary markdown. It does not claim a WeasyPrint deny URL fetcher. Markdown-image SSRF stays on KI-pdf-weasyprint-ssrf.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:49:51Z"
+      framework_refs:
+        - CWE CWE-918,CWE-441
+        - NIST-800-53 SC-7
+        - OWASP-ASVS-v4 V14.4.1,V12.6.1
+obligation_hazards:
+    - class: boundary
+      worst_case: expires_in below 60 seconds expires before the user can open the download link.
+      severity: low
+    - class: error_handling
+      worst_case: upload_file or presign fails after unlink so the user gets no itinerary URL.
+      severity: medium
+    - class: malformed_input
+      worst_case: Itinerary markdown is converted without a location so the PDF is generated from an empty title.
+      severity: medium
+    - class: nominal
+      worst_case: A ready itinerary is not uploaded so no presigned GET URL is returned.
+      severity: low
+    - class: silent_false_safety_reviewed
+      worst_case: Software-layer domain mutex plus MC/DC both-true ignore advertised the SSTI row as unreachable while the live handler still passes untrusted markdown to md2pdf raw.
+      severity: high
+    - class: source_fragment_validated_before_composition
+      worst_case: Handler interpolates event location and itinerary into markdown and calls md2pdf(..., raw=), so unsandboxed Jinja evaluates attacker-controlled expressions in the PDF Lambda (KI-pdf-md2pdf-ssti).
+      severity: high
+hazard_review:
+    reviewed_at: "2026-08-14T10:49:51Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          applied:
+            - source_fragment_validated_before_composition
+            - silent_false_safety_reviewed
+          suppressed:
+            - ssrf_protection
+          rationale: Owned SSTI shall-not maps to source_fragment_validated_before_composition; leftover mutex/MC/DC false safety maps to silent_false_safety_reviewed. ssrf_protection is suppressed because this requirement disclaims a deny URL fetcher (KI-pdf-weasyprint-ssrf).
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=4; review_record:REVIEW-7=present | known_issue:KI-pdf-md2pdf-ssti=failing | known_issue:KI-pdf-weasyprint-ssrf=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

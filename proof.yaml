@@ -1,0 +1,127 @@
+project:
+    name: amazon-bedrock-serverless-prompt-chaining
+    specs:
+        - path: specs/stakeholder
+          prefix: STK-REQ
+          type: stakeholder
+        - path: specs/system
+          prefix: SYS-REQ
+          type: system
+          parent_spec: specs/stakeholder
+        - path: specs/software
+          prefix: SW-REQ
+          type: subsystem
+          parent_spec: specs/system
+        - path: specs/integration
+          prefix: INT-REQ
+          type: integration
+          parent_spec: specs/system
+          cross_component: true
+    id_format:
+        pattern: '{prefix}-{date:YYMMDD}-{rand:4}'
+        auto_increment: false
+    signals:
+        defaults: auto
+    checks:
+        slow_tests:
+            enabled: true
+        code_mcdc:
+            advisory: false
+            min_statement_percent: 100
+            min_decision_percent: 100
+            min_condition_percent: 100
+            languages:
+                python:
+                    test_command: python
+            targets:
+                - id: decision-python
+                  enabled: true
+                  language: python
+                  scope: functions
+                  test_command: python
+                - id: decision-python-util
+                  enabled: true
+                  language: python
+                  scope: stacks/util.py
+                  test_command: python
+                - id: decision-python-repo
+                  enabled: true
+                  language: python
+                  scope: ./...
+                  test_command: python
+        under_modeled_requirements:
+            code_rich_max_meaningful_vars: 4
+            code_rich_decision_multiplier: 2
+            code_rich_decision_floor: 2
+            witness_rich_max_meaningful_vars: 4
+            family_min_obligation_classes: 99
+        property_fixtures_exist:
+            enabled: true
+        flip_fixtures_exist:
+            enabled: true
+        fixture_staleness_clean:
+            enabled: true
+        code_signal_obligations_reviewed:
+            enabled: true
+        code_signal_unbindable:
+            enabled: true
+        change_evidence_complete:
+            enabled: true
+        plan_of_record_current:
+            enabled: true
+        hazard_consequence:
+            require_worst_case_scope: all
+    verification_scope:
+        include:
+            - functions/**
+            - webapp/**/*.py
+            - stacks/**
+            - techniques_step_functions/**/*.py
+            - techniques_bedrock_flows/**/*.py
+            - pipeline/**/*.py
+            - cdk_stacks.py
+            - test_cdk_stacks.py
+            - PROOF_TRACE.md
+            - specs/REQUIREMENTS.md
+            - tests/**
+        exclude:
+            - docs/**
+            - webapp/pages/workflow_images/**
+            - cdk.out/**
+            - "**/.venv/**"
+            - "**/__pycache__/**"
+        completeness:
+            production_include:
+                - functions/**/*.py
+                - webapp/**/*.py
+                - stacks/**/*.py
+                - techniques_step_functions/**/*.py
+                - techniques_bedrock_flows/**/*.py
+                - pipeline/**/*.py
+                - cdk_stacks.py
+            production_exclude:
+                - docs/**
+                - webapp/pages/workflow_images/**
+                - tests/**
+                - test_cdk_stacks.py
+            rationale: "In-scope production Python for prompt-chaining handlers, CDK stacks, Streamlit client, techniques, and pipeline. Generated cdk.out, documentation images, and pytest trees are out of universe."
+    approval:
+        agent_autonomous_for:
+            all: true
+    trace_policy:
+        mode: source_native
+    commands:
+        build: python3 -m pytest --rootdir=/workspace /workspace/tests --collect-only -q
+        test: python3 -m pytest --rootdir=/workspace /workspace/tests -q --tb=short
+        tests:
+            python:
+                language: python
+                command: python3 -m pytest --rootdir=/workspace /workspace/tests -q --tb=short
+    tools:
+        probe:
+            path: /home/dev/.proof/tools/probe/0.6.0-rc330/probe
+    solvers:
+        kind2:
+            path: /home/dev/.proof/solvers/kind2/2.3.0/kind2
+        z3:
+            path: /home/dev/.proof/solvers/z3/4.16.0/z3

@@ -1,0 +1,12 @@
+id: L-surface-extractors
+title: Security surface extractors found zero sites in Python CDK tree
+description: proof surfaces extract --unbiased returned 0 surfaces across declared packages.
+status: closed
+severity: info
+kill_number: 0 surfaces
+kill_domain: surface_extract_empty
+sample_table:
+    - pair: extract/all
+      mid_f: "0"
+      notes: empty_extractor_match
+kill_method: proof-surfaces-extract

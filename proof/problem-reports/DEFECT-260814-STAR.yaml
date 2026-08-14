@@ -1,0 +1,86 @@
+schema_version: 1
+id: DEFECT-260814-STAR
+title: Pipeline Deploy CodeBuild roles grant Action=* Resource=*
+description: |
+  pipeline/pipeline_stack.py attaches iam.PolicyStatement(actions=["*"],
+  resources=["*"]) to both DeployExamples (lines 167-169) and DeployDemoApp
+  (lines 286-288). Each project runs cdk deploy --all --require-approval=never.
+  A compromised pipeline source or CodeBuild execution is account-admin equivalent.
+  Introduced at 6fad924 on the original Deploy project. a71c85a cloned the same
+  star-star grant onto DeployTechniqueExamples (later DeployExamples). The class
+  was never correct — not a regression.
+  Live failure modes: KI-pipeline-deploy-demo-star-star and
+  KI-pipeline-deploy-examples-star-star.
+introduced_in: 6fad9246642a22f315d10a09f1f970826de0687d
+source:
+    type: audit_finding
+    repo: amazon-bedrock-serverless-prompt-chaining
+    commit: 6fad9246642a22f315d10a09f1f970826de0687d
+    reference: proof/known-issues/KI-pipeline-deploy-demo-star-star.yaml
+    date: "2026-08-13"
+classification:
+    surface: security_behavior
+    defect_class: iam_wildcard
+    severity: high
+    security_relevant: true
+root_cause:
+    missing_requirement: true
+    missing_test_partition: true
+    missing_mcdc_variable: false
+    notes: |
+      SYS-REQ-006 models the technique catalog counts, not deploy-role least
+      privilege. No data_constraint forbids Action=* Resource=* on CodeBuild
+      deploy principals. The original pipeline tests asserted stack shape, not
+      the IAM statement. Codex findings 1 and 2 made the class visible. Sibling
+      IAM wildcard: KI-bedrock-agent-invoke-wildcard (agent/* SourceArn).
+impact_analysis:
+    affected_requirements:
+        - SYS-REQ-006
+    affected_code:
+        - pipeline/pipeline_stack.py
+    affected_evidence:
+        - proof/known-issues/KI-pipeline-deploy-demo-star-star.yaml
+        - proof/known-issues/KI-pipeline-deploy-examples-star-star.yaml
+        - proof/evidence/KI-pipeline-deploy-demo-star-star.yaml
+        - proof/evidence/KI-pipeline-deploy-examples-star-star.yaml
+        - proof/evidence/codex-security-CPeyWd/report.md
+disposition:
+    status: covered_by_known_issue
+    known_issues:
+        - KI-pipeline-deploy-demo-star-star
+        - KI-pipeline-deploy-examples-star-star
+    rationale: |
+      Both star-star grants are still live. The DEFECT records the historical
+      class; the live modes are the two reviewed KIs (ship_with_known_issue).
+      One report, two KIs — same anti-pattern cloned onto a sibling project
+      rather than two unrelated defects.
+    reviewer: agent:grok
+    reviewed_at: "2026-08-14T08:27:00Z"
+hardening:
+    added_obligations:
+        - requirement: SYS-REQ-011
+          obligation_class: error_handling
+    new_requirements:
+        - SYS-REQ-011
+    regression_tests:
+        - tests/test_pipeline_deploy_iam.py
+    proposed_classes:
+        - least_privilege
+    sibling_sweep:
+        scope:
+            - pipeline/pipeline_stack.py
+            - stacks/**/*.py
+        checked_at: "2026-08-14"
+        reviewer: agent:grok
+        result: "found: KI-pipeline-deploy-examples-star-star (same statement on DeployExamples); KI-bedrock-agent-invoke-wildcard (agent/* SourceArn, related IAM-wildcard class)"
+        found:
+            - KI-pipeline-deploy-examples-star-star
+            - KI-bedrock-agent-invoke-wildcard
+history:
+    - at: "2026-08-14T06:26:18Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T08:27:00Z"
+      by: agent:grok
+      action: disposition
+      detail: covered_by_known_issue KI-pipeline-deploy-demo-star-star,KI-pipeline-deploy-examples-star-star

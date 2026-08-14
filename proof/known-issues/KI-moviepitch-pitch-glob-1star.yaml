@@ -1,0 +1,71 @@
+id: KI-moviepitch-pitch-glob-1star
+title: MoviePitch Choice string_matches 1* selects Red for 10/1foo
+description: |-
+    stacks/movie_pitch_stack.py:185-188 binds Select Model's Pitch Choice with Condition.string_matches($.model_outputs.response, f'{i+1}*') over temperature_settings Red/Blue/Green. AWS string_matches treats * as a suffix wildcard, so a model completion of "10" or "1foo" selects Red instead of failing closed. The chooser prompt asks for (1)/(2)/(3) at stacks/movie_pitch_stack.py:123-127. ADHD shortlist: proof/evidence/adhd-threat-spec-red.md ("pitch `string_matches 1*` forces Red").
+    Quote:
+                start_user_choice_fork = start_user_choice_fork.when(
+                    sfn.Condition.string_matches("$.model_outputs.response", f"{i+1}*"),
+                    pitch_selector.next(user_choice_job),
+                )
+affected_requirements:
+    - SYS-REQ-003
+    - SW-REQ-003
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_movie_pitch_choice.py::test_movie_pitch_choice_selector_is_exact_digit -q
+evidence_manifests:
+    - proof/evidence/KI-moviepitch-pitch-glob-1star.yaml
+severity: medium
+severity_basis: reproducer
+risk: correctness
+cve_surface: none
+affected_api: movie_pitch_stack.py string_matches (stacks/movie_pitch_stack.py:185-188)
+attacker_input: model_outputs.response after Choose Best Movie Pitch (e.g. completion 10 or 1foo matching 1*)
+sanitizer: manual:choice-glob
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_movie_pitch_choice.py::test_movie_pitch_choice_selector_is_exact_digit -q
+tripwire_mutation: "Replace Condition.string_matches f'{i+1}*' with exact-digit string_equals {1,2,3}."
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Treat model pitch indexes other than the exact digits 1/2/3 as Fail; do not ship a workflow that glob-matches the first character. No live AWS in this environment.
+remediation: Replace string_matches f'{i+1}*' with an exact-digit / enum {1,2,3} selector (string_equals or a non-wildcard match) so 10/1foo do not select Red.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - proof/evidence/adhd-threat-spec-red.md cluster "pitch `string_matches 1*` forces Red" (score 7.0)
+customer_impact: The human gate can present the Red pitch when the model meant a different index or emitted extra characters, so the producer yes/no decision is on the wrong movie idea.
+owner: agent:grok
+review_date: "2026-09-14"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-14
+    - at: "2026-08-14T05:54:43Z"
+      by: agent:grok
+      action: edit
+      detail: add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    not_applicable:
+        reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

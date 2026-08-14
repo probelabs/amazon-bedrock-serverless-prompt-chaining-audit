@@ -1,0 +1,211 @@
+checklist: onboard_v1
+updated_at: "2026-08-14T13:01:40Z"
+steps:
+    ac-sweep:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:57:52Z"
+        confirmed_by: agent:grok
+        note: acceptance_criteria_witnessed 9/9 and acceptance_witness_quality pass for in-scope STKs.
+        scope_key: pipeline
+        check_results:
+            - id: acceptance_criteria_witnessed
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: acceptance_witness_quality
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    annotations-heavy:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:58:02Z"
+        confirmed_by: agent:grok
+        note: annotation_validity and obligation_witness_grounded pass; MC/DC row comments match current tables.
+        scope_key: pipeline
+        check_results:
+            - id: annotation_validity
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: obligation_witness_grounded
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    coverage:
+        status: confirmed
+        confirmed_at: "2026-08-14T12:59:08Z"
+        confirmed_by: agent:buffy
+        note: code_mcdc_coverage/measure pass; spec-level mcdc rows measured/logged (SSTI violation rows remain red as KI-pdf-md2pdf-ssti debt)
+        scope_key: pipeline
+        check_results:
+            - id: code_mcdc_coverage
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: code_mcdc_measure
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    debt-standing:
+        status: confirmed
+        confirmed_at: "2026-08-14T12:59:13Z"
+        confirmed_by: agent:buffy
+        note: known_issues_reviewed and waivers_reviewed pass
+        check_results:
+            - id: known_issues_reviewed
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: waivers_reviewed
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    hazard:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:57:54Z"
+        confirmed_by: agent:grok
+        note: spec_lint_hazard_consequence passes with worst-case scope all after grading SYS-REQ-009/010/011.
+        scope_key: pipeline
+        check_results:
+            - id: spec_lint_hazard_consequence
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    history-mine:
+        status: confirmed
+        confirmed_at: "2026-08-14T12:59:13Z"
+        confirmed_by: agent:buffy
+        note: problem_reports_reviewed and change_evidence_complete pass
+        check_results:
+            - id: problem_reports_reviewed
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: change_evidence_complete
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    init:
+        status: not_applicable
+        confirmed_at: "2026-08-12T20:11:55Z"
+        confirmed_by: agent:grok
+        note: plain proof init, default-strict checks, documentation_coverage re-enabled, python test/build commands, native python MC/DC targets on functions/webapp/stacks
+        verify_result:
+            exit_code: 0
+            passed: true
+            at: "2026-08-13T13:33:00Z"
+    research:
+        status: not_applicable
+        confirmed_at: "2026-08-12T20:14:59Z"
+        confirmed_by: agent:grok
+        note: 'Stakeholders: demo_user (Streamlit apps), operator (alarms/pipeline), technique_operator (isolated SFN/Flows techniques). Components: parse_json_response, merge_map_output, seek_user_input, meal_choose_winner, pdf_creator, github agents, stepfn_client, util invoke chain, alarms_stack, technique_stacks. Boundaries: Bedrock InvokeModel, SFN StartExecution/send_task_success, Lambda JSON event, GitHub HTTP, SNS alarms, S3 PDF, Flows live alias. Non-DeFi hazards: untrusted LLM JSON, scraped HTML, task-token human choice, wildcard IAM, GitHub PAT.'
+    residual:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:57:54Z"
+        confirmed_by: agent:grok
+        note: residual_kill_hygiene passes for the 3 theme residuals.
+        scope_key: pipeline
+        check_results:
+            - id: residual_kill_hygiene
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    skeleton:
+        status: not_applicable
+        confirmed_at: "2026-08-12T20:14:59Z"
+        confirmed_by: agent:grok
+        note: 'Four-layer skeleton: STK-REQ-001..003, SYS-REQ-001..006, SW-REQ-001..010, INT-REQ-001..007. Linked via parent/satisfies. FRETish on SYS/SW/INT. STK persona/story/AC present. Variables declared requirement-first.'
+        verify_result:
+            exit_code: 0
+            passed: true
+            at: "2026-08-13T13:33:01Z"
+            output: |
+                Verification scope: include=PROOF_TRACE.md, cdk_stacks.py, functions/**, pipeline/**/*.py, specs/REQUIREMENTS.md, stacks/**, techniques_bedrock_flows/**/*.py, techniques_step_functions/**/*.py, test_cdk_stacks.py, tests/**, webapp/**/*.py; exclude=**/.venv/**, **/__pycache__/**, cdk.out/**, docs/**, webapp/pages/workflow_images/**
+
+
+                Requirements: 30 total
+
+                  ━━━ SPECIFICATION ━━━
+                    ✓ l0_stakeholder_complete        3 STK-REQs fully structured (persona, story, acceptance criteria with derived_reqs)  (0ms)
+                    ✓ l1_system_complete             10 SYS-REQs fully linked and described  (0ms)
+                    ✓ l2_software_complete           17 SW/INT-REQs fully linked to SYS-REQs  (0ms)
+                    ✓ levels_connected               all 4 spec levels connected (L0:3, L1:10, L2:17)  (0ms)
+
+                  Errors: 0  Warnings: 0
+
+                Help: proof help audit
+                  Cache: 4 hits / 0 fresh (computed in 655ms)
+    spec-review-1:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:54:45Z"
+        confirmed_by: agent:grok
+        note: spec_lint_decomposition_adds_refinement, spec_lint_formalization_quality, solver_modeling_opportunity, and under_modeled_requirements_clean all pass.
+        check_results:
+            - id: spec_lint_decomposition_adds_refinement
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: spec_lint_formalization_quality
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: solver_modeling_opportunity
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: under_modeled_requirements_clean
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    spec-review-2:
+        status: confirmed
+        confirmed_at: "2026-08-14T10:02:59Z"
+        confirmed_by: agent:grok
+        note: software_formalization_complete and spec_lint_spec_conformance_review_grounded pass with probe on PATH.
+        check_results:
+            - id: spec_lint_spec_conformance_review_grounded
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: software_formalization_complete
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    surface-matrix:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:57:49Z"
+        confirmed_by: agent:grok
+        note: proof/ directory and surfaces/packages.yaml declare pipeline; surface matrix present.
+        verify_result:
+            exit_code: 0
+            passed: true
+            at: "2026-08-14T10:06:58Z"
+        scope_key: pipeline
+    traces-light:
+        status: confirmed
+        confirmed_at: "2026-08-12T20:16:25Z"
+        confirmed_by: agent:grok
+        note: Implements annotations autolinked for pipeline; probe on PATH; docs in specs/REQUIREMENTS.md
+        verify_result:
+            exit_code: 0
+            passed: true
+            at: "2026-08-13T13:33:01Z"
+            output: |
+                Verification scope: include=PROOF_TRACE.md, cdk_stacks.py, functions/**, pipeline/**/*.py, specs/REQUIREMENTS.md, stacks/**, techniques_bedrock_flows/**/*.py, techniques_step_functions/**/*.py, test_cdk_stacks.py, tests/**, webapp/**/*.py; exclude=**/.venv/**, **/__pycache__/**, cdk.out/**, docs/**, webapp/pages/workflow_images/**
+
+
+                Requirements: 30 total
+
+                  ━━━ IMPLEMENTATION ━━━
+                    ✓ annotation_validity            all referenced requirement IDs and obligation annotations match current spec files  (0ms)
+                    ✓ orphan_code_clean              90/90 code functions traced  (0ms)
+
+                  Errors: 0  Warnings: 0
+
+                Help: proof help audit
+                  Cache: 2 hits / 0 fresh (computed in 672ms)
+        scope_key: pipeline
+        check_results:
+            - id: annotation_validity
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: orphan_code_clean
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+    variables:
+        status: confirmed
+        confirmed_at: "2026-08-14T09:54:44Z"
+        confirmed_by: agent:grok
+        note: Variables declared, orphans clean, and FRETish lists match after dropping unused demo_orchestrator/pdf outputs and splitting system vs software var files.
+        check_results:
+            - id: variable_orphans_clean
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: variables_declared
+              status: pass
+              at: "2026-08-14T13:01:34Z"
+            - id: variable_drift
+              status: pass
+              at: "2026-08-14T13:01:34Z"

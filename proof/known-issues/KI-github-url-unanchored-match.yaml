@@ -1,0 +1,75 @@
+id: KI-github-url-unanchored-match
+title: GitHub URL extractors accept unanchored github.com/owner/repo substrings
+description: |-
+    functions/most_popular_repo_bedrock_agent/agent/index.py:48-54 uses re.search (unanchored) on the Bedrock completion; functions/most_popular_repo_strands/index.py:108-110 uses re.match (not fullmatch) on GitHubRepo.url. SW-REQ-006 hazard_review claims ssrf_protection / URL allowlist — false safety. A completion or string such as https://evil.example/https://github.com/owner/repo or prefix junk selects the inner github.com/owner/repo. ADHD shortlist: proof/evidence/adhd-threat-spec-red.md ("GitHub trending GET no timeout; unanchored regex").
+    Quote (Bedrock agent):
+            # Find a URL in the response
+            repo_match = re.search(r"https:\/\/github\.com(?:\/[^\s\/]+){2}", completion)
+            if repo_match:
+                url = repo_match.group(0)
+    Quote (Strands):
+                pattern = r"https:\/\/github\.com(?:\/[^\s\/]+){2}"
+                if not re.match(pattern, value):
+affected_requirements:
+    - SW-REQ-006
+    - SYS-REQ-007
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_url_extractors_require_fullmatch -q
+evidence_manifests:
+    - proof/evidence/KI-github-url-unanchored-match.yaml
+severity: medium
+severity_basis: reproducer
+risk: security
+cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+affected_api: lookup_trending_repo_agent / validate_github_url (agent/index.py:48-54, strands/index.py:108-110)
+attacker_input: Model completion or structured URL containing an unanchored https://github.com/owner/repo substring (e.g. https://evil.example/https://github.com/owner/repo)
+sanitizer: manual:unanchored-regex
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_url_extractors_require_fullmatch -q
+tripwire_mutation: Replace unanchored re.search / re.match with re.fullmatch on ^https://github.com/owner/repo$.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not trust extracted repo URLs until the extractor requires fullmatch ^https://github.com/owner/repo$. No live AWS in this environment.
+remediation: Require re.fullmatch on ^https://github.com/owner/repo$ (reject embedded, prefixed, and suffix-extended strings) before accepting a trending-repo URL.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - proof/evidence/adhd-threat-spec-red.md cluster "GitHub trending GET no timeout; unanchored regex" (score 6.4); SW-REQ-006 hazard_review ssrf_protection / URL allowlist is false safety
+customer_impact: A steered completion can smuggle a github.com/owner/repo substring inside another URL so the workflow proceeds with a URL the allowlist was supposed to reject.
+owner: agent:grok
+review_date: "2026-09-14"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-14
+    - at: "2026-08-14T05:54:43Z"
+      by: agent:grok
+      action: edit
+      detail: add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    not_applicable:
+        reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

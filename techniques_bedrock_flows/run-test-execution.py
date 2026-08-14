@@ -8,6 +8,8 @@ flows_paginator = client_control_plane.get_paginator("list_flows")
 flow_aliases_paginator = client_control_plane.get_paginator("list_flow_aliases")
 
 
+# Implements: SYS-REQ-006
+# Implements: INT-REQ-007
 def main():
     demo_name = sys.argv[1]
 

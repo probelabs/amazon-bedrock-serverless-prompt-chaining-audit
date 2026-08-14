@@ -1,0 +1,107 @@
+id: STK-REQ-002
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: ""
+description: The operator shall receive a notification when a named demo workflow fails.
+formalization_strategy: informal
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+component: operator
+rationale: 'The sample deploys CloudWatch alarms and an SNS topic so an operator can detect failed PromptChainDemo executions. Technique stacks are not alarmed. Satisfying children: SYS-REQ-005.'
+tags: []
+variables: []
+traces:
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T11:49:03.279406607Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:776f523297671a220f2cf42d426cf78271c372c4477f91e7215b0234a0bdcb2e
+    review_history:
+        - reviewed_at: "2026-08-12T20:34:45.749966989Z"
+          reviewed_by: agent:grok
+          method: inspection
+          rationale: Citation-backed review of STK-REQ-002.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - test_cdk_stacks.py
+verification:
+    assurance_level: E
+    formalization_status: none
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:12:59Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T05:57:40Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: The first failed execution is below the watched threshold so the operator gets no notification.
+      severity: low
+    - class: error_handling
+      worst_case: A named demo failure never publishes to the notifications topic so the operator does not learn of the outage.
+      severity: medium
+    - class: nominal
+      worst_case: The composite alarm or SNS topic is missing so demo failures have no operator-visible path.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:25:41Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+stakeholder:
+    persona: Cloud operator
+    story: An operator deploys the demo stacks and subscribes to the notification topic to learn about failed PromptChainDemo workflows.
+    acceptance_criteria:
+        - id: AC-001
+          text: The operator is subscribed to the SNS topic bedrock-serverless-prompt-chaining-notifications. A named demo workflow PromptChainDemo-{name} fails one or more times. The composite alarm PromptChainDemo-Composite-Alarm goes to ALARM. The system publishes a notification on that SNS topic.
+          verification_method: test
+          derived_reqs:
+            - SYS-REQ-005
+        - id: AC-002
+          text: A named demo has suffix S. That demo has one or more failed executions. The CloudWatch alarm that uses threshold 1 on the ExecutionsFailed metric of PromptChainDemo-S has the name PromptChainDemo-S-Workflow-Failures. The name shown to the operator and the metric used for the threshold refer to the same demo.
+          verification_method: test
+          derived_reqs:
+            - SYS-REQ-005
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+acceptance_review:
+    checklist_version: 1
+    disposition: reviewed
+    notes: 'Surface: Produce ExecutionsFailed on PromptChainDemo-{S}; Enforce Alarm threshold=1; Project alarm_name PromptChainDemo-{S}-Workflow-Failures; Persist CW+SNS. AC-DUAL-EQ threshold vs alarm name. STE100 rewrite of Given/When/Then. No new AC: fail-to-notify already observable.'
+    reviewed_at: "2026-08-14T11:02:12Z"
+    reviewed_by: agent:ac-sweep
+    templates_applied:
+        - AC-DUAL-EQ

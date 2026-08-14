@@ -1,0 +1,9 @@
+id: REVIEW-10
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-010
+decision: approved
+comment: FRETish !conflicting_prompt_options | builder_raises matches get_anthropic_claude_invoke_chain raising ValueError when initial_assistant_text and pass_conversation are both set.
+citations:
+    - stacks/util.py:218

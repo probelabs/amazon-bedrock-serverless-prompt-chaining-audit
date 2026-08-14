@@ -1,0 +1,20 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SYS-REQ-003
+        - SW-REQ-003
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_movie_pitch_choice.py::test_movie_pitch_choice_selector_is_exact_digit -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T10:02:27Z"
+      input_set:
+        - stacks/movie_pitch_stack.py
+        - tests/test_movie_pitch_choice.py
+        - KI-moviepitch-pitch-glob-1star
+      freshness_hashes:
+        stacks/movie_pitch_stack.py: sha256:0abea59937be5e04f433145338f2bf404df3eac2ac6c4c0726851c39f909a0f3
+        tests/test_movie_pitch_choice.py: sha256:2a434728d96fe943cc56329aeadfa066ccf2b2dcb6a6b33a80cf55aa40c2ff27
+      known_issues:
+        - KI-moviepitch-pitch-glob-1star

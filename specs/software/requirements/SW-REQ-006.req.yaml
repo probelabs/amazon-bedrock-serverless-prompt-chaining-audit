@@ -1,0 +1,167 @@
+id: SW-REQ-006
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the github_repo_lookup shall always satisfy (!extracted_url_is_invalid | lookup_rejects_url) & (!url_matches_https_github_owner_repo | lookup_rejects_url) & (!example_repo_url | lookup_rejects_url) & (readme_len <= 5000 | readme_truncated) & (status_code = 200 | trending_fetch_raises) & (extract_attempt_count < 3 | repo_url_extracted | lookup_rejects_url) & (requests_timeout_s >= 1) & (requests_timeout_s <= 30) & (url_is_full_github_repo | lookup_rejects_url)
+description: The repository lookup shall reject a URL that is not a full https GitHub owner/repo URL or that matches the documented example. A README longer than 5000 characters shall be truncated. A trending GET whose status_code is not 200 shall raise. extract_attempt_count shall stay below 3 unless a real URL is extracted. requests_timeout_s shall stay in 1-30.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-007
+component: github_repo_lookup
+rationale: Bedrock Agents and Strands agents scrape trending pages. Intended URL contract is fullmatch ^https://github.com/[^/]+/[^/]+$. Code uses unanchored re.match and re.search (KI-github-url-unanchored-match), so this is not SSRF protection. requests.get currently has no timeout (KI-github-trending-no-timeout); the spec bound that SHALL hold is 1-30 seconds. README fetch uses a GitHub PAT with no repo allowlist (KI-github-bedrock-readme-pat-no-allowlist, KI-github-strands-readme-pat-no-allowlist). Bedrock grant_invoke SourceArn is agent/* (KI-bedrock-agent-invoke-wildcard). This requirement does not claim PAT allowlist or pinned agent invoke. extract_attempt_count < 3 is the Bedrock range(3) loop. README length uses readme_len <= 5000.
+tags: []
+variables:
+    - extracted_url_is_invalid
+    - lookup_rejects_url
+    - url_matches_https_github_owner_repo
+    - example_repo_url
+    - readme_len
+    - readme_truncated
+    - status_code
+    - trending_fetch_raises
+    - extract_attempt_count
+    - repo_url_extracted
+    - requests_timeout_s
+    - url_is_full_github_repo
+traces:
+    satisfies:
+        - SYS-REQ-007
+    implemented_by_extra:
+        - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+        - functions/most_popular_repo_strands/index.py
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T11:51:41.857002212Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:91e478f7913f6f6d202a386b688f3ec3d3acbe906000ab508895167995e5ed50
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:27.325707222Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for SW-REQ-006.
+          source: proof trace review --citation
+          citations:
+            - functions/most_popular_repo_bedrock_agent/agent/index.py
+            - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+            - functions/most_popular_repo_strands/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-007.req.yaml
+            - tests/test_bedrock_agent_lookup.py
+            - tests/test_github_repo.py
+        - reviewed_at: "2026-08-14T09:44:50.111478487Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - functions/most_popular_repo_bedrock_agent/agent/index.py
+            - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+            - functions/most_popular_repo_strands/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-007.req.yaml
+            - tests/test_bedrock_agent_lookup.py
+            - tests/test_github_repo.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+    not_modeled:
+        - predicate: len(readme_content)
+          reason: Modeled as readme_len (int, range 0-100000) in FRETish; the Python len() call is the same bound.
+        - predicate: get_response.status_code != 200
+          reason: Modeled as status_code = 200 in FRETish (status_code = 200 | trending_fetch_raises). The Python comparison is that polarity.
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:57Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:32:17Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - malformed_input
+    - nominal
+    - request_timeout_bounded
+    - security_decision_matches_enforcement_identity
+obligation_suppressions:
+    - id: confused_deputy_prevented
+      reason: This requirement does not claim a PAT repo allowlist or a pinned Bedrock agent invoke SourceArn. Those product defects stay on KI-github-bedrock-readme-pat-no-allowlist, KI-github-strands-readme-pat-no-allowlist, and KI-bedrock-agent-invoke-wildcard.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:24Z"
+      framework_refs:
+        - CWE CWE-441,CWE-285
+        - NIST-800-53 AC-3,AC-6
+        - OWASP-ASVS-v4 V4.1.3,V1.4.1
+    - id: ssrf_protection
+      reason: Rationale already says the owner/repo regex is not SSRF protection. Unanchored match is owned as security_decision_matches_enforcement_identity and tracked as KI-github-url-unanchored-match.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:24Z"
+      framework_refs:
+        - CWE CWE-918,CWE-441
+        - NIST-800-53 SC-7
+        - OWASP-ASVS-v4 V14.4.1,V12.6.1
+obligation_hazards:
+    - class: boundary
+      worst_case: requests.get with no timeout hangs the lookup, or an unanchored URL regex accepts a non-full GitHub path.
+      severity: medium
+    - class: error_handling
+      worst_case: A non-200 trending GET is ignored so the agent continues with an empty or error HTML body.
+      severity: medium
+    - class: malformed_input
+      worst_case: An example github.com/orgname/reponame URL is accepted as a real repository.
+      severity: medium
+    - class: nominal
+      worst_case: A valid owner/repo URL is rejected so the trending lookup never returns a repository.
+      severity: low
+    - class: request_timeout_bounded
+      worst_case: requests.get to github.com/trending has no timeout so a stalled origin pins the Bedrock-actions or Strands Lambda until the runtime limit (KI-github-trending-no-timeout).
+      severity: medium
+    - class: security_decision_matches_enforcement_identity
+      worst_case: Unanchored re.search/re.match accepts a github.com/owner/repo substring inside another URL, then prefix-strip uses that derived name for Github.get_repo (KI-github-url-unanchored-match).
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-14T10:50:24Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          applied:
+            - request_timeout_bounded
+            - security_decision_matches_enforcement_identity
+          suppressed:
+            - ssrf_protection
+            - confused_deputy_prevented
+          rationale: FRETish owns requests_timeout_s 1-30 and full GitHub owner/repo identity. Those map to request_timeout_bounded and security_decision_matches_enforcement_identity. ssrf_protection and confused_deputy_prevented stay suppressed because PAT allowlist and pinned agent invoke are not claimed. The 5000-char README cap remains a boundary, not untrusted_input_bounded deserialization.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=11; review_record:REVIEW-11=present | review_record:REVIEW-6=present | known_issue:KI-bedrock-agent-invoke-wildcard=failing | known_issue:KI-code-mcdc-readme-actions=none | known_issue:KI-github-bedrock-readme-pat-no-allowlist=failing | known_issue:KI-github-strands-readme-pat-no-allowlist=failing | known_issue:KI-github-trending-no-timeout=failing | known_issue:KI-github-url-unanchored-match=failing | known_issue:KI-mcdc-bedrock-agent=none | known_issue:KI-mcdc-readme-5000=none | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

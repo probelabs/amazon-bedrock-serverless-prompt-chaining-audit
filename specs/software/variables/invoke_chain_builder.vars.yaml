@@ -1,0 +1,41 @@
+component: invoke_chain_builder
+variables:
+    - name: conflicting_prompt_options
+      type: bool
+      direction: input
+      description: True when initial_assistant_text and pass_conversation are both set.
+    - name: builder_raises
+      type: bool
+      direction: output
+      description: True when get_anthropic_claude_invoke_chain raises.
+    - name: initial_assistant_text_set
+      type: bool
+      direction: input
+      description: True when get_anthropic_claude_invoke_chain is called with initial_assistant_text.
+    - name: pass_conversation_set
+      type: bool
+      direction: input
+      description: True when get_anthropic_claude_invoke_chain is called with pass_conversation.
+
+    - name: max_tokens_to_sample
+      type: int
+      direction: output
+      description: max_tokens sent on the Messages API body. Default 250, always greater than 0.
+      range:
+        max: 4096
+        min: 1
+    - name: include_previous_conversation_in_prompt
+      type: bool
+      direction: input
+      description: True when the builder includes prior messages in the next prompt.
+    - name: flatten_messages
+      type: bool
+      direction: output
+      description: True when the builder flattens conversation[*][*] because previous conversation is included.
+domain:
+    mutex:
+        - name: assistant_text_or_pass_conversation
+          members:
+            - initial_assistant_text_set
+            - pass_conversation_set
+          reason: get_anthropic_claude_invoke_chain raises when both are set; a valid invoke uses at most one.

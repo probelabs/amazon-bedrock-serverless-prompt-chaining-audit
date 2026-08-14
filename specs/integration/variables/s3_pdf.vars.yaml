@@ -1,0 +1,22 @@
+component: s3_pdf
+variables:
+    - name: pdf_upload_requested
+      type: bool
+      direction: input
+      description: True when PDF creation requests object storage.
+    - name: object_stored_in_pdf_bucket
+      type: bool
+      direction: output
+      description: True when the object is uploaded to PDF_BUCKET.
+    - name: expires_in
+      type: int
+      direction: mode
+      description: Presigned GET URL lifetime in seconds. generate_presigned_url uses ExpiresIn=900.
+      range:
+        max: 900
+        min: 60
+    - name: presigned_get_url_returned
+      type: bool
+      direction: output
+      description: True when generate_presigned_url is called for get_object.
+

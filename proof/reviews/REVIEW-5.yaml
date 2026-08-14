@@ -1,0 +1,9 @@
+id: REVIEW-5
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-005
+decision: approved
+comment: FRETish !map_results_present | conversations_are_merged matches handler merging each map item conversation prefix with its trailing messages.
+citations:
+    - functions/generic/merge_map_output/index.py:1@handler

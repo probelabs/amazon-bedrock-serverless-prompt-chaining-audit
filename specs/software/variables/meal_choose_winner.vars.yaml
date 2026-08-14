@@ -1,0 +1,63 @@
+component: meal_choose_winner
+variables:
+    - name: winning_score
+      type: int
+      direction: output
+      description: Highest score among chef scores. A winner requires this value > 0.
+      range:
+        max: 100
+        min: 0
+    - name: handler_raises
+      type: bool
+      direction: output
+      description: True when the handler raises because no positive score exists.
+    - name: winning_score_is_max
+      type: bool
+      direction: output
+      description: True when the selected chef score is the running maximum among scored chefs (score > highest_score updates).
+    - name: chef_id
+      type: enum
+      direction: input
+      description: Competing chef identity. MealPlannerStack defines red and blue.
+    - name: chef_id_is_declared
+      type: bool
+      direction: output
+      description: True when chef_id is one of the declared chefs red or blue.
+    - name: winner_key_in_scores
+      type: bool
+      direction: output
+      description: True when winning_chef is a key of event parsed_output.scores. Handler iterates scores.items and uses that key.
+      data_constraint:
+        domain: enum
+        variable: chef_id
+        values: [red, blue]
+        condition: chef_id == red || chef_id == blue
+        parameters:
+            - name: chef_id
+              type: enum
+              values: [red, blue]
+domain:
+    tables:
+        - name: meal_chef_ids
+          source: stacks/meal_planner_stack.py chefs=["red","blue"]
+          inputs:
+            - name: chef_id
+              type: enum
+              values: [red, blue]
+          output:
+            name: chef_id_is_declared
+            type: bool
+          rows:
+            - chef_id: red
+              chef_id_is_declared: true
+            - chef_id: blue
+              chef_id_is_declared: true
+    mutex:
+        - name: winner_or_raise
+          members:
+            - winning_score_is_max
+            - handler_raises
+          reason: Handler returns a positive max winner or raises; both cannot hold.
+no_interface:
+    declared: true
+    reason: In-process meal scoring handler; no cross-component API, only local event dict in and winner dict out.

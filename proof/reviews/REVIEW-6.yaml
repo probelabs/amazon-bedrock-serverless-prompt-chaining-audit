@@ -1,0 +1,9 @@
+id: REVIEW-6
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-006
+decision: approved
+comment: FRETish (!extracted_url_is_invalid | lookup_rejects_url) & (readme_len <= 5000 | readme_truncated) matches validate_github_url rejecting invalid extracted URLs and README truncation when readme_len is not <= 5000.
+citations:
+    - functions/most_popular_repo_strands/index.py:102@validate_github_url

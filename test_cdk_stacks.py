@@ -20,6 +20,9 @@ from stacks.alarms_stack import AlarmsStack
 
 
 def test_blogpost_stack_synthesizes_properly():
+    # Verifies: SYS-REQ-001
+    # SYS-REQ-001:nominal:nominal
+    # SYS-REQ-001:error_handling:nominal
     app = cdk.App()
 
     test_stack = BlogPostStack(
@@ -92,6 +95,16 @@ def test_mostpopularrepo_strands_stack_synthesizes_properly():
 
 
 def test_alarms_stack_synthesizes_properly():
+    # Verifies: SW-REQ-008
+    # Verifies: SYS-REQ-005
+    # SW-REQ-008:nominal:nominal
+    # SW-REQ-008:error_handling:nominal
+    # SYS-REQ-005:nominal:nominal
+    # SYS-REQ-005:error_handling:nominal
+    # INT-REQ-005:nominal:nominal
+    # INT-REQ-005:error_handling:nominal
+    # STK-REQ-002:nominal:nominal
+    # STK-REQ-002:error_handling:nominal
     app = cdk.App()
 
     test_stack = AlarmsStack(

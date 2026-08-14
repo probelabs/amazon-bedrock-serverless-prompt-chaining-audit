@@ -1,0 +1,64 @@
+component: meal_debate
+variables:
+    - name: winner_path_taken
+      type: bool
+      direction: output
+      description: True when the state machine enters the choose-winner path.
+    - name: chefs_agree
+      type: bool
+      direction: input
+      description: True when do_chefs_agree is yes.
+    - name: debate_round
+      type: int
+      direction: input
+      description: Debate round counter. Winner path is required at >= 3.
+      range:
+        max: 10
+        min: 0
+
+    - name: scoring_path_taken
+      type: bool
+      direction: output
+      description: True when chefs disagree and debate_round is below 3 so scoring continues.
+    - name: consensus_choice_defined
+      type: bool
+      direction: output
+      description: True when MealPlannerStack defines the Consensus reached Choice.
+
+    - name: chef_count
+      type: int
+      direction: output
+      description: Number of competing chefs in MealPlannerStack. The stack defines 2 (red, blue).
+      range:
+        max: 8
+        min: 0
+    - name: chef_id
+      type: enum
+      direction: input
+      description: Competing chef identity. MealPlannerStack defines red and blue.
+    - name: chef_id_is_declared
+      type: bool
+      direction: output
+      description: True when chef_id is one of the declared chefs red or blue.
+domain:
+    tables:
+        - name: meal_chef_ids
+          source: stacks/meal_planner_stack.py chefs=["red","blue"]
+          inputs:
+            - name: chef_id
+              type: enum
+              values: [red, blue]
+          output:
+            name: chef_id_is_declared
+            type: bool
+          rows:
+            - chef_id: red
+              chef_id_is_declared: true
+            - chef_id: blue
+              chef_id_is_declared: true
+    mutex:
+        - name: winner_or_scoring
+          members:
+            - winner_path_taken
+            - scoring_path_taken
+          reason: Consensus Choice takes the winner path or continues scoring; both cannot hold.

@@ -1,0 +1,40 @@
+id: KI-untraced-test-harness
+title: Test harness helpers in tests/conftest.py have no product requirement
+description: load_module, identity_tool, strands_import_stubs, and md2pdf_import_stubs are pytest fixtures/helpers. They are not product behavior. lint_clean and orphan_code_clean report them as untraced.
+severity: low
+severity_basis: risk
+risk: correctness
+requirement_exemption:
+    reviewer: agent:grok
+    rationale: tests/conftest.py helpers (load_module, identity_tool, strands_import_stubs, md2pdf_import_stubs) are pytest fixtures and import stubs. They are not product behavior in Lambda or CDK, so inventing a SW-REQ for conftest would be dishonest. lint_clean/orphan_code_clean flag them as untraced by design.
+reproduction_steps:
+    - Run proof lint and observe tests/conftest.py helpers listed as untraced.
+    - They have no product Implements annotation by design.
+environment_note: These functions exist only in tests/conftest.py and never ship in Lambda or CDK.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+remediation: Keep them as test infrastructure. Do not invent a product requirement for import stubs.
+notes:
+    - 'Recorded reviewer-stamped requirement_exemption: tests/conftest.py has no product requirement to bind.'
+    - 'Withdrawn: process/evidence gap, not a product defect. Tests and spec deferrals that originally justified this KI are gone.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:47:22Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:47:22Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T10:05:38Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-13T11:39:07Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn

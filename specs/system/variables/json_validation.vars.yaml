@@ -1,0 +1,35 @@
+component: json_validation
+variables:
+    - name: model_output_fails_schema
+      type: bool
+      direction: input
+      description: True when model output is not valid JSON or fails the JSON schema.
+    - name: parse_error_count
+      type: int
+      direction: input
+      description: Count of TASKS_FAILED parse catches. The chain Fails when this value is not < 3.
+      range:
+        max: 10
+        min: 0
+    - name: parser_rejects_or_retries
+      type: bool
+      direction: output
+      description: True when the parser raises or the retry step re-prompts or fails the chain.
+
+    - name: schema_provided
+      type: bool
+      direction: input
+      description: True when the parser step is given a json_schema.
+    - name: retry_limit_is_three
+      type: bool
+      direction: output
+      description: True when the parse-error Choice compares against 3.
+
+    - name: parser_lambda_invoked
+      type: bool
+      direction: output
+      description: True when the parse-JSON Lambda is invoked by the retry step.
+    - name: invalid_payload_rejected
+      type: bool
+      direction: output
+      description: True when invalid JSON or schema mismatch is not accepted as parsed output.

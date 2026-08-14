@@ -17,6 +17,8 @@ import json
 # Step Functions execution directly to get the question and task token, presents the user
 # question in the UI, and then sends the user's answer and the task token to the Step Functions
 # execution.
+# Implements: SW-REQ-003
+# Implements: INT-REQ-002
 def handler(event, context):
     print(json.dumps(event, indent=2))
 

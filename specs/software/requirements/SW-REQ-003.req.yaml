@@ -1,0 +1,129 @@
+id: SW-REQ-003
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the stepfn_client shall always satisfy (!task_token_wait_seen | execution_status_is_paused) & (history_page_size = 1) & (!human_wait_required | execution_pauses_for_choice) & (!human_wait_required | task_token_present) & (!history_contains_wait | execution_pauses_for_choice) & (!choice_is_yes_or_no | execution_pauses_for_choice) & (temperature_settings_count = 3) & (pitch_choice >= 1) & (pitch_choice <= 3) & pitch_choice_is_declared & (reject_round_count >= 0) & (reject_round_count <= 10) & (poll_interval_s = 1) & (!choice_is_yes_or_no | greenlight_path_taken | reject_and_repitch_taken)
+description: The webapp Step Functions client shall report PAUSED when history shows wait-for-task-token, shall read history with history_page_size = 1, shall poll at poll_interval_s = 1, shall pause a human-gated execution for the yes or no choice, and MoviePitch shall keep pitch_choice in 1-3, pitch_id declared, and reject_round_count in 0-10.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-003
+component: stepfn_client
+rationale: MoviePitch and HumanInput continue only after send_task_success. The UI detects the pause from the latest history event. Intended pitch_choice is exact 1, 2, or 3. Code uses string_matches N* (KI-moviepitch-pitch-glob-1star). poll uses time.sleep(1). user_choice is yes or no.
+tags: []
+variables:
+    - task_token_wait_seen
+    - execution_status_is_paused
+    - history_page_size
+    - human_wait_required
+    - execution_pauses_for_choice
+    - task_token_present
+    - history_contains_wait
+    - choice_is_yes_or_no
+    - temperature_settings_count
+    - pitch_choice
+    - pitch_choice_is_declared
+    - reject_round_count
+    - greenlight_path_taken
+    - reject_and_repitch_taken
+    - poll_interval_s
+traces:
+    satisfies:
+        - SYS-REQ-003
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:47.672643561Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:16e72bfa684e6f3f62e8c743e593ca90b9145c1603c6dd6582b2b7991909b175
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:26.388227346Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for SW-REQ-003.
+          source: proof trace review --citation
+          citations:
+            - functions/generic/seek_user_input/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-003.req.yaml
+            - tests/test_seek_user_input.py
+            - tests/test_stepfn.py
+            - webapp/stepfn.py
+        - reviewed_at: "2026-08-13T13:28:15.935235467Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: re-verified SW-REQ-003 links after adding temperature_settings_count coverage
+          source: proof trace review --citation
+          citations:
+            - functions/generic/seek_user_input/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-003.req.yaml
+            - tests/test_seek_user_input.py
+            - tests/test_stepfn.py
+            - webapp/stepfn.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:56Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T06:30:33Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: string_matches N* accepts a non-exact pitch_choice such as 10 and selects the wrong pitch.
+      severity: medium
+    - class: error_handling
+      worst_case: A waitForTaskToken event is missed so the client never reports PAUSED and the yes/no form never appears.
+      severity: medium
+    - class: nominal
+      worst_case: history_page_size is not 1 so the client reads a stale event and mis-reports execution status.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:44Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+nominal_evidence_exemptions:
+    - obligation_class: boundary
+      reason: SW-REQ-003 boundary is the MoviePitch 1* glob / pause-miss rejection; FRETish has no valid-input success cell on that class, so a boundary:nominal tag would be a false happy-path witness.
+      reviewer: agent:grok
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=3; review_record:REVIEW-3=present | known_issue:KI-moviepitch-pitch-glob-1star=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

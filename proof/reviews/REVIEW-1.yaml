@@ -1,0 +1,9 @@
+id: REVIEW-1
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-001
+decision: approved
+comment: 'FRETish !payload_is_invalid | handler_raises matches handler: json.loads and jsonschema.validate raise on invalid payload; valid payload returns the object.'
+citations:
+    - functions/generic/parse_json_response/index.py:9@handler

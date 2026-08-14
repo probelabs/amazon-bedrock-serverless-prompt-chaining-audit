@@ -1,0 +1,130 @@
+id: SYS-REQ-007
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the github_repo_lookup shall always satisfy (!extracted_url_is_invalid | lookup_rejects_url) & (readme_len <= 5000 | readme_truncated) & (status_code = 200 | trending_fetch_raises) & (requests_timeout_s >= 1) & (requests_timeout_s <= 30) & (url_is_full_github_repo | lookup_rejects_url)
+description: The repository lookup shall reject a URL that is not a full https GitHub owner/repo URL. The lookup shall truncate README text over 5000 characters. A trending GET whose status_code is not 200 shall raise. requests_timeout_s shall stay in 1-30.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: github_repo_lookup
+rationale: 'MostPopularRepo agents scrape trending pages. Intended URL contract is fullmatch ^https://github.com/[^/]+/[^/]+$. Code regex is unanchored (KI-github-url-unanchored-match), so SSRF protection is not claimed. requests.get currently has no timeout (KI-github-trending-no-timeout). README fetch uses a GitHub PAT with no repo allowlist (KI-github-bedrock-readme-pat-no-allowlist, KI-github-strands-readme-pat-no-allowlist). Bedrock grant_invoke SourceArn is agent/* (KI-bedrock-agent-invoke-wildcard). This requirement does not claim PAT allowlist or pinned agent invoke. Satisfying children: INT-REQ-004 SW-REQ-006.'
+tags: []
+variables:
+    - extracted_url_is_invalid
+    - lookup_rejects_url
+    - readme_len
+    - readme_truncated
+    - status_code
+    - trending_fetch_raises
+    - requests_timeout_s
+    - url_is_full_github_repo
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T11:51:42.050502914Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:d1526be577a9369b6bdabc50a527c890eeab09e652e6a149bc76c9ae05ac9d3a
+    review_history:
+        - reviewed_at: "2026-08-14T09:44:51.185767132Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: Linked artifacts still implement this requirement after FRETish/var/MC/DC refresh.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - tests/test_bedrock_agent_lookup.py
+            - tests/test_github_repo.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-13T10:10:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-13T09:54:33Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:50:24Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - request_timeout_bounded
+    - security_decision_matches_enforcement_identity
+obligation_suppressions:
+    - id: confused_deputy_prevented
+      reason: This requirement does not claim PAT allowlist or pinned agent invoke. Those stay on KI-github-*-pat-no-allowlist and KI-bedrock-agent-invoke-wildcard.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:24Z"
+      framework_refs:
+        - CWE CWE-441,CWE-285
+        - NIST-800-53 AC-3,AC-6
+        - OWASP-ASVS-v4 V4.1.3,V1.4.1
+    - id: ssrf_protection
+      reason: SYS-REQ-007 does not claim SSRF protection. The intended fullmatch contract is owned as security_decision_matches_enforcement_identity; the unanchored extractor is KI-github-url-unanchored-match.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:24Z"
+      framework_refs:
+        - CWE CWE-918,CWE-441
+        - NIST-800-53 SC-7
+        - OWASP-ASVS-v4 V14.4.1,V12.6.1
+obligation_hazards:
+    - class: boundary
+      worst_case: requests.get with no timeout hangs the Lambda on a stalled github.com/trending response.
+      severity: medium
+    - class: error_handling
+      worst_case: An invalid or example GitHub URL is accepted and the agent fetches a repository the user did not intend.
+      severity: medium
+    - class: request_timeout_bounded
+      worst_case: A trending GET with no timeout hangs github_repo_lookup until the Lambda runtime limit (KI-github-trending-no-timeout).
+      severity: medium
+    - class: security_decision_matches_enforcement_identity
+      worst_case: url_is_full_github_repo is decided by an unanchored substring match, so a smuggled owner/repo path is accepted as the lookup identity (KI-github-url-unanchored-match).
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-14T10:50:24Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          applied:
+            - request_timeout_bounded
+            - security_decision_matches_enforcement_identity
+          suppressed:
+            - ssrf_protection
+            - confused_deputy_prevented
+          rationale: Parent owns the 1-30 timeout bound and full GitHub URL identity. PAT allowlist, pinned invoke, and SSRF remain disclaimed and KI-tracked.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-13T09:54:57Z"
+          from: draft
+          to: review
+          reason: Split kitchen-sink SYS-REQ-001 children into honest system parents; FRETish compiled and vars declared.
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=6; known_issue:KI-bedrock-agent-invoke-wildcard=failing | known_issue:KI-github-bedrock-readme-pat-no-allowlist=failing | known_issue:KI-github-strands-readme-pat-no-allowlist=failing | known_issue:KI-github-trending-no-timeout=failing | known_issue:KI-github-url-unanchored-match=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

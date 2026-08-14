@@ -1,0 +1,125 @@
+component: stepfn_client
+variables:
+    - name: task_token_wait_seen
+      type: bool
+      direction: input
+      description: True when execution history contains invoke.waitForTaskToken.
+    - name: execution_status_is_paused
+      type: bool
+      direction: output
+      description: True when the client reports PAUSED.
+    - name: history_page_size
+      type: int
+      direction: output
+      description: get_execution_history maxResults when polling for waitForTaskToken. The client uses 1.
+      range:
+        max: 1
+        min: 1
+
+    - name: human_wait_required
+      type: bool
+      direction: input
+      description: True when the workflow reaches a wait-for-task-token state.
+    - name: execution_pauses_for_choice
+      type: bool
+      direction: output
+      description: True when poll_for_execution_task_token_or_completion reports PAUSED.
+
+    - name: task_token_present
+      type: bool
+      direction: output
+      description: True when the paused history event carries a taskToken.
+    - name: history_contains_wait
+      type: bool
+      direction: input
+      description: True when execution history includes invoke.waitForTaskToken.
+    - name: choice_is_yes_or_no
+      type: bool
+      direction: input
+      description: True when the human reply is the documented yes or no token.
+    - name: temperature_settings_count
+      type: int
+      direction: output
+      description: Count of MoviePitch temperature settings (Red/Blue/Green). MoviePitchStack defines 3.
+      range:
+        max: 8
+        min: 0
+    - name: pitch_choice
+      type: int
+      direction: output
+      description: Model pitch selector index the workflow accepts. Intended exact membership is 1, 2, or 3 (Red/Blue/Green). Code uses string_matches N* (KI-moviepitch-pitch-glob-1star).
+      range:
+        max: 3
+        min: 1
+    - name: pitch_id
+      type: enum
+      direction: input
+      description: MoviePitch selector token the workflow shall accept. Intended exact membership is 1, 2, or 3 (Red/Blue/Green). Code uses string_matches N* (KI-moviepitch-pitch-glob-1star).
+    - name: pitch_choice_is_declared
+      type: bool
+      direction: output
+      description: True when pitch_id is one of the declared selectors 1, 2, or 3.
+    - name: user_choice
+      type: enum
+      direction: input
+      description: Human greenlight reply. Intended values are yes and no. The client sends those tokens.
+    - name: reject_round_count
+      type: int
+      direction: output
+      description: Count of no replies that re-enter MoviePitches. Code has no reject counter. Spec bound that SHALL hold is 0-10.
+      range:
+        max: 10
+        min: 0
+    - name: greenlight_path_taken
+      type: bool
+      direction: output
+      description: True when user_choice is yes and the one-pager path is taken.
+    - name: reject_and_repitch_taken
+      type: bool
+      direction: output
+      description: True when user_choice is no and the workflow re-enters MoviePitches.
+    - name: poll_interval_s
+      type: int
+      direction: output
+      description: Seconds between describe_execution polls. webapp/stepfn.py uses time.sleep(1).
+      range:
+        max: 1
+        min: 1
+domain:
+    tables:
+        - name: pitch_selector
+          source: stacks/movie_pitch_stack.py temperature_settings Red/Blue/Green indexed 1|2|3
+          inputs:
+            - name: pitch_id
+              type: enum
+              values: ["1", "2", "3"]
+          output:
+            name: pitch_choice_is_declared
+            type: bool
+          rows:
+            - pitch_id: "1"
+              pitch_choice_is_declared: true
+            - pitch_id: "2"
+              pitch_choice_is_declared: true
+            - pitch_id: "3"
+              pitch_choice_is_declared: true
+        - name: user_choice_path
+          source: stacks/movie_pitch_stack.py handle_user_choice_fork
+          inputs:
+            - name: user_choice
+              type: enum
+              values: [yes, no]
+          output:
+            name: greenlight_path_taken
+            type: bool
+          rows:
+            - user_choice: yes
+              greenlight_path_taken: true
+            - user_choice: no
+              greenlight_path_taken: false
+    mutex:
+        - name: user_choice_paths
+          members:
+            - greenlight_path_taken
+            - reject_and_repitch_taken
+          reason: yes takes the one-pager path and no re-enters MoviePitches; both cannot hold.

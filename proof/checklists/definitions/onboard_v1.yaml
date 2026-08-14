@@ -1,0 +1,174 @@
+# Project override of builtin onboard_v1.
+# Bind load-bearing steps to audit checks, not `proof workflow`.
+# required_checks feed process_checklist rewind; verify: is a soft file check only.
+id: onboard_v1
+title: New project onboarding
+steps:
+  - id: init
+    title: Init proof project and commands
+    when: new_project
+    requires: []
+    role: onboard
+    verify: "test -f proof.yaml"
+    required_checks:
+      - validate_passes
+      - role_prompt_hygiene
+    stamp: confirm+verify
+    scope: repo
+
+  - id: research
+    title: Component structure and stakeholder map
+    when: new_project
+    requires: [init]
+    role: onboard
+    stamp: confirm
+    scope: repo
+    notes_required: true
+
+  - id: skeleton
+    title: Four-layer STK/SYS/SW/INT breadth skeleton
+    when: new_project
+    requires: [research]
+    role: onboard
+    # Soft verify: specs tree exists. required_checks bind completeness gates.
+    verify: "test -d specs"
+    required_checks:
+      - l0_stakeholder_complete
+      - l1_system_complete
+      - l2_software_complete
+      - levels_connected
+    stamp: confirm+verify
+    scope: repo
+
+  - id: traces-light
+    title: Light code-spec graph (Implements/Documents)
+    when: both
+    requires: [skeleton]
+    role: onboard
+    stamp: confirm
+    scope: package
+    required_checks:
+      - annotation_validity
+      - orphan_code_clean
+    # Enables graph-backed spec-review-2; not full MC/DC
+
+  - id: variables
+    title: Variables named by requirements
+    when: both
+    requires: [traces-light]
+    role: onboard
+    stamp: confirm
+    scope: repo
+    required_checks:
+      - variable_orphans_clean
+      - variables_declared
+      - variable_drift
+
+  - id: spec-review-1
+    title: Spec review — structure and ambiguity
+    when: both
+    requires: [variables]
+    role: spec-review
+    stamp: confirm
+    scope: repo
+    required_checks:
+      - spec_lint_decomposition_adds_refinement
+      - spec_lint_formalization_quality
+      - solver_modeling_opportunity
+      - under_modeled_requirements_clean
+
+  - id: spec-review-2
+    title: Spec review — deep pass with graph
+    when: both
+    requires: [spec-review-1]
+    role: spec-review
+    stamp: confirm
+    scope: repo
+    required_checks:
+      - spec_lint_spec_conformance_review_grounded
+      - software_formalization_complete
+
+  - id: surface-matrix
+    title: Surface coverage matrix for declared packages
+    when: both
+    requires: [spec-review-1]
+    role: surface-close
+    # Soft: project may not have surfaces dir yet; check proof root only.
+    verify: "test -d proof"
+    stamp: confirm+verify
+    scope: package
+
+  - id: ac-sweep
+    title: Acceptance criteria reviewed for in-scope STKs
+    when: both
+    requires: [surface-matrix]
+    role: ac-sweep
+    stamp: confirm
+    scope: package
+    required_checks:
+      - acceptance_criteria_witnessed
+      - acceptance_witness_quality
+
+  - id: hazard
+    title: Hazard review / catalog disposition for in-scope reqs
+    when: both
+    requires: [ac-sweep]
+    role: hazard-sweep
+    stamp: confirm
+    scope: package
+    required_checks:
+      - spec_lint_hazard_consequence
+
+  - id: residual
+    title: Theme residual inventories dispositioned
+    when: both
+    requires: [hazard]
+    role: residual
+    stamp: confirm
+    scope: package
+    required_checks:
+      - residual_kill_hygiene
+
+  - id: annotations-heavy
+    title: MC/DC and obligation evidence annotations (in-scope)
+    when: both
+    requires: [hazard]
+    role: formal-proof
+    stamp: confirm
+    scope: package
+    required_checks:
+      - annotation_validity
+      - obligation_witness_grounded
+
+  - id: coverage
+    title: Coverage and witnesses measured / logged
+    when: both
+    requires: [annotations-heavy, ac-sweep]
+    role: coverage
+    stamp: confirm
+    scope: package
+    required_checks:
+      - code_mcdc_coverage
+      - code_mcdc_measure
+
+  - id: history-mine
+    title: Mine recent commits into DEFECT/CHG and obligations
+    when: both
+    requires: [coverage]
+    role: history-mine
+    stamp: confirm
+    scope: repo
+    required_checks:
+      - problem_reports_reviewed
+      - change_evidence_complete
+
+  - id: debt-standing
+    title: Debt hygiene; handoff to continuous pipeline
+    when: both
+    requires: [coverage, history-mine]
+    role: pipeline
+    stamp: confirm
+    scope: repo
+    required_checks:
+      - known_issues_reviewed
+      - waivers_reviewed

@@ -8,6 +8,8 @@ s3_client = boto3.client("s3")
 s3_bucket_name = os.environ.get("PDF_BUCKET")
 
 
+# Implements: SW-REQ-007
+# Implements: INT-REQ-006
 def handler(event, context):
     location = event["location"]
     itinerary_content = f"""

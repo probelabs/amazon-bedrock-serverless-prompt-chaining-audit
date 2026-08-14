@@ -1,0 +1,110 @@
+id: INT-REQ-002
+version: 1
+status: review
+priority: shall
+category: interface
+req_type: guarantee
+fretish: the sfn_api shall always satisfy (!start_requested | start_execution_called) & (!start_requested | execution_arn_returned) & (!start_requested | demo_execution_reaches_terminal) & (!start_requested | execution_name_prefixed) & (!start_requested | named_demo_exists) & (!start_requested | terminal_status_is_recognized) & (execution_name_suffix_len = 12) & (!start_requested | execution_arn_includes_account)
+description: The webapp shall start a demo by calling Step Functions StartExecution with a streamlit-<session>- execution name whose suffix length is 12, shall return the execution ARN that includes the STS account, and the started demo shall reach a terminal SFN status.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-001
+component: sfn_api
+rationale: stepfn.start_execution is the only start path from the Streamlit pages and returns executionArn.
+tags: []
+variables:
+    - start_requested
+    - start_execution_called
+    - execution_arn_returned
+    - demo_execution_reaches_terminal
+    - execution_name_prefixed
+    - named_demo_exists
+    - terminal_status_is_recognized
+    - execution_name_suffix_len
+    - execution_arn_includes_account
+traces:
+    satisfies:
+        - SYS-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:30:21.331199754Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:8458887856eaf6e7b0a67342a7776c13eb511f559fa759f3049e46452f422884
+    review_history:
+        - reviewed_at: "2026-08-14T09:30:21.331199754Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: manual trace review via proof trace review
+          source: proof trace review --citation
+          citations:
+            - functions/generic/seek_user_input/index.py
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-001.req.yaml
+            - tests/test_stepfn.py
+    components:
+        - stepfn_client
+        - sfn_api
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:14:15Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T09:23:43Z"
+obligation_checklist:
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: error_handling
+      worst_case: StartExecution fails or returns no execution ARN, so the Streamlit page cannot poll and the user never sees a terminal status.
+      severity: medium
+    - class: nominal
+      worst_case: A start is requested but StartExecution is never called, so the named PromptChainDemo never begins.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:46Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+interface:
+    caller: stepfn_client
+    callee: sfn_api
+    type: api_call
+    signature: StartExecution(name,input) -> executionArn
+    producer: sfn_api
+    consumer:
+        - stepfn_client
+    owner: team:sample
+    version: 1.0.0
+    compatibility_policy: semver-lax
+    risk_tier: 2
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

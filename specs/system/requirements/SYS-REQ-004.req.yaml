@@ -1,0 +1,131 @@
+id: SYS-REQ-004
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the meal_debate shall always satisfy (!chefs_agree | winner_path_taken) & (debate_round < 3 | winner_path_taken) & (chefs_agree | debate_round >= 3 | scoring_path_taken) & consensus_choice_defined & (chef_count = 2) & chef_id_is_declared
+description: The meal planner shall take the winner path when the chefs agree or when debate_round is greater than or equal to 3. The stack shall define chef_count = 2. chef_id shall be a declared chef. The scoring path shall continue when the chefs do not agree and debate_round is less than 3.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: meal_debate
+rationale: 'An unbounded debate would never return a recipe. The state machine forces a winner path at round three. Satisfying children: SW-REQ-004.'
+tags: []
+variables:
+    - chefs_agree
+    - debate_round
+    - winner_path_taken
+    - consensus_choice_defined
+    - scoring_path_taken
+    - chef_count
+    - chef_id_is_declared
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:47.887648287Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:6f72fa6efeded15bfd9fa140172e1e4c0fb6a9b008de7b0c9cdcd732bd4d3a27
+    review_history:
+        - reviewed_at: "2026-08-13T12:22:13.835082742Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Re-review SYS-REQ-004 after latest spec/test edits.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - stacks/meal_planner_stack.py
+            - tests/test_meal_choose_winner.py
+            - tests/test_meal_planner_choice.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+    gaps_reviewed_at: "2026-08-14T09:40:52.125635479Z"
+    gaps_reviewed_by: agent:grok
+    gap_reviews:
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|chef_count
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|chefs_agree
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|consensus_choice_defined
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|debate_round
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|scoring_path_taken
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-004|winner_path_taken
+          reviewer: agent:grok
+          reason: 'Parent SYS-REQ-004 owns MealPlannerStack orchestration: chef_count=2, Consensus Choice (chefs_agree / debate_round / winner_path_taken / scoring_path_taken / consensus_choice_defined). Child SW-REQ-004 is only the choose-winner handler after that path is taken (winning_score, chef_id_is_declared). Those parent flags are CDK Choice wiring, not missing child variables.'
+          reviewed_at: "2026-08-14T09:40:52.125635479Z"
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:34Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T09:24:09Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: debate_round reaches 3 but the winner path is not taken, so the meal planner debates without returning a recipe.
+      severity: medium
+    - class: error_handling
+      worst_case: An undeclared chef_id is used so the winner path indexes a missing chef and the workflow fails after consensus.
+      severity: medium
+    - class: nominal
+      worst_case: The chefs agree but the winner path is not taken, so the user never gets the agreed recipe.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:43Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

@@ -1,0 +1,63 @@
+id: KI-mcdc-bedrock-agent
+title: Bedrock agent lookup paths have no unit-level MC/DC witnesses
+description: functions/most_popular_repo_bedrock_agent/agent/index.py decisions (retry i>0, repo_match, example URL reject) require Bedrock invoke_agent. No unit harness exists. Native Python MC/DC reports those decisions uncovered.
+affected_requirements:
+    - SW-REQ-006
+severity: medium
+severity_basis: risk
+risk: correctness
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_bedrock_agent_lookup.py -q
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof audit --check known_issue_complete and the related evidence check.
+    - The defect is missing evidence, not a crashing handler; do not encode a passing buggy assertion.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: Mocked unit tests now drive lookup_trending_repo_agent; re-measure MC/DC.
+remediation: Add a mocked invoke_agent unit test that drives retry, match, and example-URL rejection, then re-run proof mcdc measure --engine python.
+notes:
+    - Uncovered agent/index.py decisions; existing github unit tests do not invoke Bedrock.
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:26:05Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:27:10Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command,append-note
+    - at: "2026-08-12T20:32:10Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-12T20:38:08Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command
+    - at: "2026-08-12T20:45:35Z"
+      by: agent:grok
+      action: edit
+      detail: set-status=withdrawn
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: true
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Reviewed as missing-evidence debt, not a security submission. Control path: existing unit tests in tests/ pass. Live AWS acceptance remains environment-blocked.
+        operational_path_verified: intended/safe path confirmed by unit tests under tests/ (handlers do not take the missing-acceptance path).
+    not_applicable:
+        attacker_profitability: No attacker profit path. The defect is missing verification evidence on an AWS sample, not a stealable asset.
+        reachability_verified: 'local-behavioral correctness/evidence defect: no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'
+        untrusted_attacker: Not an exploit PoC. This KnownIssue tracks missing evidence (acceptance, MC/DC, or obligation triples), not an untrusted-attacker payload.

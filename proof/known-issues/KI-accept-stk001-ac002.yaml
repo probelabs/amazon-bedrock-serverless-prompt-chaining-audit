@@ -1,0 +1,60 @@
+id: KI-accept-stk001-ac002
+title: No live-AWS acceptance test for MoviePitch human pause
+description: STK-REQ-001 AC-002 requires a live MoviePitch execution that pauses on waitForTaskToken.
+affected_requirements:
+    - STK-REQ-001
+severity: medium
+severity_basis: risk
+risk: correctness
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof audit --check known_issue_complete and the related evidence check.
+    - The defect is missing evidence, not a crashing handler; do not encode a passing buggy assertion.
+environment_note: Reproduces only against a deployed AWS account with Bedrock, Step Functions, and the sample stacks. This onboard runner has no AWS credentials and must not treat a missing live execution as a silent pass.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: Use MoviePitch page against a live SM; unit tests cover pause detection only.
+remediation: Add an acceptance test against a deployed MoviePitch state machine that observes PAUSED then send_task_success.
+notes:
+    - 'environment_note: no AWS credentials or deployed stacks in the proof onboard runner.'
+    - 'Withdrawn: process/evidence gap, not a product defect. Tests and spec deferrals that originally justified this KI are gone.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:23:06Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:27:10Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command,append-note
+    - at: "2026-08-12T20:32:10Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T11:39:07Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: true
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Reviewed as missing-evidence debt, not a security submission. Control path: existing unit tests in tests/ pass. Live AWS acceptance remains environment-blocked.
+        operational_path_verified: intended/safe path confirmed by unit tests under tests/ (handlers do not take the missing-acceptance path).
+    not_applicable:
+        attacker_profitability: No attacker profit path. The defect is missing verification evidence on an AWS sample, not a stealable asset.
+        reachability_verified: 'local-behavioral correctness/evidence defect: no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'
+        untrusted_attacker: Not an exploit PoC. This KnownIssue tracks missing evidence (acceptance, MC/DC, or obligation triples), not an untrusted-attacker payload.

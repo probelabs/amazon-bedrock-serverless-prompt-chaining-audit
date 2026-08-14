@@ -1,0 +1,41 @@
+id: KI-accept-stk003-ac002
+title: No live-AWS acceptance test for Flows techniques
+description: STK-REQ-003 AC-002 requires deployed Flows-* aliases.
+affected_requirements:
+    - STK-REQ-003
+severity: low
+severity_basis: risk
+risk: correctness
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof audit --check known_issue_complete and the related evidence check.
+    - The defect is missing evidence, not a crashing handler; do not encode a passing buggy assertion.
+environment_note: Reproduces only against a deployed AWS account with Bedrock, Step Functions, and the sample stacks. This onboard runner has no AWS credentials and must not treat a missing live execution as a silent pass.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: Run Flows invoke after deploy.
+remediation: Add an acceptance test that invokes each implemented flow through alias live.
+notes:
+    - 'environment_note: no AWS credentials or deployed stacks in the proof onboard runner.'
+    - 'Withdrawn: process/evidence gap, not a product defect. Tests and spec deferrals that originally justified this KI are gone.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:23:06Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:27:10Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command,append-note
+    - at: "2026-08-12T20:32:10Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T11:39:07Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn

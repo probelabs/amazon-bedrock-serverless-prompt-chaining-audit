@@ -15,6 +15,7 @@ import jsii
 import json
 
 
+# Implements: SW-REQ-010
 @jsii.implements(lambda_python.ICommandHooks)
 class CommandHooks:
     @jsii.member(jsii_name="beforeBundling")
@@ -30,6 +31,7 @@ class CommandHooks:
         ]
 
 
+# Implements: SW-REQ-010
 def get_lambda_bundling_options():
     return lambda_python.BundlingOptions(
         asset_excludes=[".venv", ".mypy_cache", "__pycache__"],
@@ -37,6 +39,7 @@ def get_lambda_bundling_options():
     )
 
 
+# Implements: SW-REQ-010
 def get_bedrock_iam_policy_statement():
     return iam.PolicyStatement(
         effect=iam.Effect.ALLOW,
@@ -51,6 +54,7 @@ def get_bedrock_iam_policy_statement():
     )
 
 
+# Implements: SW-REQ-010
 def add_bedrock_retries(task):
     task.add_retry(
         errors=["ThrottlingException"],
@@ -59,6 +63,7 @@ def add_bedrock_retries(task):
     )
 
 
+# Implements: SW-REQ-010
 def get_anthropic_claude_prepare_prompt_step(
     scope: Construct,
     id: builtins.str,
@@ -107,6 +112,7 @@ def get_anthropic_claude_prepare_prompt_step(
     return format_prompt
 
 
+# Implements: SW-REQ-010
 def get_anthropic_claude_invoke_model_step(
     scope: Construct,
     id: builtins.str,
@@ -143,6 +149,7 @@ def get_anthropic_claude_invoke_model_step(
     return invoke_model
 
 
+# Implements: SW-REQ-010
 def get_anthropic_claude_extract_response_step(
     scope: Construct,
     id: builtins.str,
@@ -199,6 +206,8 @@ def get_anthropic_claude_extract_response_step(
     return extract_response
 
 
+# Implements: SW-REQ-010
+# Implements: INT-REQ-001
 def get_anthropic_claude_invoke_chain(
     scope: Construct,
     id: builtins.str,
@@ -213,6 +222,7 @@ def get_anthropic_claude_invoke_chain(
     input_json_path: typing.Optional[str] = "$.model_inputs",
     output_json_path: typing.Optional[str] = "$.model_outputs",
 ):
+    # Implements: SW-REQ-010
     if initial_assistant_text and pass_conversation:
         raise ValueError(
             'initial_assistant_text cannot be used with pass_conversation. This combination results in a runtime error from Bedrock: `messages: roles must alternate between "user" and "assistant", but found multiple "assistant" roles in a row`'
@@ -255,6 +265,7 @@ def get_anthropic_claude_invoke_chain(
     return format_prompt.next(invoke_model).next(extract_response)
 
 
+# Implements: SW-REQ-002
 def get_json_response_parser_step(
     scope: Construct,
     id: builtins.str,

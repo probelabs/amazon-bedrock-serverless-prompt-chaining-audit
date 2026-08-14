@@ -17,7 +17,9 @@ from aws_cdk import (
 from constructs import Construct
 
 
+# Implements: SYS-REQ-001
 class WebappStack(Stack):
+    # Implements: SYS-REQ-001
     def __init__(
         self, scope: Construct, construct_id: str, parent_domain: str, **kwargs
     ) -> None:

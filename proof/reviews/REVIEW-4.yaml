@@ -1,0 +1,9 @@
+id: REVIEW-4
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-004
+decision: approved
+comment: 'FRETish winning_score > 0 | handler_raises matches handler: non-positive winning_score raises; otherwise the max-score chef and meal are returned.'
+citations:
+    - functions/meal_planner/meal_choose_winner_agent/index.py:1@handler

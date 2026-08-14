@@ -1,0 +1,120 @@
+id: SYS-REQ-011
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: assumption
+fretish: the technique_catalog shall always satisfy !(deploy_actions_are_star & deploy_resources_are_star)
+description: The pipeline host environment is assumed not to grant both Action=* and Resource=* on a deploy principal. The shipped sample still does (KI-pipeline-deploy-demo-star-star, KI-pipeline-deploy-examples-star-star). This is an environment assumption, not a technique-catalog guarantee.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-003
+component: technique_catalog
+rationale: Preflight rejects input-only IAM conjuncts on the catalog guarantee. The product defect is recorded on the two pipeline KIs. The catalog cannot choose those IAM flags.
+tags: []
+variables:
+    - deploy_actions_are_star
+    - deploy_resources_are_star
+traces:
+    satisfies:
+        - STK-REQ-003
+    implemented_by_extra:
+        - pipeline/pipeline_stack.py
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+        - pipeline/pipeline_stack.py
+    reviewed_at: "2026-08-14T11:51:42.068310853Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:b7accb092a8d9177ff32e05e1856cc9cac8d4a0db879014fc70486fce45d8cc3
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-14T12:00:00Z"
+        ai_generated: true
+history:
+    created_by: agent:grok
+    created_at: "2026-08-14T12:00:00Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:50:03Z"
+obligation_checklist:
+    - error_handling
+obligation_suppressions:
+    - id: constrained_principal_scope_preserved
+      reason: SYS-REQ-011 is an environment assumption, not a pipeline-component guarantee. The catalog cannot choose deploy Action/Resource flags. Live sample writes Action=* Resource=* and that product defect is already KI-pipeline-deploy-demo-star-star and KI-pipeline-deploy-examples-star-star.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:02Z"
+      framework_refs:
+        - CWE CWE-269,CWE-367,CWE-668
+        - NIST-800-53 AC-6,AC-3
+        - OWASP-ASVS-v4 V4.1.3,V1.4.4
+    - id: control_not_silently_disabled
+      reason: There is no fail-closed IAM precondition on technique_catalog. The host either grants star-star or it does not. Accepting this class would pretend the assumption disables a control; the shipped pipeline still attaches PolicyStatement(actions=['*'], resources=['*']).
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:03Z"
+      framework_refs:
+        - CWE CWE-636,CWE-693,CWE-280
+        - NIST-800-53 AC-3,SC-7
+        - OWASP-ASVS-v4 V1.4.1,V4.1.5
+    - id: privileged_authority_scoped_by_duty
+      reason: This requirement does not own deploy-role duty separation. Least-privilege scoping of DeployDemoApp and DeployExamples is product debt on the two pipeline star-star KIs, not an accepted catalog guarantee here.
+      suppressed_by: agent:grok
+      suppressed_at: "2026-08-14T10:50:03Z"
+      framework_refs:
+        - CWE CWE-250,CWE-266
+        - NIST-800-53 AC-5,AC-6
+obligation_hazards:
+    - class: error_handling
+      worst_case: The host grants both Action=* and Resource=* on a deploy principal so a compromised pipeline is account-admin equivalent.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-14T10:50:03Z"
+    reviewed_by: agent:grok
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - error_handling
+        - category: domain
+          disposition: reviewed
+          suppressed:
+            - constrained_principal_scope_preserved
+            - control_not_silently_disabled
+            - privileged_authority_scoped_by_duty
+          rationale: Least-privilege and fail-closed IAM classes are suppressed with KI linkage. SYS-REQ-011 remains an environment assumption the sample violates; accepting those classes would invert it into a false catalog guarantee.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+nominal_evidence_exemptions:
+    - obligation_class: error_handling
+      reason: SYS-REQ-011 is an environment assumption the shipped sample violates (KI-pipeline-deploy-*). FRETish has no valid-input success cell where both star flags are false, so error_handling:nominal would be a false happy-path witness.
+      reviewer: agent:grok
+verification_state: failing
+assumption:
+    status: known_issue
+    review_date: "2026-08-14"
+    linked_known_issue:
+        - KI-pipeline-deploy-demo-star-star
+        - KI-pipeline-deploy-examples-star-star
+    rationale: The shipped pipeline writes Action=* Resource=* on DeployDemoApp and DeployExamples. That is product-owned IAM, recorded on the two pipeline KIs. SYS-REQ-011 remains an environment assumption the sample violates; it is not a technique-catalog guarantee.
+lifecycle:
+    change_history:
+        - date: "2026-08-14T12:00:00Z"
+          from: draft
+          to: review
+          reason: Move input-only IAM conjunct off SYS-REQ-006 guarantee
+          changed_by: agent:grok
+        - date: "2026-08-14T11:48:32Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=2; known_issue:KI-pipeline-deploy-demo-star-star=failing | known_issue:KI-pipeline-deploy-examples-star-star=failing
+          changed_by: agent:auto-derive

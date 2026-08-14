@@ -1,0 +1,43 @@
+component: parse_json_response
+no_interface:
+  declared: true
+  reason: "Handler body only; the SFN event contract lives on INT-REQ-003 (json_parser_event), not a second interface."
+variables:
+    - name: payload_is_invalid
+      type: bool
+      direction: input
+      description: True when response_string is not JSON or fails jsonschema.
+    - name: model_output_fails_schema
+      type: bool
+      direction: input
+      description: True when model output is not valid JSON or fails the JSON schema.
+    - name: invalid_payload_rejected
+      type: bool
+      direction: output
+      description: True when invalid JSON or schema mismatch is not accepted as parsed output.
+    - name: handler_raises
+      type: bool
+      direction: output
+      description: True when the Lambda handler raises.
+
+    - name: json_is_malformed
+      type: bool
+      direction: input
+      description: True when response_string is not valid JSON.
+    - name: schema_mismatched
+      type: bool
+      direction: input
+      description: True when decoded JSON fails jsonschema.validate.
+    - name: parsed_object_returned
+      type: bool
+      direction: output
+      description: True when the handler returns the decoded object on a valid payload.
+
+    - name: additional_properties_disallowed
+      type: bool
+      direction: output
+      description: True when the schema sets additionalProperties false.
+    - name: schema_type_is_object
+      type: bool
+      direction: output
+      description: True when the json_schema type is object.

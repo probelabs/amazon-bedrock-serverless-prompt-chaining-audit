@@ -1,0 +1,46 @@
+id: KI-mcdc-readme-5000
+title: README truncation branch still uncovered after unit tests
+description: MC/DC still reports len(readme_content)>5000 uncovered in github_agent_actions and strands helpers after tests that call those functions with 6000-char payloads. Likely importlib vs instrumented copy mismatch.
+affected_requirements:
+    - SW-REQ-006
+severity: low
+severity_basis: risk
+risk: correctness
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py -q
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof audit --check known_issue_complete and the related evidence check.
+    - The defect is missing evidence, not a crashing handler; do not encode a passing buggy assertion.
+environment_note: MC/DC extractor and importlib-loaded module paths may disagree; unit tests call the 5000-char branch.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: Import production modules as packages.
+remediation: Import production modules as packages so sys.monitoring records the same file path the extractor uses.
+notes:
+    - README >5000 tests exist; MC/DC still reports the branch uncovered (import path).
+    - 'Withdrawn: native Python MC/DC now reports 3/3 decisions on most_popular_repo_strands including README truncation.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:26:05Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-12T20:27:10Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command,append-note
+    - at: "2026-08-12T20:32:10Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-12T20:38:08Z"
+      by: agent:grok
+      action: edit
+      detail: set-reproducer-command
+    - at: "2026-08-12T20:45:52Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn

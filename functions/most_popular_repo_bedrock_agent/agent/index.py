@@ -1,3 +1,4 @@
+# mcdc:ignore:capability-gap Bedrock invoke_agent cannot be driven here [ki: KI-mcdc-bedrock-agent]
 import boto3
 import os
 import re
@@ -14,6 +15,7 @@ agent_id = os.environ.get("BEDROCK_AGENT_ID")
 agent_alias_id = os.environ.get("BEDROCK_AGENT_ALIAS_ID")
 
 
+# Implements: SW-REQ-006
 def lookup_trending_repo_agent(event, context):
     session_id = str(uuid.uuid4())
     example_github_repo = "orgname/reponame"
@@ -60,6 +62,7 @@ def lookup_trending_repo_agent(event, context):
     }
 
 
+# Implements: SW-REQ-006
 def summarize_repo_readme_agent(event, context):
     session_id = str(uuid.uuid4())
 

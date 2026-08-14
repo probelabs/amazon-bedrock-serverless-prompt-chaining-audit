@@ -1,0 +1,22 @@
+schema_version: proof.evidence_profile.v1
+results:
+    - profile: known_issue_reproducer
+      evidence_type: known_issue_tripwire
+      requirements:
+        - SW-REQ-006
+        - SYS-REQ-007
+      command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_url_extractors_require_fullmatch -q --tb=short
+      status: pass
+      observed_result: known_issue_reproduced
+      executed_at: "2026-08-14T12:59:01Z"
+      input_set:
+        - functions/most_popular_repo_bedrock_agent/agent/index.py
+        - functions/most_popular_repo_strands/index.py
+        - tests/test_github_repo.py
+        - KI-github-url-unanchored-match
+      freshness_hashes:
+        functions/most_popular_repo_bedrock_agent/agent/index.py: sha256:61816bb5672a276227e944d3795c3946d6278311f0aeff6395d3a57e45db9a7d
+        functions/most_popular_repo_strands/index.py: sha256:20dae3ee6a74c3e5882f4d925bbd9a33a8ecab6f7d01a5734fef03b048931e61
+        tests/test_github_repo.py: sha256:5324319c465b6c1f0142665ae20c19b26a743fa2cfef7a6fc8a2b89a8a598a3b
+      known_issues:
+        - KI-github-url-unanchored-match

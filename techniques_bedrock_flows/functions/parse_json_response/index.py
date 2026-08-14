@@ -7,6 +7,7 @@ json_schema = json.loads(os.environ["SCHEMA"])
 
 # Parse a JSON escaped string into an object and validate it against the JSON schema.
 # Return the validated object.
+# Implements: SW-REQ-001
 def handler(event, context):
     json_string = event["node"]["inputs"][0]["value"]
     response_object = json.loads(json_string)

@@ -1,0 +1,108 @@
+id: INT-REQ-005
+version: 1
+status: review
+priority: shall
+category: interface
+req_type: guarantee
+fretish: the sns_alarms shall always satisfy (!composite_alarm_firing | sns_topic_receives_publish) & (!demo_workflow_failed | alarm_notification_published) & (!(failed_count >= 1) | alarm_notification_published) & composite_alarm_defined & topic_name_is_notifications & (evaluation_periods = 1)
+description: When the composite demo alarm fires or a PromptChainDemo workflow fails (failed_count >= 1), the notifications SNS topic shall receive the publish. Per-demo alarms shall use evaluation_periods = 1.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-005
+component: sns_alarms
+rationale: Operators subscribe to one topic for demo failures. The composite fires after a per-workflow ExecutionsFailed alarm.
+tags: []
+variables:
+    - composite_alarm_firing
+    - sns_topic_receives_publish
+    - demo_workflow_failed
+    - alarm_notification_published
+    - failed_count
+    - composite_alarm_defined
+    - topic_name_is_notifications
+    - evaluation_periods
+traces:
+    satisfies:
+        - SYS-REQ-005
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:18.502605319Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:8437d72948d2fb764d68c964673d59a876eadd3e706dd73801a7dc9036ebff4f
+    review_history:
+        - reviewed_at: "2026-08-12T20:34:44.613902619Z"
+          reviewed_by: agent:grok
+          method: inspection
+          rationale: Citation-backed review of INT-REQ-005.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-005.req.yaml
+            - test_cdk_stacks.py
+    components:
+        - alarms_stack
+        - sns_alarms
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:14:15Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T09:23:44Z"
+obligation_checklist:
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: error_handling
+      worst_case: The composite alarm fires but SNS never receives the publish, so the operator is not notified of the demo failure.
+      severity: medium
+    - class: nominal
+      worst_case: The notifications topic or composite alarm is missing so a PromptChainDemo failure has no operator-visible path.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:47Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+interface:
+    caller: alarms_stack
+    callee: sns_alarms
+    type: api_call
+    signature: Publish(topic) -> messageId
+    producer: sns_alarms
+    consumer:
+        - failure_alarm
+    owner: team:sample
+    version: 1.0.0
+    compatibility_policy: semver-lax
+    risk_tier: 2
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

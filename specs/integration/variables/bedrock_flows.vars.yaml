@@ -1,0 +1,64 @@
+component: bedrock_flows
+variables:
+    - name: flow_invoke_requested
+      type: bool
+      direction: input
+      description: True when the Flows test runner starts a technique.
+    - name: live_alias_invoked
+      type: bool
+      direction: output
+      description: True when invoke_flow uses alias live.
+
+    - name: flow_identifier_resolved
+      type: bool
+      direction: output
+      description: True when the runner resolves the Flows-prefixed flow id before invoke.
+    - name: alias_name_is_live
+      type: bool
+      direction: output
+      description: True when the resolved flow alias name is live.
+    - name: input_document_provided
+      type: bool
+      direction: output
+      description: True when invoke_flow is given the technique test-input document.
+
+    - name: invoke_uses_document_content
+      type: bool
+      direction: output
+      description: True when invoke_flow inputs use content.document.
+    - name: completion_reason_checked
+      type: bool
+      direction: output
+      description: True when the runner observes flowCompletionEvent.
+    - name: completion_reason_is_success
+      type: bool
+      direction: output
+      description: True when flowCompletionEvent.completionReason equals SUCCESS.
+    - name: flow_invoke_raises
+      type: bool
+      direction: output
+      description: True when the runner raises because the flow did not complete with SUCCESS.
+    - name: flow_alias
+      type: enum
+      direction: input
+      description: Flows alias the test runner selects. CfnFlowAlias name is live.
+domain:
+    tables:
+        - name: flow_alias_catalog
+          source: techniques_bedrock_flows/run-test-execution.py alias name live
+          inputs:
+            - name: flow_alias
+              type: enum
+              values: [live]
+          output:
+            name: alias_name_is_live
+            type: bool
+          rows:
+            - flow_alias: live
+              alias_name_is_live: true
+    mutex:
+        - name: success_or_raise
+          members:
+            - completion_reason_is_success
+            - flow_invoke_raises
+          reason: The runner prints SUCCESS output or raises; both cannot hold.

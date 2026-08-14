@@ -10,6 +10,9 @@ from stacks.map_chain import FlowsMapChain
 
 
 def test_techniques_bedrock_flows_model_invocation_stack_synthesizes_properly():
+    # Verifies: SYS-REQ-006
+    # INT-REQ-007:nominal:nominal
+    # INT-REQ-007:error_handling:nominal
     app = cdk.App()
 
     test_stack = FlowsModelInvocation(

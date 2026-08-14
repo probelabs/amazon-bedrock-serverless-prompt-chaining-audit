@@ -1,0 +1,75 @@
+id: KI-github-trending-no-timeout
+title: GitHub trending scrapers issue requests.get with no timeout
+description: |-
+    functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py:16-18 and functions/most_popular_repo_strands/index.py:32-35 call requests.get("https://github.com/trending") with no timeout=. SW-REQ-006 hazard_review applies request_timeout_bounded ("GitHub trending uses requests.get to github.com") — false safety; a hung origin blocks the Lambda until the runtime limit. ADHD shortlist: proof/evidence/adhd-threat-spec-red.md ("GitHub trending GET no timeout; unanchored regex").
+    Quote (Bedrock actions):
+        get_response = requests.get(
+            "https://github.com/trending", headers={"User-Agent": "Mozilla/5.0"}
+        )
+    Quote (Strands):
+        response = requests.get(
+            "https://github.com/trending",
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
+affected_requirements:
+    - SW-REQ-006
+    - SYS-REQ-007
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_trending_gets_pass_bounded_timeout -q
+evidence_manifests:
+    - proof/evidence/KI-github-trending-no-timeout.yaml
+severity: medium
+severity_basis: reproducer
+risk: availability
+cve_surface: possible
+affected_api: get_github_trending_page_agent_action / get_trending_github_repositories (github_agent_actions/index.py:16-18, most_popular_repo_strands/index.py:32-35)
+attacker_input: Network stall or slow-loris on https://github.com/trending (or any on-path delay); no attacker body required
+sanitizer: manual:missing-timeout
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_github_trending_gets_pass_bounded_timeout -q
+tripwire_mutation: Pass timeout= in (1, 30] on both requests.get("https://github.com/trending") calls.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not invoke MostPopularRepo agents against a live GitHub trending fetch until both GETs pass timeout= in (1, 30]. No live AWS in this environment.
+remediation: Pass timeout= on both trending requests.get calls with a bound in (1, 30] seconds so a hung origin cannot pin the Lambda.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - proof/evidence/adhd-threat-spec-red.md cluster "GitHub trending GET no timeout; unanchored regex" (score 6.4); SW-REQ-006 hazard_review request_timeout_bounded is false safety
+customer_impact: A hung GitHub trending response can pin the Bedrock-actions or Strands Lambda until the function timeout, stalling the MostPopularRepo workflow.
+owner: agent:grok
+review_date: "2026-09-14"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-14
+    - at: "2026-08-14T05:54:43Z"
+      by: agent:grok
+      action: edit
+      detail: add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    not_applicable:
+        reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

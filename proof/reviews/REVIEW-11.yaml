@@ -1,0 +1,10 @@
+id: REVIEW-11
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:25:06Z"
+subject: SW-REQ-006
+decision: approved
+comment: FRETish (!extracted_url_is_invalid | lookup_rejects_url) & (readme_len <= 5000 | readme_truncated) is implemented by GitHubRepo.validate_github_url inside lookup_trending_repo_agent and by README truncation in the Bedrock-agent handler. The nested validator is not a top-level AST symbol, so this review cites the host agent. Formula matches those gates; handler still fetches README without the same reject.
+citations:
+    - functions/most_popular_repo_strands/index.py:94@lookup_trending_repo_agent
+    - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py:69@handler

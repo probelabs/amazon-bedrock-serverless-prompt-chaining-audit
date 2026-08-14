@@ -8,7 +8,9 @@ from constructs import Construct
 from .util import get_anthropic_claude_invoke_chain, get_bedrock_iam_policy_statement
 
 
+# Implements: SYS-REQ-001
 class BlogPostStack(Stack):
+    # Implements: SYS-REQ-001
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 

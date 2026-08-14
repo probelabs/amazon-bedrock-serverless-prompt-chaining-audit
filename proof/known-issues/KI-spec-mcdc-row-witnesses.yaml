@@ -1,0 +1,90 @@
+id: KI-spec-mcdc-row-witnesses
+title: Spec-level FRETish MC/DC row witnesses still missing on formalized requirements
+description: 'mcdc_coverage (spec-level FRETish tables, not native Python code MC/DC) still has uncovered witness rows. Unit tests exist and now carry some # MCDC comments on SW-REQ happy/no-action paths. Remaining gaps: invariant-violation rows (would require a failing handler or //mcdc:ignore after a review), SYS/INT rows that need live AWS, and CDK synth SW-REQ-008/009 not in project.commands.test. Native Python code_mcdc_coverage is 100%.'
+affected_requirements:
+    - INT-REQ-001
+    - INT-REQ-002
+    - INT-REQ-003
+    - INT-REQ-004
+    - INT-REQ-005
+    - INT-REQ-006
+    - INT-REQ-007
+    - SW-REQ-001
+    - SW-REQ-002
+    - SW-REQ-003
+    - SW-REQ-004
+    - SW-REQ-005
+    - SW-REQ-006
+    - SW-REQ-007
+    - SW-REQ-008
+    - SW-REQ-009
+    - SW-REQ-010
+    - SYS-REQ-001
+    - SYS-REQ-002
+    - SYS-REQ-003
+    - SYS-REQ-004
+    - SYS-REQ-005
+    - SYS-REQ-006
+    - SYS-REQ-007
+    - SYS-REQ-008
+    - SYS-REQ-009
+    - SYS-REQ-010
+severity: medium
+severity_basis: risk
+risk: correctness
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof mcdc spec queue and proof audit --check mcdc_coverage.
+    - The defect is missing spec-level row comments, not a crashing handler; do not encode a passing buggy assertion.
+environment_note: 'Spec-level FRETish MC/DC needs # MCDC comments or live AWS. Native Python MC/DC already reports 17/17. This onboard runner has no AWS credentials.'
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: Native Python code MC/DC is 100%. Unit tests drive the SW handlers. Spec-level row comments are tracked debt, not a waiver.
+remediation: 'Add remaining # MCDC row comments (or reviewed //mcdc:ignore:defensive on unreachable invariant-violation rows) and live-AWS integration witnesses. Re-run proof mcdc spec queue and proof audit --check mcdc_coverage.'
+notes:
+    - 'environment_note: spec-level MC/DC row comments remain; native python engine is 17/17.'
+    - 'Withdrawn: process/evidence gap, not a product defect. Tests and spec deferrals that originally justified this KI are gone.'
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-12T20:55:05Z"
+      by: human:dev
+      action: created
+    - at: "2026-08-12T20:55:24Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-12T20:55:40Z"
+      by: human:dev
+      action: edit
+      detail: set-reproducer-command
+    - at: "2026-08-13T10:05:38Z"
+      by: agent:grok
+      action: edit
+      detail: add-requirement
+    - at: "2026-08-13T11:39:07Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: true
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Reviewed as missing-evidence debt, not a security submission. Control path: existing unit tests in tests/ pass. Native Python code MC/DC is 100%.
+        operational_path_verified: intended/safe path confirmed by unit tests under tests/ (handlers do not take the missing-row-comment path).
+    not_applicable:
+        attacker_profitability: No attacker profit path. The defect is missing verification evidence on an AWS sample, not a stealable asset.
+        reachability_verified: 'local-behavioral correctness/evidence defect: no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'
+        untrusted_attacker: Not an exploit PoC. This KnownIssue tracks missing evidence (spec-level MC/DC row comments), not an untrusted-attacker payload.

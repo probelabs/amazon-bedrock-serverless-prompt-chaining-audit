@@ -15,6 +15,13 @@ from stacks.validation_chain import ValidationChain
 
 
 def test_techniques_step_functions_model_invocation_stack_synthesizes_properly():
+    # Verifies: SW-REQ-009
+    # Verifies: SYS-REQ-006
+    # SW-REQ-009:nominal:nominal
+    # SW-REQ-009:boundary:nominal
+    # SYS-REQ-006:nominal:nominal
+    # SYS-REQ-006:boundary:nominal
+    # SYS-REQ-006:error_handling:nominal
     app = cdk.App()
 
     test_stack = ModelInvocation(

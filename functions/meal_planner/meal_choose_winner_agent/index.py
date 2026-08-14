@@ -1,3 +1,4 @@
+# Implements: SW-REQ-004
 def handler(event, context):
     scores = event["parsed_output"]["scores"]
 

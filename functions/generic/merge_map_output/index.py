@@ -1,3 +1,5 @@
+# Parent system requirement: SYS-REQ-001
+# Implements: SW-REQ-005
 def handler(event, context):
     # Assume every map result contains 2 unique conversation entries (user prompt and assistant response),
     # and every map result has the same conversation history before that

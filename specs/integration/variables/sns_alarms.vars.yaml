@@ -1,0 +1,42 @@
+component: sns_alarms
+variables:
+    - name: composite_alarm_firing
+      type: bool
+      direction: input
+      description: True when the composite demo alarm is in ALARM.
+    - name: sns_topic_receives_publish
+      type: bool
+      direction: output
+      description: True when the notifications topic is the alarm action.
+
+    - name: demo_workflow_failed
+      type: bool
+      direction: input
+      description: True when a PromptChainDemo state machine records a failed execution.
+    - name: alarm_notification_published
+      type: bool
+      direction: output
+      description: True when the composite alarm action publishes to the notifications SNS topic.
+    - name: failed_count
+      type: int
+      direction: input
+      description: Count of ExecutionsFailed samples in the alarm period. Notification is required when this is not < 1.
+      range:
+        max: 100000
+        min: 0
+
+    - name: composite_alarm_defined
+      type: bool
+      direction: output
+      description: True when the composite demo alarm is defined.
+    - name: topic_name_is_notifications
+      type: bool
+      direction: output
+      description: True when the SNS topic name is bedrock-serverless-prompt-chaining-notifications.
+    - name: evaluation_periods
+      type: int
+      direction: output
+      description: CloudWatch alarm evaluation periods. AlarmsStack sets this to 1.
+      range:
+        max: 1
+        min: 1

@@ -16,6 +16,7 @@ if "user_id" not in st.session_state:
     st.session_state.user_id = str(uuid.uuid4())
 
 
+# Implements: SYS-REQ-001
 def display_state_machine_status(status_markdown):
     if execution_status_container:
         execution_status_container.empty()
@@ -24,6 +25,7 @@ def display_state_machine_status(status_markdown):
             st.markdown(status_markdown)
 
 
+# Implements: SYS-REQ-001
 def display_no_state_machine_status():
     if execution_status_container:
         execution_status_container.empty()
@@ -32,6 +34,7 @@ def display_no_state_machine_status():
             st.write("Not started yet.")
 
 
+# Implements: SYS-REQ-001
 def execute_state_machine(location):
     input = {"location": location}
     execution_arn = stepfn.start_execution(

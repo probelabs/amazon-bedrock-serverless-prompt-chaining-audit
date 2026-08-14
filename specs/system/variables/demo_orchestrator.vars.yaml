@@ -1,0 +1,70 @@
+component: demo_orchestrator
+variables:
+    - name: demo_execution_started
+      type: bool
+      direction: input
+      description: True when a named demo StartExecution has been issued.
+    - name: demo_execution_reaches_terminal
+      type: bool
+      direction: output
+      description: True when the demo execution reaches SUCCEEDED, FAILED, TIMED_OUT, or ABORTED.
+
+    - name: named_demo_exists
+      type: bool
+      direction: output
+      description: True when the requested name maps to a PromptChainDemo state machine.
+    - name: execution_name_prefixed
+      type: bool
+      direction: output
+      description: True when the demo execution name uses the streamlit-<session>- prefix.
+    - name: terminal_status_is_recognized
+      type: bool
+      direction: output
+      description: True when the client treats SUCCEEDED/FAILED/TIMED_OUT/ABORTED as completed.
+
+    - name: start_execution_called
+      type: bool
+      direction: output
+      description: True when the demo path calls StartExecution.
+    - name: execution_arn_returned
+      type: bool
+      direction: output
+      description: True when StartExecution returns an executionArn.
+    - name: demo_name
+      type: enum
+      direction: input
+      description: PromptChainDemo state-machine suffix used by cdk_stacks, WebappStack, AlarmsStack, and webapp pages.
+      values:
+        - BlogPost
+        - TripPlanner
+        - StoryWriter
+        - MoviePitch
+        - MealPlanner
+        - MostPopularRepoBedrockAgents
+        - MostPopularRepoStrands
+domain:
+    tables:
+        - name: demo_catalog
+          source: stacks/webapp_stack.py name_suffix and cdk_stacks.py PromptChainDemo stacks
+          inputs:
+            - name: demo_name
+              type: enum
+              values: [BlogPost, TripPlanner, StoryWriter, MoviePitch, MealPlanner, MostPopularRepoBedrockAgents, MostPopularRepoStrands]
+          output:
+            name: named_demo_exists
+            type: bool
+          rows:
+            - demo_name: BlogPost
+              named_demo_exists: true
+            - demo_name: TripPlanner
+              named_demo_exists: true
+            - demo_name: StoryWriter
+              named_demo_exists: true
+            - demo_name: MoviePitch
+              named_demo_exists: true
+            - demo_name: MealPlanner
+              named_demo_exists: true
+            - demo_name: MostPopularRepoBedrockAgents
+              named_demo_exists: true
+            - demo_name: MostPopularRepoStrands
+              named_demo_exists: true

@@ -1,0 +1,912 @@
+{
+  "documentType": "codex-security.findings",
+  "findings": [
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2"
+          ],
+          "outcome": "Second admin-equivalent deploy stage; same severity class.",
+          "sink": "IAM role policy *:*",
+          "source": "Pipeline source artifact / CodeBuild execution of DeployDemoApp",
+          "summary": "Pipeline source -> DeployDemoApp CodeBuild *:* -> cdk deploy --all of demo stacks"
+        },
+        "impact": {
+          "level": "high",
+          "why": "Second admin-equivalent deploy stage; same severity class."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "pipeline/pipeline_stack.py",
+          "outcome": "Second admin-equivalent deploy stage; same severity class.",
+          "summary": "Same class as DeployExamples; independent role attachment."
+        },
+        "summary": "Pipeline source -> DeployDemoApp CodeBuild *:* -> cdk deploy --all of demo stacks"
+      },
+      "codeEvidence": [
+        {
+          "code": "        deploy_project.add_to_role_policy(\n            iam.PolicyStatement(actions=[\"*\"], resources=[\"*\"])\n        )",
+          "endLine": 288,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "pipeline/pipeline_stack.py:286",
+          "language": "python",
+          "path": "pipeline/pipeline_stack.py",
+          "role": "root_control",
+          "startLine": 286
+        },
+        {
+          "code": "                                \"source .venv/bin/activate\",\n                                \"pip install -r requirements.txt\",\n                            ],\n                        },\n                        \"build\": {\n                            \"commands\": [\n                                \"cdk deploy --app 'python3 cdk_stacks.py' --all --require-approval=never\",\n                            ]\n                        },\n                    },\n                }\n            ),\n            environment=codebuild.BuildEnvironment(\n                build_image=codebuild.LinuxBuildImage.AMAZON_LINUX_2_5\n            ),\n        )\n        deploy_project.add_to_role_policy(\n            iam.PolicyStatement(actions=[\"*\"], resources=[\"*\"])\n        )",
+          "endLine": 288,
+          "explanation": "Supporting wiring that preserves attacker control into the sink.",
+          "id": "ev-2",
+          "label": "pipeline/pipeline_stack.py:270",
+          "language": "python",
+          "path": "pipeline/pipeline_stack.py",
+          "role": "propagation",
+          "startLine": 270
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Explicit star-star policy on deploy_project in pipeline_stack.py."
+      },
+      "extensions": {
+        "candidateId": "candidate-dca88aa80d196424",
+        "instance": "deploy-demo-app"
+      },
+      "findingId": "csf_8fb7f36502551f0d2ed37e1b",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:582260e7cc6b86f482f37394058e5064add6d08e82fd10bfdef0909f8c9c58f8"
+      },
+      "identity": {
+        "anchor": "codebuild-deploy-admin-star",
+        "instance": "deploy-demo-app"
+      },
+      "locations": [
+        {
+          "endLine": 288,
+          "path": "pipeline/pipeline_stack.py",
+          "role": "root_control",
+          "startLine": 286
+        },
+        {
+          "endLine": 288,
+          "path": "pipeline/pipeline_stack.py",
+          "role": "evidence",
+          "startLine": 270
+        }
+      ],
+      "occurrenceId": "occ_ae6a67d85bc55454e4724b6a",
+      "preventiveControls": [
+        "Split bootstrap/admin pipeline updates from application deploy roles.",
+        "Enforce permission boundaries on all CodeBuild service roles."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Scope the DeployDemoApp role to the demo application services and CloudFormation resources it must manage; remove blanket admin.",
+      "remediationTests": [
+        "Assert DeployDemoApp role policies do not contain Action=* with Resource=*.",
+        "Deploy demo stacks in a sandbox with the reduced policy and confirm success without admin."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2"
+        ],
+        "summary": "The DeployDemoApp CodeBuild service role is granted unrestricted IAM (actions=*, resources=*), creating a second account-admin deploy principal."
+      },
+      "ruleId": "iam.overprivileged-deploy-role",
+      "severity": {
+        "changeConditions": "Same as the DeployExamples admin instance.",
+        "level": "high",
+        "rationale": "Independent unrestricted deploy role with the same account-takeover impact class as DeployExamples."
+      },
+      "summary": "The DeployDemoApp CodeBuild project is also granted actions=['*'] and resources=['*'] for cdk deploy --all --require-approval=never, providing a second account-admin equivalent deploy principal.",
+      "taxonomy": {
+        "category": "insecure-configuration",
+        "cwe": [
+          "CWE-269",
+          "CWE-250"
+        ]
+      },
+      "title": "DeployDemoApp CodeBuild role grants actions=* on resources=*",
+      "validation": {
+        "assertions": [
+          "Explicit *:* grant: yes",
+          "cdk deploy --all --require-approval=never: yes",
+          "Independent instance from DeployExamples: yes"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2"
+        ],
+        "limitations": [
+          "Same as sibling deploy stage.",
+          "None on the permission grant itself."
+        ],
+        "method": "static source trace",
+        "summary": "deploy_project.add_to_role_policy(PolicyStatement(actions=['*'], resources=['*']))."
+      }
+    },
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2"
+          ],
+          "outcome": "Account-admin equivalent deploy role is a crown-jewel CI/CD failure. Likelihood medium because source control and connection compromise are non-trivial but standard pipeline threat models include them.",
+          "sink": "IAM role policy *:*",
+          "source": "Pipeline source artifact / CodeBuild execution of deploy stage",
+          "summary": "Malicious or compromised pipeline source -> DeployExamples CodeBuild with *:* -> cdk deploy can create/modify arbitrary account resources and IAM"
+        },
+        "impact": {
+          "level": "high",
+          "why": "Account-admin equivalent deploy role is a crown-jewel CI/CD failure. Likelihood medium because source control and connection compromise are non-trivial but standard pipeline threat models include them."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "pipeline/pipeline_stack.py",
+          "outcome": "Account-admin equivalent deploy role is a crown-jewel CI/CD failure. Likelihood medium because source control and connection compromise are non-trivial but standard pipeline threat models include them.",
+          "summary": "Requires pipeline stack deployment and ability to influence the CodeStar-connected branch or CodeBuild execution. Not anonymous webapp users."
+        },
+        "summary": "Malicious or compromised pipeline source -> DeployExamples CodeBuild with *:* -> cdk deploy can create/modify arbitrary account resources and IAM"
+      },
+      "codeEvidence": [
+        {
+          "code": "        deploy_examples_project.add_to_role_policy(\n            iam.PolicyStatement(actions=[\"*\"], resources=[\"*\"])\n        )",
+          "endLine": 169,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "pipeline/pipeline_stack.py:167",
+          "language": "python",
+          "path": "pipeline/pipeline_stack.py",
+          "role": "root_control",
+          "startLine": 167
+        },
+        {
+          "code": "                            ],\n                        },\n                        \"build\": {\n                            \"commands\": [\n                                \"cd techniques_step_functions/\",\n                                \"cdk deploy --app 'python3 technique_stacks.py' --all --require-approval=never\",\n                                \"cd ../techniques_bedrock_flows/\",\n                                \"cdk deploy --app 'python3 technique_stacks.py' --all --require-approval=never\",\n                            ]\n                        },\n                    },\n                }\n            ),\n            environment=codebuild.BuildEnvironment(\n                build_image=codebuild.LinuxBuildImage.AMAZON_LINUX_2_5\n            ),\n        )\n        deploy_examples_project.add_to_role_policy(\n            iam.PolicyStatement(actions=[\"*\"], resources=[\"*\"])\n        )",
+          "endLine": 169,
+          "explanation": "Supporting wiring that preserves attacker control into the sink.",
+          "id": "ev-2",
+          "label": "pipeline/pipeline_stack.py:150",
+          "language": "python",
+          "path": "pipeline/pipeline_stack.py",
+          "role": "propagation",
+          "startLine": 150
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Explicit PolicyStatement(actions=['*'], resources=['*']) in pipeline_stack.py."
+      },
+      "extensions": {
+        "candidateId": "candidate-c2876d1586f97a76",
+        "instance": "deploy-examples"
+      },
+      "findingId": "csf_4f01638b5fc19dace23efe2b",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:baceda2cc49fead467e2b625e0b666652132d81d4f5b50f7b3e3f4fdd7a7bd72"
+      },
+      "identity": {
+        "anchor": "codebuild-deploy-admin-star",
+        "instance": "deploy-examples"
+      },
+      "locations": [
+        {
+          "endLine": 169,
+          "path": "pipeline/pipeline_stack.py",
+          "role": "root_control",
+          "startLine": 167
+        },
+        {
+          "endLine": 169,
+          "path": "pipeline/pipeline_stack.py",
+          "role": "evidence",
+          "startLine": 150
+        }
+      ],
+      "occurrenceId": "occ_752e86dcb45b49894c41947f",
+      "preventiveControls": [
+        "Use cdk-nag or IAM Access Analyzer checks in CI to fail on unrestricted deploy roles.",
+        "Require manual approval actions before deploy stages."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Replace Action=* Resource=* with least-privilege permissions required for the specific CDK deployments (CloudFormation, targeted service APIs, scoped IAM PassRole), and attach a permissions boundary that forbids unrestricted admin.",
+      "remediationTests": [
+        "Assert DeployExamples project role policies do not contain Action=* with Resource=*.",
+        "Policy unit test: cdk deploy of technique stacks succeeds with the reduced policy set in a test account."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2"
+        ],
+        "summary": "The DeployExamples CodeBuild service role is granted unrestricted IAM (actions=*, resources=*), so any code executed in that project can administer the entire account."
+      },
+      "ruleId": "iam.overprivileged-deploy-role",
+      "severity": {
+        "changeConditions": "Lower if the pipeline stack is never deployed or a permissions boundary blocks star-star. Raise toward critical if untrusted contributors can trigger deploy without review.",
+        "level": "high",
+        "rationale": "Unrestricted deploy-time IAM is a crown-jewel CI/CD weakness. Likelihood is medium because source-control compromise is non-trivial, but pipeline threat models treat it as in-scope."
+      },
+      "summary": "The pipeline's DeployExamples CodeBuild project receives an IAM policy allowing all actions on all resources while running cdk deploy with --require-approval=never. Compromise of pipeline source or the CodeBuild execution therefore yields account-admin equivalent privileges.",
+      "taxonomy": {
+        "category": "insecure-configuration",
+        "cwe": [
+          "CWE-269",
+          "CWE-250"
+        ]
+      },
+      "title": "DeployExamples CodeBuild role grants actions=* on resources=*",
+      "validation": {
+        "assertions": [
+          "Privilege exceeds least privilege: yes",
+          "Role used for deployment from source: yes",
+          "Source compromise => account impact: yes",
+          "Not a false positive wildcard for a single API: yes"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2"
+        ],
+        "limitations": [
+          "Pipeline may be optional for some deployers; when deployed, this is real. Attack requires ability to influence pipeline source or CodeBuild execution.",
+          "None on the permission grant itself."
+        ],
+        "method": "static source trace",
+        "summary": "pipeline_stack.py deploy_examples_project.add_to_role_policy(PolicyStatement(actions=['*'], resources=['*']))."
+      }
+    },
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2",
+            "ev-3",
+            "ev-4"
+          ],
+          "outcome": "Authenticated users get server-side template injection leading to code execution in the PDF Lambda. Not critical because Cognito authentication is required and the Lambda IAM is relatively narrow (S3 itinerary), but RCE on a production demo path is high.",
+          "sink": "md2pdf(..., raw=itinerary_content) -> jinja2.Template(raw).render()",
+          "source": "webapp/pages/3_Trip_Planner.py location_text -> stepfn.start_execution input.location",
+          "summary": "Cognito user enters location in Trip Planner -> Streamlit start_execution(PromptChainDemo-TripPlanner, {location}) -> Step Functions passes $$.Execution.Input.location to PDF Lambda -> f-string markdown -> md2pdf Jinja2 Template.render -> attacker code runs in Lambda"
+        },
+        "impact": {
+          "level": "high",
+          "why": "Authenticated users get server-side template injection leading to code execution in the PDF Lambda. Not critical because Cognito authentication is required and the Lambda IAM is relatively narrow (S3 itinerary), but RCE on a production demo path is high."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "webapp/pages/3_Trip_Planner.py",
+          "outcome": "Authenticated users get server-side template injection leading to code execution in the PDF Lambda. Not critical because Cognito authentication is required and the Lambda IAM is relatively narrow (S3 itinerary), but RCE on a production demo path is high.",
+          "summary": "Authenticated demo user (or any caller of the state machine). No special admin role required beyond normal webapp use."
+        },
+        "summary": "Cognito user enters location in Trip Planner -> Streamlit start_execution(PromptChainDemo-TripPlanner, {location}) -> Step Functions passes $$.Execution.Input.location to PDF Lambda -> f-string markdown -> md2pdf Jinja2 Template.render -> attacker code runs in Lambda"
+      },
+      "codeEvidence": [
+        {
+          "code": "    location = event[\"location\"]\n    itinerary_content = f\"\"\"\n# Your Weekend Vacation\n\nHere is your three day itinerary for your visit to {location}, created by generative AI.  Enjoy!\n\n{event[\"itinerary\"]}\n\"\"\"\n\n    s3_object_key = f\"itinerary-{uuid.uuid4()}.pdf\"\n\n    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as pdf_tmp:\n        pdf_tmp_path = pdf_tmp.name\n\n    try:\n        md2pdf(\n            pdf_tmp_path,\n            raw=itinerary_content,\n        )",
+          "endLine": 33,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "functions/trip_planner/pdf_creator/index.py:15",
+          "language": "python",
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "root_control",
+          "startLine": 15
+        },
+        {
+          "code": "        md2pdf(\n            pdf_tmp_path,\n            raw=itinerary_content,\n        )",
+          "endLine": 33,
+          "explanation": "Dangerous operation that executes, fetches, or discloses based on the unconstrained value.",
+          "id": "ev-2",
+          "label": "functions/trip_planner/pdf_creator/index.py:30",
+          "language": "python",
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "sink",
+          "startLine": 30
+        },
+        {
+          "code": "        location_text = st.text_input(\n            \"Enter a location for your trip:\", \"Paris, France\"\n        )\n        started = st.form_submit_button(\"Start\")\n        if started:\n            with st.spinner(\"Wait for it...\"):\n                if \"trip_planner_execution_arn\" in st.session_state:\n                    del st.session_state[\"trip_planner_execution_arn\"]\n                display_no_state_machine_status()\n                response = execute_state_machine(location_text)",
+          "endLine": 81,
+          "explanation": "User-facing or pipeline entry that starts the vulnerable path.",
+          "id": "ev-3",
+          "label": "webapp/pages/3_Trip_Planner.py:72",
+          "language": "python",
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "entrypoint",
+          "startLine": 72
+        },
+        {
+          "code": "def execute_state_machine(location):\n    input = {\"location\": location}\n    execution_arn = stepfn.start_execution(\n        \"PromptChainDemo-TripPlanner\",\n        st.session_state.user_id,\n        json.dumps(input),\n    )",
+          "endLine": 44,
+          "explanation": "Attacker-influenced value is accepted here and forwarded into the workflow or tool path.",
+          "id": "ev-4",
+          "label": "webapp/pages/3_Trip_Planner.py:38",
+          "language": "python",
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "user_input",
+          "startLine": 38
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Direct source-to-sink trace plus md2pdf 3.1.1 source showing unconditional Jinja render, confirmed with local Jinja probes exposing builtins."
+      },
+      "extensions": {
+        "candidateId": "candidate-8f0e6e3f7eec765a",
+        "instance": "location-field"
+      },
+      "findingId": "csf_76f9392dc916746d4cba0356",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:20e56d39fe3f4bf2cb873fe255ee9195d9896739a9fa5fd4ef3759c641c508a3"
+      },
+      "identity": {
+        "anchor": "trip-planner-pdf-md2pdf-raw",
+        "instance": "location-field"
+      },
+      "locations": [
+        {
+          "endLine": 33,
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "root_control",
+          "startLine": 15
+        },
+        {
+          "endLine": 33,
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "sink",
+          "startLine": 30
+        },
+        {
+          "endLine": 81,
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "entrypoint",
+          "startLine": 72
+        },
+        {
+          "endLine": 44,
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "source",
+          "startLine": 38
+        },
+        {
+          "endLine": 168,
+          "path": "stacks/trip_planner_stack.py",
+          "role": "evidence",
+          "startLine": 164
+        }
+      ],
+      "occurrenceId": "occ_dc4b9679540f0597cbd3c333",
+      "preventiveControls": [
+        "Centralize document rendering behind a helper that forbids template evaluation of user/model content.",
+        "Add an allowlist of safe markdown constructs and strip HTML/template syntax from location input at the webapp boundary."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Do not pass untrusted content through Jinja. Prefer a markdown-to-PDF path that disables template rendering, or escape/sandbox untrusted strings before any template engine; treat location and itinerary as data only.",
+      "remediationTests": [
+        "Assert that a location value containing {{7*7}} appears literally in the markdown passed to the renderer and is not evaluated to 49.",
+        "Assert that payloads accessing self.__init__.__globals__ do not execute during PDF generation."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3",
+          "ev-4"
+        ],
+        "summary": "The violated invariant is that untrusted workflow input must not be evaluated as a template. pdf_creator interpolates location and itinerary into a raw markdown string and hands it to md2pdf, which always executes jinja2.Template(raw).render() with no sandbox."
+      },
+      "ruleId": "ssti.md2pdf-jinja-render",
+      "severity": {
+        "changeConditions": "Raise to critical if the webapp is exposed without Cognito or the Lambda role is broadened. Lower only if untrusted strings are never Jinja-rendered (verified).",
+        "level": "high",
+        "rationale": "Authenticated users reach unsandboxed Jinja2 evaluation on a live demo workflow, yielding code execution in the PDF Lambda. Not critical because Cognito authentication is required in the designed deployment and the Lambda role is relatively narrow."
+      },
+      "summary": "The trip planner PDF Lambda embeds the user-supplied trip location and model itinerary into a markdown string and passes it to md2pdf(), which always runs unsandboxed jinja2.Template(raw).render() before HTML/PDF conversion. An authenticated demo user can therefore achieve server-side template injection and code execution inside the Lambda.",
+      "taxonomy": {
+        "category": "ssti",
+        "cwe": [
+          "CWE-1336",
+          "CWE-94"
+        ]
+      },
+      "title": "Trip planner PDF path evaluates attacker-controlled markdown as Jinja2 (SSTI)",
+      "validation": {
+        "assertions": [
+          "Attacker-controlled source identified: yes (location text_input)",
+          "Sink reaches code execution primitive: yes (unsandboxed Jinja2)",
+          "Control missing/bypassable: yes (no sanitization/escaping before md2pdf)",
+          "Reachable from in-scope surface: yes (authenticated trip planner demo)",
+          "Impact security-relevant: yes (RCE in Lambda)"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3",
+          "ev-4"
+        ],
+        "limitations": [
+          "Full Lambda+WeasyPrint runtime PoC not executed in this environment (native deps). SSTI occurs at Jinja stage before PDF write, so WeasyPrint is not required for code execution.",
+          "Exact post-exploitation IAM blast radius depends on the generated PDF Lambda role (S3 itinerary bucket access confirmed in stack; no broader managed policies in source)."
+        ],
+        "method": "static source trace + library behavior confirmation",
+        "summary": "pdf_creator/index.py interpolates location/itinerary into raw markdown and calls md2pdf. Extracted md2pdf/core.py shows Template(raw).render(context) before markdown/WeasyPrint. Jinja2 Template('{{7*7}}').render() => '49'; Template accessing self.__init__.__globals__.__builtins__ returns builtins including eval/exec/open."
+      }
+    },
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2",
+            "ev-3"
+          ],
+          "outcome": "Missing tool allowlist is a real broken control. Severity medium because confidential impact depends on PAT scope and successful agent steering, which is realistic for agent systems but not guaranteed.",
+          "sink": "Github.get_repo().get_readme() with PAT",
+          "source": "Bedrock agent tool parameter repo (model/tool-chosen; influenceable via tool-visible content)",
+          "summary": "Workflow invokes Bedrock agent -> agent calls GitHubAPIs /get_github_repository_readme with attacker/model-chosen repo -> PAT-authenticated get_readme -> contents returned to agent/UI summary"
+        },
+        "impact": {
+          "level": "medium",
+          "why": "Missing tool allowlist is a real broken control. Severity medium because confidential impact depends on PAT scope and successful agent steering, which is realistic for agent systems but not guaranteed."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py",
+          "outcome": "Missing tool allowlist is a real broken control. Severity medium because confidential impact depends on PAT scope and successful agent steering, which is realistic for agent systems but not guaranteed.",
+          "summary": "Any principal that can start PromptChainDemo-MostPopularRepoBedrockAgents (webapp users). Steering may use indirect prompt injection via trending page/README content."
+        },
+        "summary": "Workflow invokes Bedrock agent -> agent calls GitHubAPIs /get_github_repository_readme with attacker/model-chosen repo -> PAT-authenticated get_readme -> contents returned to agent/UI summary"
+      },
+      "codeEvidence": [
+        {
+          "code": "def get_github_repository_readme_agent_action(input):\n    github_token_secret_value = secrets_client.get_secret_value(\n        SecretId=github_token_secret_name\n    )\n    github_token = json.loads(github_token_secret_value[\"SecretString\"])[\"token\"]\n    github_client = Github(auth=Auth.Token(github_token))\n\n    repo_name = input.replace(\"https://github.com/\", \"\")\n    try:\n        readme_content = (\n            github_client.get_repo(repo_name)\n            .get_readme()\n            .decoded_content.decode(\"utf-8\")\n        )\n        if len(readme_content) > 5000:\n            response = f\"Here are the first 5,000 characters of the README for {input}.\"\n            response += \"\\n\" + readme_content[:5000]\n        else:\n            response = f\"Here are the full contents of the README for {input}.\"\n            response += \"\\n\" + readme_content\n        return response",
+          "endLine": 62,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py:42",
+          "language": "python",
+          "path": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py",
+          "role": "root_control",
+          "startLine": 42
+        },
+        {
+          "code": "        elif api_path == \"/get_github_repository_readme\":\n            params = event[\"parameters\"]\n            if not params:\n                response_code = 400\n                response_body = {\"error\": \"Missing parameter: repo\"}\n            else:\n                repo_params = [p for p in params if p[\"name\"] == \"repo\"]\n                if not repo_params:\n                    response_code = 400\n                    response_body = {\"error\": \"Missing parameter: repo\"}\n                else:\n                    repo_url = repo_params[0][\"value\"]\n                    body = get_github_repository_readme_agent_action(repo_url)",
+          "endLine": 93,
+          "explanation": "Dangerous operation that executes, fetches, or discloses based on the unconstrained value.",
+          "id": "ev-2",
+          "label": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py:81",
+          "language": "python",
+          "path": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py",
+          "role": "sink",
+          "startLine": 81
+        },
+        {
+          "code": "        github_secret = secrets.Secret.from_secret_name_v2(\n            scope=self, id=\"GitHubToken\", secret_name=\"BedrockPromptChainGitHubToken\"\n        )\n        github_agent_actions_lambda = lambda_python.PythonFunction(\n            self,\n            \"GitHubAgentActions\",\n            function_name=\"PromptChainDemo-MostPopularRepoBedrockAgents-GitHubActions\",\n            runtime=lambda_.Runtime.PYTHON_3_13,\n            entry=\"functions/most_popular_repo_bedrock_agent/github_agent_actions\",\n            timeout=Duration.seconds(30),\n            memory_size=512,\n            environment={\"GITHUB_TOKEN_SECRET\": github_secret.secret_name},\n        )\n        github_secret.grant_read(github_agent_actions_lambda)",
+          "endLine": 61,
+          "explanation": "Supporting wiring that preserves attacker control into the sink.",
+          "id": "ev-3",
+          "label": "stacks/most_popular_repo_bedrock_agent_stack.py:48",
+          "language": "python",
+          "path": "stacks/most_popular_repo_bedrock_agent_stack.py",
+          "role": "propagation",
+          "startLine": 48
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Handler and helper code show unrestricted get_repo/get_readme with PAT; OpenAPI schema leaves repo unconstrained."
+      },
+      "extensions": {
+        "candidateId": "candidate-6bf5f309b08138e5",
+        "instance": "bedrock-agent-actions"
+      },
+      "findingId": "csf_74949cbc3d0000d04b28bf4a",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:9a3377d519a7ed380f6a47d69e307235c386b365987dc2615480392ed5f5391e"
+      },
+      "identity": {
+        "anchor": "github-readme-pat-fetch",
+        "instance": "bedrock-agent-actions"
+      },
+      "locations": [
+        {
+          "endLine": 62,
+          "path": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py",
+          "role": "root_control",
+          "startLine": 42
+        },
+        {
+          "endLine": 93,
+          "path": "functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py",
+          "role": "sink",
+          "startLine": 81
+        },
+        {
+          "endLine": 61,
+          "path": "stacks/most_popular_repo_bedrock_agent_stack.py",
+          "role": "evidence",
+          "startLine": 48
+        }
+      ],
+      "occurrenceId": "occ_61529653a17acd1d827d7169",
+      "preventiveControls": [
+        "Pass the selected repo as a workflow-side argument rather than letting the model supply arbitrary tool parameters.",
+        "Monitor/alert on GitHub API access to unexpected repositories."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Allowlist README fetches to the single repository URL selected by the trending lookup step; validate strict https://github.com/{owner}/{repo} form; use a least-privilege PAT (public-only) and reject other hosts/paths.",
+      "remediationTests": [
+        "Assert requests for repos other than the workflow-selected trending repo are rejected before GitHub API calls.",
+        "Assert non-https or non-github hosts never reach get_repo."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "summary": "The tool treats the model-supplied repo string as authorized input. After a prefix strip it authenticates with a PAT and reads any get_repo target the token can access, without binding to the intended trending public repository."
+      },
+      "ruleId": "authorization-bypass.github-readme-tool",
+      "severity": {
+        "changeConditions": "Raise to high if the PAT is documented/expected to access private organization repositories or if forced tool invocation is demonstrated reliably. Lower if the tool enforces an allowlist of a single public repo URL selected earlier in the workflow.",
+        "level": "medium",
+        "rationale": "Broken tool authorization is clear; confidential impact requires an over-scoped PAT and successful agent/tool steering (including via indirect prompt injection)."
+      },
+      "summary": "The Bedrock agent GitHub action Lambda accepts any repo parameter, strips only a https://github.com/ prefix, and uses the Secrets Manager GitHub PAT to read that repository's README. There is no allowlist binding the tool to the selected trending public repository, so a steered agent can access any repository the token can read.",
+      "taxonomy": {
+        "category": "authorization-bypass",
+        "cwe": [
+          "CWE-862",
+          "CWE-200"
+        ]
+      },
+      "title": "Bedrock GitHub agent action fetches arbitrary repository READMEs with a shared PAT",
+      "validation": {
+        "assertions": [
+          "Tool input attacker/model influenced: yes",
+          "Authorization/allowlist missing: yes",
+          "Secret-backed API called: yes",
+          "Data returns to user-visible summary: yes",
+          "Impact depends on PAT scope: yes (precondition)"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "limitations": [
+          "Demo workflow prompts aim at trending public repos; exploitation of private data needs a PAT that can read private repos and successful agent tool steering (prompt injection).",
+          "Operator-chosen PAT scopes are not in repo; treat broad PAT as realistic misconfiguration the code fails to constrain."
+        ],
+        "method": "static source trace",
+        "summary": "get_github_repository_readme_agent_action strips only https://github.com/ prefix and calls get_repo().get_readme() with Secrets Manager token. Handler passes repo query parameter unsanitized."
+      }
+    },
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2",
+            "ev-3"
+          ],
+          "outcome": "Sibling unrestricted PAT tool on Strands path with the same PAT-scope precondition.",
+          "sink": "Github.get_repo().get_readme() with PAT",
+          "source": "Strands tool input string",
+          "summary": "Strands summarize agent -> get_github_repository_readme tool -> PAT get_readme -> summary to UI"
+        },
+        "impact": {
+          "level": "medium",
+          "why": "Sibling unrestricted PAT tool on Strands path with the same PAT-scope precondition."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "functions/most_popular_repo_strands/index.py",
+          "outcome": "Sibling unrestricted PAT tool on Strands path with the same PAT-scope precondition.",
+          "summary": "Webapp users starting MostPopularRepo Strands workflow; tool available to the agent during summarization."
+        },
+        "summary": "Strands summarize agent -> get_github_repository_readme tool -> PAT get_readme -> summary to UI"
+      },
+      "codeEvidence": [
+        {
+          "code": "@tool\ndef get_github_repository_readme(input: str) -> str:\n    \"\"\"Retrieves the content of a GitHub repository's README file.\n    \n    Use this when you need to get information about a specific GitHub repository. \n    Provide the URL of the GitHub repository as the input. The output will be \n    the contents of the readme.\n    \n    Args:\n        input: The URL of the GitHub repository\n    \"\"\"\n    github_token_secret_value = secrets_client.get_secret_value(\n        SecretId=github_token_secret_name\n    )\n    github_token = json.loads(github_token_secret_value[\"SecretString\"])[\"token\"]\n    github_client = Github(auth=Auth.Token(github_token))\n\n    repo_name = input.replace(\"https://github.com/\", \"\")\n    try:\n        readme_content = (\n            github_client.get_repo(repo_name)\n            .get_readme()\n            .decoded_content.decode(\"utf-8\")\n        )\n        if len(readme_content) > 5000:\n            response = f\"Here are the first 5,000 characters of the README for {input}, inside <readme></readme> XML tags.\"\n            response += \"\\n<readme>\"\n            response += \"\\n\" + readme_content[:5000]\n        else:\n            response = (\n                f\"Here is the README for {input}, inside <readme></readme> XML tags.\"\n            )\n            response += \"\\n<readme>\"\n            response += \"\\n\" + readme_content\n        response += \"\\n</readme>\"\n        return response\n    except UnknownObjectException:\n        return f\"Could not find a README for the repository {input}. It may not exist in the repository.\"",
+          "endLine": 91,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "functions/most_popular_repo_strands/index.py:54",
+          "language": "python",
+          "path": "functions/most_popular_repo_strands/index.py",
+          "role": "root_control",
+          "startLine": 54
+        },
+        {
+          "code": "    repo_name = input.replace(\"https://github.com/\", \"\")\n    try:\n        readme_content = (\n            github_client.get_repo(repo_name)\n            .get_readme()\n            .decoded_content.decode(\"utf-8\")",
+          "endLine": 76,
+          "explanation": "Dangerous operation that executes, fetches, or discloses based on the unconstrained value.",
+          "id": "ev-2",
+          "label": "functions/most_popular_repo_strands/index.py:71",
+          "language": "python",
+          "path": "functions/most_popular_repo_strands/index.py",
+          "role": "sink",
+          "startLine": 71
+        },
+        {
+          "code": "        summarize_repo_lambda = lambda_python.PythonFunction(\n            self,\n            \"SummarizeRepoAgent\",\n            runtime=lambda_.Runtime.PYTHON_3_13,\n            entry=\"functions/most_popular_repo_strands\",\n            handler=\"summarize_repo_readme_agent\",\n            bundling=get_lambda_bundling_options(),\n            timeout=Duration.minutes(2),\n            memory_size=512,\n            environment={\"GITHUB_TOKEN_SECRET\": github_secret.secret_name},\n        )\n        summarize_repo_lambda.add_to_role_policy(get_bedrock_iam_policy_statement())\n        github_secret.grant_read(summarize_repo_lambda)",
+          "endLine": 58,
+          "explanation": "Supporting wiring that preserves attacker control into the sink.",
+          "id": "ev-3",
+          "label": "stacks/most_popular_repo_strands_stack.py:46",
+          "language": "python",
+          "path": "stacks/most_popular_repo_strands_stack.py",
+          "role": "propagation",
+          "startLine": 46
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Tool implementation and summarize agent registration show unconstrained PAT usage."
+      },
+      "extensions": {
+        "candidateId": "candidate-842a695123c8fd05",
+        "instance": "strands-tool"
+      },
+      "findingId": "csf_f292d830104be728c6c500a0",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:7c33a8ec7536a18ab1e1126f997eafa80581d2dac6765102fd2493c6ee5edb04"
+      },
+      "identity": {
+        "anchor": "github-readme-pat-fetch",
+        "instance": "strands-tool"
+      },
+      "locations": [
+        {
+          "endLine": 91,
+          "path": "functions/most_popular_repo_strands/index.py",
+          "role": "root_control",
+          "startLine": 54
+        },
+        {
+          "endLine": 76,
+          "path": "functions/most_popular_repo_strands/index.py",
+          "role": "sink",
+          "startLine": 71
+        },
+        {
+          "endLine": 58,
+          "path": "stacks/most_popular_repo_strands_stack.py",
+          "role": "evidence",
+          "startLine": 46
+        }
+      ],
+      "occurrenceId": "occ_fcb73f7846a2335226489692",
+      "preventiveControls": [
+        "Prefer non-token public raw README fetch for public repos when authentication is unnecessary.",
+        "Scope Secrets Manager token to public-only fine-grained PAT permissions."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Validate and allowlist tool input to the workflow-selected public repository; apply the same strict URL checks used in GitHubRepo.validate_github_url at the tool boundary before any PAT use.",
+      "remediationTests": [
+        "Assert the README tool rejects repos not equal to the selected trending URL.",
+        "Assert PAT is not loaded when validation fails."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "summary": "The README tool boundary does not reuse the structured-output URL validator. Any agent-supplied string can trigger a PAT-authenticated get_readme."
+      },
+      "ruleId": "authorization-bypass.github-readme-tool",
+      "severity": {
+        "changeConditions": "Same as the Bedrock agent README tool instance.",
+        "level": "medium",
+        "rationale": "Same unrestricted PAT-backed README fetch pattern as the Bedrock agent actions path."
+      },
+      "summary": "The Strands get_github_repository_readme tool loads the shared GitHub PAT and fetches whatever repository string the agent supplies after a simple prefix strip. URL validation exists only for structured trending-repo extraction, not at this tool boundary.",
+      "taxonomy": {
+        "category": "authorization-bypass",
+        "cwe": [
+          "CWE-862",
+          "CWE-200"
+        ]
+      },
+      "title": "Strands GitHub README tool uses the PAT without an allowlist",
+      "validation": {
+        "assertions": [
+          "Tool input not validated at sink: yes",
+          "PAT used: yes",
+          "Sibling of Bedrock agent issue: yes",
+          "Summarize agent can call tool: yes"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "limitations": [
+          "lookup_trending_repo_agent validates URL format for the first hop only; does not constrain later tool use during summarization.",
+          "Same PAT scope precondition as Bedrock path."
+        ],
+        "method": "static source trace",
+        "summary": "get_github_repository_readme @tool uses token and get_repo(input.replace(...)) without Pydantic validation. summarize_repo_readme_agent constructs Agent(tools=[get_github_repository_readme])."
+      }
+    },
+    {
+      "attackPath": {
+        "dataflow": {
+          "evidenceRefs": [
+            "ev-1",
+            "ev-2",
+            "ev-3"
+          ],
+          "outcome": "Classic document-renderer SSRF from authenticated input. Impact is network-position dependent; no proof of credential theft via IMDS in this scan.",
+          "sink": "WeasyPrint HTML.write_pdf resource fetch",
+          "source": "location and itinerary strings in PDF markdown",
+          "summary": "User/model content in PDF markdown -> HTML conversion -> WeasyPrint fetches linked http(s)/file URLs using Lambda network identity"
+        },
+        "impact": {
+          "level": "medium",
+          "why": "Classic document-renderer SSRF from authenticated input. Impact is network-position dependent; no proof of credential theft via IMDS in this scan."
+        },
+        "reachability": {
+          "attacker": "authenticated demo user or pipeline source influencer (per finding)",
+          "entrypoint": "webapp/pages/3_Trip_Planner.py",
+          "outcome": "Classic document-renderer SSRF from authenticated input. Impact is network-position dependent; no proof of credential theft via IMDS in this scan.",
+          "summary": "Same authenticated trip planner path. Markdown image/link syntax is sufficient."
+        },
+        "summary": "User/model content in PDF markdown -> HTML conversion -> WeasyPrint fetches linked http(s)/file URLs using Lambda network identity"
+      },
+      "codeEvidence": [
+        {
+          "code": "    location = event[\"location\"]\n    itinerary_content = f\"\"\"\n# Your Weekend Vacation\n\nHere is your three day itinerary for your visit to {location}, created by generative AI.  Enjoy!\n\n{event[\"itinerary\"]}\n\"\"\"\n\n    s3_object_key = f\"itinerary-{uuid.uuid4()}.pdf\"\n\n    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as pdf_tmp:\n        pdf_tmp_path = pdf_tmp.name\n\n    try:\n        md2pdf(\n            pdf_tmp_path,\n            raw=itinerary_content,\n        )",
+          "endLine": 33,
+          "explanation": "Missing or broken security control that should constrain the untrusted value.",
+          "id": "ev-1",
+          "label": "functions/trip_planner/pdf_creator/index.py:15",
+          "language": "python",
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "root_control",
+          "startLine": 15
+        },
+        {
+          "code": "        md2pdf(\n            pdf_tmp_path,\n            raw=itinerary_content,\n        )",
+          "endLine": 33,
+          "explanation": "Dangerous operation that executes, fetches, or discloses based on the unconstrained value.",
+          "id": "ev-2",
+          "label": "functions/trip_planner/pdf_creator/index.py:30",
+          "language": "python",
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "sink",
+          "startLine": 30
+        },
+        {
+          "code": "        location_text = st.text_input(\n            \"Enter a location for your trip:\", \"Paris, France\"\n        )\n        started = st.form_submit_button(\"Start\")\n        if started:\n            with st.spinner(\"Wait for it...\"):\n                if \"trip_planner_execution_arn\" in st.session_state:\n                    del st.session_state[\"trip_planner_execution_arn\"]\n                display_no_state_machine_status()\n                response = execute_state_machine(location_text)",
+          "endLine": 81,
+          "explanation": "User-facing or pipeline entry that starts the vulnerable path.",
+          "id": "ev-3",
+          "label": "webapp/pages/3_Trip_Planner.py:72",
+          "language": "python",
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "entrypoint",
+          "startLine": 72
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "md2pdf/WeasyPrint code paths show default URL fetching; untrusted markdown is under user/model control on the same PDF path."
+      },
+      "extensions": {
+        "candidateId": "candidate-dc4100642a3b5dd9",
+        "instance": "markdown-resources"
+      },
+      "findingId": "csf_3a048deb950c28158d19e0b5",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:83e8566d7fe95ce8a5bb201de589eb7f942686eec3162856938f6705f300a02d"
+      },
+      "identity": {
+        "anchor": "trip-planner-pdf-weasyprint-fetch",
+        "instance": "markdown-resources"
+      },
+      "locations": [
+        {
+          "endLine": 33,
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "root_control",
+          "startLine": 15
+        },
+        {
+          "endLine": 33,
+          "path": "functions/trip_planner/pdf_creator/index.py",
+          "role": "sink",
+          "startLine": 30
+        },
+        {
+          "endLine": 81,
+          "path": "webapp/pages/3_Trip_Planner.py",
+          "role": "entrypoint",
+          "startLine": 72
+        }
+      ],
+      "occurrenceId": "occ_1a6667bad3f68797aac495a6",
+      "preventiveControls": [
+        "Run PDF rendering with network isolation (no egress) when external resources are not required.",
+        "Disable raw HTML in markdown conversion where possible."
+      ],
+      "provenance": {
+        "source": "local_plugin"
+      },
+      "remediation": "Supply WeasyPrint with a custom URL fetcher that denies all network and file URLs by default (or allowlists only required static assets), and sanitize markdown to remove images/links/HTML that introduce URLs.",
+      "remediationTests": [
+        "Assert PDF generation does not perform HTTP GETs when markdown contains ![x](http://example.invalid/poc).",
+        "Assert file:// URLs in markdown do not read local filesystem content into the PDF pipeline."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "summary": "Untrusted markdown reaches HTML/PDF rendering without a restricted URL fetcher or sanitizer, so document-linked http(s)/file resources are retrieved with the Lambda network identity."
+      },
+      "ruleId": "ssrf.weasyprint-url-fetch",
+      "severity": {
+        "changeConditions": "Raise if the function can reach sensitive internal services or disclose secrets via file/URL fetch. Lower if a deny-by-default custom URL fetcher is enforced.",
+        "level": "medium",
+        "rationale": "Authenticated document-renderer SSRF is realistic; impact depends on what the Lambda network identity can reach. No live IMDS credential theft was proven in this scan."
+      },
+      "summary": "Untrusted trip location and model-generated itinerary markdown are converted to HTML and rendered with WeasyPrint through md2pdf. WeasyPrint's default URL fetcher retrieves remote and file resources referenced by the document, enabling SSRF or local file access from the Lambda execution environment.",
+      "taxonomy": {
+        "category": "ssrf",
+        "cwe": [
+          "CWE-918"
+        ]
+      },
+      "title": "Trip planner PDF rendering can fetch attacker-controlled URLs via WeasyPrint",
+      "validation": {
+        "assertions": [
+          "Attacker or model content reaches document renderer: yes",
+          "Renderer fetches URLs by default: yes (WeasyPrint URLFetcher)",
+          "No allowlist/deny for schemes/hosts: yes",
+          "Network identity useful: yes (Lambda default egress)",
+          "Distinct from SSTI impact: yes (SSRF/file fetch even without template RCE)"
+        ],
+        "evidenceRefs": [
+          "ev-1",
+          "ev-2",
+          "ev-3"
+        ],
+        "limitations": [
+          "Did not run WeasyPrint in this environment to capture a live fetch log. Library default behavior is documented in its URL fetcher implementation.",
+          "Whether specific Markdown extensions emit raw HTML img tags vs only markdown images; both are sufficient for URL introduction via common markdown image syntax."
+        ],
+        "method": "static source trace + dependency URL fetcher review",
+        "summary": "md2pdf uses markdown() then HTML(string=raw_html, base_url=cwd).write_pdf(). Weasyprint urls.py default_url_fetcher/URLFetcher.fetch performs outbound retrieval. Markdown image syntax and HTML resources become fetch targets."
+      }
+    }
+  ],
+  "scanId": "2f573ce7-f9b5-4f17-a45c-bba7c5f59e5e",
+  "schemaVersion": "1.0"
+}

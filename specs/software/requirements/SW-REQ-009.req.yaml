@@ -1,0 +1,96 @@
+id: SW-REQ-009
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the technique_stacks shall always satisfy (!technique_execution_requested | named_technique_exists) & (!technique_name_is_documented_sfn | sfn_technique_stack_defined) & (sfn_stack_count >= 9) & (flows_stack_count >= 6) & human_input_technique_defined & flows_technique_stack_defined & model_invocation_technique_defined
+description: A requested named technique shall exist. Every documented SFN technique name shall have a constructed stack. The catalog shall provide at least 9 SFN stacks and 6 Flows stacks, including HumanInput.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: SYS-REQ-006
+component: technique_stacks
+rationale: README lists nine SFN techniques and six Flows techniques. DEVELOP.md over-states Flows coverage.
+tags: []
+variables:
+    - technique_execution_requested
+    - named_technique_exists
+    - technique_name_is_documented_sfn
+    - sfn_technique_stack_defined
+    - sfn_stack_count
+    - flows_stack_count
+    - human_input_technique_defined
+    - flows_technique_stack_defined
+    - model_invocation_technique_defined
+traces:
+    satisfies:
+        - SYS-REQ-006
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T11:51:41.911867497Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:98a12949173f412377fe1c70fb1abc23c6ff20c1aeacad0c4b2b035e6bdd4ea1
+    review_history:
+        - reviewed_at: "2026-08-13T12:24:28.26098145Z"
+          reviewed_by: human:cli
+          method: inspection
+          rationale: Final citation review for SW-REQ-009.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/system/requirements/SYS-REQ-006.req.yaml
+            - techniques_step_functions/technique_stacks.py
+            - techniques_step_functions/test_step_functions_techniques_stacks.py
+            - tests/test_technique_stacks.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:58Z"
+    last_modified_by: agent:grok
+    last_modified_at: "2026-08-14T10:35:23Z"
+obligation_checklist:
+    - boundary
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: The catalog has fewer than 9 SFN or 6 Flows stacks so a documented technique name has no stack to run.
+      severity: medium
+    - class: nominal
+      worst_case: A documented SFN technique name has no constructed stack so the operator cannot execute that pattern.
+      severity: medium
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:46Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli

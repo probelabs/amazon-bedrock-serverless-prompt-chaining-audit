@@ -1,0 +1,9 @@
+id: REVIEW-7
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-007
+decision: approved
+comment: FRETish (!itinerary_ready | presigned_pdf_url_returned) & (expires_in <= 900) matches handler uploading PDF and returning generate_presigned_url with expires_in <= 900.
+citations:
+    - functions/trip_planner/pdf_creator/index.py:13@handler

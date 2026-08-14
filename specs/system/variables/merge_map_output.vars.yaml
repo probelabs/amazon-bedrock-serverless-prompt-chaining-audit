@@ -1,0 +1,20 @@
+component: merge_map_output
+no_interface:
+  declared: true
+  reason: "Pure in-process Map result fold; no network or service boundary, only local conversation lists."
+variables:
+    - name: map_results_present
+      type: bool
+      direction: input
+      description: True when the handler receives a non-empty list of map results.
+    - name: conversations_are_merged
+      type: bool
+      direction: output
+      description: True when the handler returns a merged conversation list.
+    - name: arc_entry_count
+      type: int
+      direction: output
+      description: User-plus-assistant pair appended from each Map result. The handler uses 2.
+      range:
+        max: 2
+        min: 2

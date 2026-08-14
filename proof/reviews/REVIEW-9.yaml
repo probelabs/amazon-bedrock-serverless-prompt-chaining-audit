@@ -1,0 +1,9 @@
+id: REVIEW-9
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-009
+decision: approved
+comment: FRETish (!technique_name_is_documented_sfn | sfn_technique_stack_defined) & (sfn_stack_count >= 9) & (flows_stack_count >= 6) matches technique_stacks.py constructing documented SFN stacks (sfn_stack_count >= 9) and the Flows app constructing implemented flow stacks (flows_stack_count >= 6).
+citations:
+    - techniques_step_functions/technique_stacks.py:17

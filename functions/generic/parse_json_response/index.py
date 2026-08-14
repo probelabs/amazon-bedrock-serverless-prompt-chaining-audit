@@ -4,6 +4,8 @@ from jsonschema import validate
 
 # Parse the JSON response string into an object and validate it against the JSON schema.
 # Return the validated object.
+# Implements: SW-REQ-001
+# Implements: INT-REQ-003
 def handler(event, context):
     response_string = event["response_string"]
     response_object = json.loads(response_string)

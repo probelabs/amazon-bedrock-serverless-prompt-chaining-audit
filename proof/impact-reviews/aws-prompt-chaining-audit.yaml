@@ -1,0 +1,414 @@
+schema_version: 1
+branch: aws-prompt-chaining-audit
+generated_at: "2026-08-14T11:48:52Z"
+reviews:
+    - requirement: INT-REQ-001
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Implements/trace comment retargeting only; shipped CDK/Lambda/technique behavior unchanged
+      base: HEAD~1
+      requirement_fingerprint: sha256:6e3c55559c627af4d181a6b1d84f6aa65d482896be1f033e4961a2c35e1fef82
+      approval_fingerprint: sha256:be87f8e2e58b5422ac181351441ad7ea9ea2b481c2b740c5bcc36ee8c7038a2b
+      artifact_fingerprint: sha256:113877fc4dc48922c5a084c55fb7d6b53edfd376a7bdf8324a18bd9b325ca0d6
+      reviewed_at: "2026-08-13T13:28:03Z"
+    - requirement: INT-REQ-003
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: JSON retry/parser wiring already specified; annotation-only change on util.py.
+      base: HEAD~1
+      requirement_fingerprint: sha256:1ebf6e6309d8d9115bf98ef54121c7510152fd5964717a600429b4b22f169817
+      approval_fingerprint: sha256:3a878ec92320820a2f4fdddc22d0febfc6f04a15b048fbdca9f76fe2213c42fc
+      artifact_fingerprint: sha256:12eeb65d2249e5d68cf93771f998b06eb3a3a30ce2f53e2250510b34a6d954e6
+      reviewed_at: "2026-08-12T20:46:12Z"
+    - requirement: SW-REQ-002
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:f80a99e7b5bb4ad3aa128be7a9307215213002ecbaa78ff56ece0fe35881de05
+      approval_fingerprint: sha256:4000263bcc7cff72f51f33e6987922bc35f6dfa23eab5088614f1ddc156e6462
+      artifact_fingerprint: sha256:113877fc4dc48922c5a084c55fb7d6b53edfd376a7bdf8324a18bd9b325ca0d6
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SW-REQ-006
+      artifact: functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:91e478f7913f6f6d202a386b688f3ec3d3acbe906000ab508895167995e5ed50
+      approval_fingerprint: sha256:348760bb4eca779466163bfac37a1b381c19dd2abec4e3a503c2bdbb396888ff
+      artifact_fingerprint: sha256:fe00c734aa30d1d503d701552d9ff9e1257936812332a7887dd358a1f1d94c55
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SW-REQ-006
+      artifact: functions/most_popular_repo_strands/index.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:91e478f7913f6f6d202a386b688f3ec3d3acbe906000ab508895167995e5ed50
+      approval_fingerprint: sha256:348760bb4eca779466163bfac37a1b381c19dd2abec4e3a503c2bdbb396888ff
+      artifact_fingerprint: sha256:20dae3ee6a74c3e5882f4d925bbd9a33a8ecab6f7d01a5734fef03b048931e61
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SW-REQ-009
+      artifact: techniques_step_functions/technique_stacks.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:98a12949173f412377fe1c70fb1abc23c6ff20c1aeacad0c4b2b035e6bdd4ea1
+      approval_fingerprint: sha256:dfa147d129cf5a2a0ff26702acbe113678ca63394f16f96a7cba836e90d2e50e
+      artifact_fingerprint: sha256:284a80432d949d15516f454bdafdb97f328c107eeebb3472e532b3bc74f01308
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SW-REQ-010
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Implements/trace comment retargeting only; shipped CDK/Lambda/technique behavior unchanged
+      base: HEAD~1
+      requirement_fingerprint: sha256:3187f85b41d349638dad5bed98c784c827eff84b93bb80d830518c0a54aa69ba
+      approval_fingerprint: sha256:b9db625a377b6df15e3143b597fef6c2324836cdbbbe83e1ac9bc38e3497e3ce
+      artifact_fingerprint: sha256:113877fc4dc48922c5a084c55fb7d6b53edfd376a7bdf8324a18bd9b325ca0d6
+      reviewed_at: "2026-08-13T13:28:03Z"
+    - requirement: SYS-REQ-001
+      artifact: functions/most_popular_repo_strands/index.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: New Implements annotations on existing CDK/webapp/agent functions; requirement text unchanged.
+      base: HEAD~1
+      requirement_fingerprint: sha256:738989f0ab6bd96b3b547847d29637950360b727fcedffab7da01da20b61d08a
+      approval_fingerprint: sha256:9b2d173e3aa3144334f618b4c09e659e2e61bd729e671f4dec85e7d5284084f2
+      artifact_fingerprint: sha256:9c10dbb7ea3ac19e6eacd873fc3de60beac52e6ee70d077e34ffa72c812772f2
+      reviewed_at: "2026-08-12T20:47:48Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/blog_post_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:e2a4e3643d3f28ee06746855e4190a039f8f0d357c33da419519670d8dd52697
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/meal_planner_stack.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: human:cli
+      reason: Implements retargeting and comment-only test annotations; shipped handler/stack behavior and authored contracts unchanged.
+      base: HEAD~1
+      requirement_fingerprint: sha256:cd141d34a3aada3ad1af4e0b106b5bf4edac09bc28569cbf28de034675ed76eb
+      approval_fingerprint: sha256:45200b11b01649bd8eada1882c270aba3f8d8da0382ed4c432b60de76a2b2030
+      artifact_fingerprint: sha256:263f0ecffe64fe591b1802f71432e621e04434ade68932a3906f4404f6321fc5
+      reviewed_at: "2026-08-13T12:15:53Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/most_popular_repo_bedrock_agent_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:fe317da0d54c93d051869e7bd7f84822061b3458ece30f082ade6ade99c985f2
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/most_popular_repo_strands_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:f13d37ef1d958c7479c2ee9954fc9e5d5049b307e674f84aa89f13eb537ae792
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/movie_pitch_stack.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: human:cli
+      reason: Implements retargeting and comment-only test annotations; shipped handler/stack behavior and authored contracts unchanged.
+      base: HEAD~1
+      requirement_fingerprint: sha256:cd141d34a3aada3ad1af4e0b106b5bf4edac09bc28569cbf28de034675ed76eb
+      approval_fingerprint: sha256:45200b11b01649bd8eada1882c270aba3f8d8da0382ed4c432b60de76a2b2030
+      artifact_fingerprint: sha256:c32abf5139e9549ebb65fbad171cae0e94c13b30e1f6aed0f5e191611e40a196
+      reviewed_at: "2026-08-13T12:15:53Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/story_writer_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:57ea37f3fdcd2919af906211579b95a7bc424a26bb9ab9318cd498036578ee3c
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/trip_planner_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:d198f650a9a6c825e5d1458b30509362155910ac3c7e087b5bb664419247a536
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Onboard added Implements annotations and unit tests; the four-layer requirement text already states the same contracts.
+      base: HEAD~1
+      requirement_fingerprint: sha256:738989f0ab6bd96b3b547847d29637950360b727fcedffab7da01da20b61d08a
+      approval_fingerprint: sha256:9b2d173e3aa3144334f618b4c09e659e2e61bd729e671f4dec85e7d5284084f2
+      artifact_fingerprint: sha256:12eeb65d2249e5d68cf93771f998b06eb3a3a30ce2f53e2250510b34a6d954e6
+      reviewed_at: "2026-08-12T20:46:01Z"
+    - requirement: SYS-REQ-001
+      artifact: stacks/webapp_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Implementation files still match the existing requirement and KI intent after spec/MC/DC refresh; no authored requirement change required.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6dc9f9e689eaf863996777ef68f326e2bef899ef36a40982015e7dfe8c123542
+      approval_fingerprint: sha256:19dab6d6db5c002b03488d0aca8ebb76335414d87a020bc7cd42535d00182051
+      artifact_fingerprint: sha256:0b51b47562387fab43c804056d97169134dee3bd0d224793289d4bc9e39d7126
+      reviewed_at: "2026-08-14T09:45:04Z"
+    - requirement: SYS-REQ-002
+      artifact: stacks/util.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: JSON retry/parser wiring already specified; annotation-only change on util.py.
+      base: HEAD~1
+      requirement_fingerprint: sha256:8a53d1bbd02baf736e7300ce2252156e54833a9b306eca9ac9b077121504300f
+      approval_fingerprint: sha256:53e040e7a5f10bd8bdb4a5286cbf1286be679298b9be311f38e4478b6cefcdee
+      artifact_fingerprint: sha256:12eeb65d2249e5d68cf93771f998b06eb3a3a30ce2f53e2250510b34a6d954e6
+      reviewed_at: "2026-08-12T20:46:12Z"
+    - requirement: SYS-REQ-003
+      artifact: stacks/movie_pitch_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Audit-campaign Implements comments and spec traces; shipped handler and stack behavior unchanged; requirements and design remain correct.
+      base: HEAD~1
+      requirement_fingerprint: sha256:e23fc045b3b1a05f8489adb745e92436617fe6637d867921ad97f1e575e07c34
+      approval_fingerprint: sha256:bebcdfa15b0769091758bc74feacc9a1b4f922e70c9525ddd0407d52d2b15a54
+      artifact_fingerprint: sha256:0abea59937be5e04f433145338f2bf404df3eac2ac6c4c0726851c39f909a0f3
+      reviewed_at: "2026-08-14T09:29:53Z"
+    - requirement: SYS-REQ-004
+      artifact: stacks/meal_planner_stack.py
+      decision: no-authored-change
+      reviewer: dev
+      reason: Audit-campaign Implements comments and spec traces; shipped handler and stack behavior unchanged; requirements and design remain correct.
+      base: HEAD~1
+      requirement_fingerprint: sha256:6f72fa6efeded15bfd9fa140172e1e4c0fb6a9b008de7b0c9cdcd732bd4d3a27
+      approval_fingerprint: sha256:6a492582a08fc13074dc346300dc00c259d3616e7aa901dd997bd7104c254022
+      artifact_fingerprint: sha256:e2c39bd894c05cccd36295d640922164a3dd7dcfab48dd21ad710f72f44ba095
+      reviewed_at: "2026-08-14T09:29:53Z"
+    - requirement: SYS-REQ-006
+      artifact: pipeline/pipeline_stack.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:3b3c682e10807cba64a245e739b2f8204e4e0ca1d8ee6c97f02927544ccca5b9
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/conditional_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:9a00f952167cae9c1f4d2db813e694719d5fdd45916a15398b897188050f11cb
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/map_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:44e91f2d84cb96b2acf75fe5e286f7f86631ba82349b2a65b9dc641d6c3f1596
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/model_invocation.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:b3391aaff71d1a65e546e913c39850689752898b4cd7c5e2e471d30ff8fcc718
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/parallel_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:7e1e0424ba9b143e542e6611e9bc6dcd3fc956ad5c0305c8df32eca12ce6c8fb
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/prompt_templating.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:e7b2bb52c2352d92fed60a91ebaae76f060b06a9a37fefdd5f9c296ad2c7b0ed
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_bedrock_flows/stacks/sequential_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:fb1e40457ae261fd874f2b88f13051e8c572f7f17c8c25451f08341e545c260d
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/aws_service_invocation.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:bec3b56e73a380a8561efe9871ea4c3e6bb8ae757a131636d84ebfe65649b3d8
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/conditional_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:0135a03a0d7b647e34b06ade7f42a7083750da501f51b8b1fc7cc08cb2fa3147
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/human_input_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:d20e782815ccb5bf1200400c7aa33317860cc2d3f55c7c13b1d99cef9e6beb84
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/map_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:b459d93fa9c8500ef989ea4868a5a0e428c907ab58150407d83ead71554faa10
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/model_invocation.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:38482772e67ed054edc429d2816c94da7da2eb15711d300d6136d26af3a1f374
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/parallel_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:b1e82cb7e1abdc48bfd3fff594c9c6c67849f60d721ec9dc747b4864a38e4eec
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/prompt_templating.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:e0e512a0e1af681028505db60a348cdb415e4cbf6d785c00e5c1165cff51713b
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/sequential_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:1ad6ba35482e59a62d1d040dd61cdbb9c015fd409f38f68bc77a035894e032ab
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/stacks/validation_chain.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:84b87d8868c22d99d2f4eb5001cbb77b589343b2ec5c8265007c869882854933
+      approval_fingerprint: sha256:a3691cbb3ce2abd984419835b4115d417632d8c59c1aaf07d309198fd79fa2b4
+      artifact_fingerprint: sha256:c291ccf6d8465db1b1013eff29812a74721aecf156a1d42ba60ab14655f85c14
+      reviewed_at: "2026-08-14T11:48:52Z"
+    - requirement: SYS-REQ-006
+      artifact: techniques_step_functions/technique_stacks.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Onboard added Implements annotations and unit tests; the four-layer requirement text already states the same contracts.
+      base: HEAD~1
+      requirement_fingerprint: sha256:af25ab5ae11b47e3aa78f9d3b66448f66d6939096c66374bc7491fbcffad5cd4
+      approval_fingerprint: sha256:01c22ca3ea1318f679ddd448d849cd08ed03b96464fad354f4630fe7c37ef904
+      artifact_fingerprint: sha256:87638d2d1e03589e53a4a0a41015653849d548fad87ad745bea1c5075909e006
+      reviewed_at: "2026-08-12T20:46:01Z"
+    - requirement: SYS-REQ-011
+      artifact: pipeline/pipeline_stack.py
+      decision: no-authored-change
+      change_type: refactor
+      reviewer: dev
+      reason: Branch adds reqproof trace annotations and docs only; no authored behavior change
+      base: HEAD~1
+      requirement_fingerprint: sha256:b7accb092a8d9177ff32e05e1856cc9cac8d4a0db879014fc70486fce45d8cc3
+      approval_fingerprint: sha256:f5a045b469bc62528584df5688c0dcc0e319bfc102eea938578c5a0f6f93c6dd
+      artifact_fingerprint: sha256:3b3c682e10807cba64a245e739b2f8204e4e0ca1d8ee6c97f02927544ccca5b9
+      reviewed_at: "2026-08-14T11:48:52Z"

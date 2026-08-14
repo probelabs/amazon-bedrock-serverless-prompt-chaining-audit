@@ -1,0 +1,9 @@
+id: REVIEW-3
+kind: spec_conformance
+reviewer: agent:grok
+reviewed_at: "2026-08-12T20:19:20Z"
+subject: SW-REQ-003
+decision: approved
+comment: FRETish !task_token_wait_seen | execution_status_is_paused matches poll_for_execution_task_token_or_completion returning status PAUSED when resource is invoke.waitForTaskToken.
+citations:
+    - webapp/stepfn.py:184@poll_for_execution_task_token_or_completion

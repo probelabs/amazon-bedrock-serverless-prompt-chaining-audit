@@ -1,0 +1,129 @@
+id: SYS-REQ-003
+version: 1
+status: review
+priority: shall
+category: functional
+req_type: guarantee
+fretish: the human_gate shall always satisfy (!human_wait_required | execution_pauses_for_choice) & (!human_wait_required | task_token_present) & (!history_contains_wait | execution_pauses_for_choice) & (!choice_is_yes_or_no | execution_pauses_for_choice) & (temperature_settings_count = 3) & (pitch_choice >= 1) & (pitch_choice <= 3) & pitch_choice_is_declared & (reject_round_count >= 0) & (reject_round_count <= 10) & (!choice_is_yes_or_no | greenlight_path_taken | reject_and_repitch_taken)
+description: The system shall pause a human-gated workflow until the user supplies yes or no. MoviePitch shall present temperature_settings_count = 3 pitches. pitch_choice shall be in 1, 2, or 3. pitch_id shall be a declared selector. reject_round_count shall stay in 0-10.
+formalization_strategy: fretish
+informal_verification:
+    method: ""
+    evidence: ""
+    verified: false
+parent: STK-REQ-001
+component: human_gate
+rationale: 'MoviePitch and HumanInput use WAIT_FOR_TASK_TOKEN. The selector intended contract is pitch_choice in {1,2,3} exact. Code uses string_matches N* (KI-moviepitch-pitch-glob-1star). user_choice is yes or no. The no path re-enters MoviePitches with no reject counter; the spec bound that SHALL hold is reject_round_count 0-10. Satisfying children: SW-REQ-003.'
+tags: []
+variables:
+    - human_wait_required
+    - execution_pauses_for_choice
+    - task_token_present
+    - choice_is_yes_or_no
+    - history_contains_wait
+    - temperature_settings_count
+    - pitch_choice
+    - pitch_choice_is_declared
+    - reject_round_count
+    - greenlight_path_taken
+    - reject_and_repitch_taken
+traces:
+    satisfies:
+        - STK-REQ-001
+    documented_by_extra:
+        - specs/REQUIREMENTS.md
+    reviewed_at: "2026-08-14T09:29:47.863328899Z"
+    reviewed_by: human:dev
+    reviewed_fingerprint: sha256:e23fc045b3b1a05f8489adb745e92436617fe6637d867921ad97f1e575e07c34
+    review_history:
+        - reviewed_at: "2026-08-12T20:34:49.480461448Z"
+          reviewed_by: agent:grok
+          method: inspection
+          rationale: Citation-backed review of SYS-REQ-003.
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - tests/test_stepfn.py
+        - reviewed_at: "2026-08-13T13:28:15.676716567Z"
+          reviewed_by: human:dev
+          method: inspection
+          rationale: re-verified SYS-REQ-003 links after movie_pitch Implements retarget and temperature_settings_count child coverage
+          source: proof trace review --citation
+          citations:
+            - specs/REQUIREMENTS.md:15
+            - specs/stakeholder/requirements/STK-REQ-001.req.yaml
+            - stacks/movie_pitch_stack.py:21
+            - tests/test_seek_user_input.py
+            - tests/test_stepfn.py
+verification:
+    assurance_level: E
+    formalization_status: valid
+    review:
+        status: in_review
+        reviewer: agent:grok
+        reviewed_at: "2026-08-12T20:25:00Z"
+        ai_generated: true
+    gaps_reviewed_at: "2026-08-12T20:45:54.171267163Z"
+    gaps_reviewed_by: agent:grok
+    gap_reviews:
+        - check: decomposition
+          issue_key: decomposition|SYS-REQ-003|execution_pauses_for_choice
+          reviewer: agent:grok
+          reason: 'Accepted: SYS-REQ-003.execution_pauses_for_choice is the waitForTaskToken pause observed by webapp/stepfn.py:poll_for_execution_task_token_or_completion (status PAUSED). Child SW-REQ-003 specifies that client contract. Child INT-REQ-002 covers StartExecution that begins a human-gated MoviePitch or HumanInput run. The pause itself is parent-level orchestration, not a missing child variable.'
+          reviewed_at: "2026-08-12T20:45:54.171267163Z"
+history:
+    created_by: human:cli
+    created_at: "2026-08-12T20:13:34Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-14T06:30:33Z"
+obligation_checklist:
+    - boundary
+    - error_handling
+    - nominal
+obligation_hazards:
+    - class: boundary
+      worst_case: Unbounded no replies re-enter MoviePitches until the one-hour state-machine timeout with no reject counter.
+      severity: medium
+    - class: error_handling
+      worst_case: An unknown user_choice that is not yes or no takes the otherwise Fail path and drops the pitch.
+      severity: medium
+    - class: nominal
+      worst_case: A human-gated run skips waitForTaskToken and never presents the yes or no choice.
+      severity: low
+hazard_review:
+    reviewed_at: "2026-08-12T20:22:42Z"
+    reviewed_by: human:cli
+    reviewed_against_catalog_version: 1.9.1
+    categories:
+        - category: scenario
+          disposition: reviewed
+          applied:
+            - nominal
+            - error_handling
+        - category: domain
+          disposition: not_applicable
+          rationale: No domain catalog class (crypto, auth, DeFi, TLS) is owned here; scenario partitions already capture the behavior.
+        - category: property
+          disposition: not_applicable
+          rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
+        - category: structural
+          disposition: not_applicable
+          rationale: Python implementation has no pointer-arithmetic, format-string, or manual-memory structural obligation.
+nominal_evidence_exemptions:
+    - obligation_class: boundary
+      reason: SYS-REQ-003 boundary is unbounded reject/repitch; FRETish has no valid-input success cell on that class, so a boundary:nominal tag would be a false happy-path witness.
+      reviewer: agent:grok
+verification_state: failing
+lifecycle:
+    change_history:
+        - date: "2026-08-12T20:14:59Z"
+          from: draft
+          to: review
+          reason: '[agent:grok] Skeleton complete and validated; ready for spec-review'
+          changed_by: human:cli
+        - date: "2026-08-14T09:32:57Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=2; known_issue:KI-moviepitch-pitch-glob-1star=failing | known_issue:KI-spec-mcdc-row-witnesses=none
+          changed_by: agent:auto-derive

@@ -1,0 +1,77 @@
+id: KI-bedrock-agent-invoke-wildcard
+title: GitHub actions Lambda grant_invoke trusts any Bedrock agent/* in the account
+description: |-
+    stacks/most_popular_repo_bedrock_agent_stack.py:63-72 grant_invoke's Bedrock principal with ArnLike aws:SourceArn arn:aws:bedrock:{region}:{account}:agent/* rather than this agent's ARN. Any Bedrock agent in the account can invoke PromptChainDemo-MostPopularRepoBedrockAgents-GitHubActions (PAT-backed README/trending tools). ADHD notes: proof/evidence/adhd-threat-spec-red.md (GitHub agent / trending cluster; account-scoped confused deputy).
+    Quote:
+            bedrock_principal = iam.ServicePrincipal(
+                "bedrock.amazonaws.com",
+                conditions={
+                    "StringEquals": {"aws:SourceAccount": self.account},
+                    "ArnLike": {
+                        "aws:SourceArn": f"arn:aws:bedrock:{self.region}:{self.account}:agent/*"
+                    },
+                },
+            )
+            github_agent_actions_lambda.grant_invoke(bedrock_principal)
+affected_requirements:
+    - SYS-REQ-007
+    - SW-REQ-006
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_bedrock_agent_iam.py::test_github_actions_invoke_source_arn_is_pinned_to_this_agent -q
+evidence_manifests:
+    - proof/evidence/KI-bedrock-agent-invoke-wildcard.yaml
+severity: medium
+severity_basis: reproducer
+risk: security
+cve_surface: possible
+affected_api: grant_invoke (stacks/most_popular_repo_bedrock_agent_stack.py:63-72)
+attacker_input: Any Bedrock agent in the same account (confused deputy) invoking the GitHub actions Lambda; not anonymous webapp users
+sanitizer: manual:iam-agent-wildcard
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_bedrock_agent_iam.py::test_github_actions_invoke_source_arn_is_pinned_to_this_agent -q
+tripwire_mutation: Pin grant_invoke aws:SourceArn to this CfnAgent ARN instead of agent/*.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Do not deploy MostPopularRepoBedrockAgentStack alongside other account Bedrock agents, or replace the resource policy with a pinned agent ARN. No live AWS in this environment.
+remediation: Pin aws:SourceArn to this CfnAgent's ARN (not agent/*) so only PromptChainDemo-MostPopularRepo can invoke the GitHub actions Lambda.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - proof/evidence/adhd-threat-spec-red.md (GitHub trending / agent cluster; account-scoped confused deputy). SourceArn agent/* is not this agent ARN.
+customer_impact: Another Bedrock agent in the account can invoke the shared GitHub actions Lambda and use the PAT-backed trending/README tools.
+owner: agent:grok
+review_date: "2026-09-14"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-14T05:53:57Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-14
+    - at: "2026-08-14T05:54:43Z"
+      by: agent:grok
+      action: edit
+      detail: add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    not_applicable:
+        reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

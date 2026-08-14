@@ -10,7 +10,9 @@ from .inference_profile import InferenceProfile
 import json
 
 
+# Implements: SYS-REQ-006
 class FlowsMapChain(Stack):
+    # Implements: SYS-REQ-006
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 

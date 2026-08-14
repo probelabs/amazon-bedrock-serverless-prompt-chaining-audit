@@ -1,0 +1,58 @@
+id: KI-code-mcdc-util-polarities
+title: stacks/util.py invoke-chain MC/DC flag polarities incomplete
+description: 'code_mcdc now measures stacks/util.py as well as functions/. Measure showed 5/9 decisions (55.6%) on stacks/util.py: flatten_messages, include_previous_conversation_in_prompt, and include_initial_assistant_text_in_response polarities are incomplete. functions/ remains 17/17. Existing tests/test_util.py drives the SW-REQ-010 conflicting-options guard on the invoke-chain builder but does not flip the false polarities of those conversation-flatten and assistant-text-in-response flags.'
+affected_requirements:
+    - SW-REQ-010
+    - SYS-REQ-009
+severity: low
+severity_basis: risk
+risk: correctness
+reproduction_steps:
+    - Read this KnownIssue description and the named requirement.
+    - Confirm the gap with proof audit --check known_issue_complete and the related evidence check.
+    - The defect is missing evidence, not a crashing handler; do not encode a passing buggy assertion.
+environment_note: Native Python MC/DC now measures stacks/util.py (decision-python-util) as well as functions/. functions/ is 17/17. stacks/util.py is 5/9 because the CDK-mocked unit suite drives the SW-REQ-010 conflict guard but does not flip false polarities of flatten_messages, include_previous_conversation_in_prompt, and include_initial_assistant_text_in_response. This onboard runner must not treat a missing polarity as a silent pass.
+introduced_in: inception
+defect_class: latent
+minimization_status: not_applicable
+mitigation: functions/ remains 17/17. Unit tests cover the mutually exclusive invoke-chain options (SW-REQ-010). The leftover is false polarities of conversation-flatten and assistant-text-in-response flags.
+remediation: Add unit tests that drive include_previous_conversation_in_prompt=False, flatten_messages=False, and include_initial_assistant_text_in_response=False; remasure stacks/util.py and re-run proof audit --check code_mcdc_coverage.
+notes:
+    - 'environment_note: CDK-mocked unit tests do not flip false polarities of flatten_messages / include_previous_conversation_in_prompt / include_initial_assistant_text_in_response.'
+    - 'Withdrawn: remasure of stacks/util.py is now 9/9 (100%) after polarity tests were added. This was a process/evidence gap, not a product defect.'
+owner: agent:grok
+review_date: "2026-09-13"
+release_disposition: ship_with_known_issue
+status: withdrawn
+history:
+    - at: "2026-08-13T09:58:51Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-13T09:59:10Z"
+      by: agent:grok
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-13
+    - at: "2026-08-13T11:39:07Z"
+      by: agent:grok
+      action: edit
+      detail: append-note,set-status=withdrawn
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: true
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: false
+    notes: |-
+        Reviewed as missing-evidence debt, not a security submission. Control path: existing unit tests in tests/ pass. Live AWS acceptance remains environment-blocked.
+
+        operational_path_verified: intended/safe path confirmed by unit tests under tests/ (handlers do not take the missing-acceptance path).
+    not_applicable:
+        attacker_profitability: No attacker profit path. The defect is missing verification evidence on an AWS sample, not a stealable asset.
+        reachability_verified: 'local-behavioral correctness/evidence defect: no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'
+        untrusted_attacker: Not an exploit PoC. This KnownIssue tracks missing evidence (acceptance, MC/DC, or obligation triples), not an untrusted-attacker payload.

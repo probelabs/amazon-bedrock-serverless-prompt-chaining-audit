@@ -1,0 +1,69 @@
+id: KI-github-strands-readme-pat-no-allowlist
+title: Strands GitHub README tool uses the PAT without an allowlist
+description: 'functions/most_popular_repo_strands/index.py:54-91 (get_github_repository_readme) loads the shared GitHub PAT and fetches whatever repository string the agent supplies after a prefix strip (index.py:71-76 get_repo). URL validation exists only for structured trending-repo extraction (GitHubRepo), not at this tool boundary. Stack wiring: stacks/most_popular_repo_strands_stack.py:46-58. Codex finding-6 (report.md#finding-6).'
+affected_requirements:
+    - SW-REQ-006
+    - SYS-REQ-007
+    - INT-REQ-004
+commands:
+    - python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_strands_readme_rejects_non_allowlisted_repo -q
+evidence_manifests:
+    - proof/evidence/KI-github-strands-readme-pat-no-allowlist.yaml
+severity: medium
+severity_basis: reproducer
+risk: security
+cve_surface: possible
+affected_api: get_github_repository_readme (functions/most_popular_repo_strands/index.py:54-91)
+attacker_input: Strands agent tool argument input (e.g. https://github.com/evil/private) that is not the trending-selected public URL
+sanitizer: manual:missing-allowlist
+reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_strands_readme_rejects_non_allowlisted_repo -q
+tripwire_mutation: Reject get_github_repository_readme repo arguments that are not the trending-selected public URL before Github.get_repo.
+reproduction_steps:
+    - Read proof/evidence/codex-security-CPeyWd/report.md#finding-6 and functions/most_popular_repo_strands/index.py:54-91.
+    - Run python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_strands_readme_rejects_non_allowlisted_repo -q
+    - The Reproduces test mocks Github and calls get_github_repository_readme('https://github.com/evil/private'). Correct behavior is reject before get_repo. It fails (xfail) because get_repo is called.
+environment_note: No live AWS deployment, Bedrock invocation, or WeasyPrint native runtime in this host. Unit Reproduces tests assert the correct control and xfail while the defect remains.
+introduced_in: inception
+defect_class: latent
+disclosure: public
+minimization_status: minimized
+mitigation: Use a public-only GitHub PAT; do not grant private-repo scopes. No live AWS or GitHub token in this environment.
+remediation: Reuse the structured-output URL validator at the README tool boundary; allowlist fetches to the single trending-selected public repository; use a least-privilege PAT (public-only) and reject other hosts/paths.
+notes:
+    - Classification is public because the defect is in the published aws-samples tree.
+    - evidence path proof/evidence/codex-security-CPeyWd/report.md#finding-6
+customer_impact: A steered Strands agent can read any repository README the shared GitHub PAT can access, including private repos if the token is over-scoped.
+owner: agent:grok
+review_date: "2026-09-12"
+release_disposition: ship_with_known_issue
+status: reviewed
+history:
+    - at: "2026-08-13T15:18:18Z"
+      by: agent:grok
+      action: created
+    - at: "2026-08-13T15:18:35Z"
+      by: agent:grok
+      action: edit
+      detail: append-note
+    - at: "2026-08-13T15:18:35Z"
+      by: human:dev
+      action: review
+      detail: reviewer=agent:grok,new_review_date=2026-09-12
+    - at: "2026-08-13T15:20:22Z"
+      by: agent:grok
+      action: edit
+      detail: set-risk,add-evidence-manifest
+poc_quality:
+    real_infrastructure: true
+    quantitative_impact: false
+    control_test: true
+    untrusted_attacker: false
+    current_deployment_relevance: true
+    honest_severity: true
+    attacker_profitability: false
+    reproducible: true
+    no_inflation: true
+    operational_path_verified: true
+    reachability_verified: true
+    notes: |-
+        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). The bound test calls the handler/tool entry with attacker-shaped input. Current published aws-samples tree still contains the defect.

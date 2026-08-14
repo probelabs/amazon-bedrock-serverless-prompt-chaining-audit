@@ -1,0 +1,25 @@
+component: pdf_creator
+variables:
+    - name: itinerary_ready
+      type: bool
+      direction: input
+      description: True when the itinerary markdown is available for PDF conversion.
+    - name: presigned_pdf_url_returned
+      type: bool
+      direction: output
+      description: True when the handler returns a presigned URL.
+    - name: expires_in
+      type: int
+      direction: mode
+      description: Presigned URL lifetime in seconds. generate_presigned_url uses ExpiresIn=900.
+      range:
+        max: 900
+        min: 60
+    - name: untrusted_itinerary_present
+      type: bool
+      direction: input
+      description: True when location or itinerary markdown comes from the user or the model.
+    - name: template_eval_active
+      type: bool
+      direction: output
+      description: True when md2pdf evaluates itinerary markdown as a Jinja template. Code currently does this (KI-pdf-md2pdf-ssti). The PDF creator shall keep this false when untrusted input is present. The both-true row is a live failing witness, not a domain mutex.

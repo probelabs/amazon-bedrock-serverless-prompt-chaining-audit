@@ -1,0 +1,136 @@
+component: technique_catalog
+variables:
+    - name: technique_execution_requested
+      type: bool
+      direction: input
+      description: True when an operator requests a named technique execution.
+    - name: named_technique_exists
+      type: bool
+      direction: output
+      description: True when the named SFN or implemented Flows technique resource exists.
+    - name: sfn_stack_count
+      type: int
+      direction: output
+      description: Number of documented SFN technique stacks available to execute. Must be >= 9.
+      range:
+        max: 20
+        min: 0
+    - name: flows_stack_count
+      type: int
+      direction: output
+      description: Number of implemented Flows technique stacks available to execute. Must be >= 6.
+      range:
+        max: 10
+        min: 0
+
+    - name: human_input_technique_defined
+      type: bool
+      direction: output
+      description: True when the documented HumanInput SFN technique exists in the catalog.
+
+    - name: sfn_technique_stack_defined
+      type: bool
+      direction: output
+      description: True when a documented SFN technique stack is constructed.
+    - name: technique_name_is_documented_sfn
+      type: bool
+      direction: input
+      description: True when the name is one of the nine documented SFN techniques.
+    - name: technique_name
+      type: enum
+      direction: input
+      description: Documented technique stack short name from techniques_step_functions/technique_stacks.py.
+      values:
+        - ModelInvocation
+        - PromptTemplating
+        - SequentialChain
+        - ParallelChain
+        - ConditionalChain
+        - HumanInput
+        - Map
+        - AwsServiceInvocation
+        - Validation
+    - name: technique_family
+      type: enum
+      direction: input
+      description: Technique runtime family. sfn is Techniques-*. flows is Techniques-Flows-*.
+      values:
+        - sfn
+        - flows
+    - name: deploy_actions_are_star
+      type: bool
+      direction: input
+      description: True when a pipeline deploy CodeBuild role grants actions=["*"]. The shipped sample does this on DeployDemoApp and DeployExamples (KI-pipeline-deploy-demo-star-star, KI-pipeline-deploy-examples-star-star). SYS-REQ-011 assumes the host environment does not grant this together with deploy_resources_are_star.
+    - name: deploy_resources_are_star
+      type: bool
+      direction: input
+      description: True when a pipeline deploy CodeBuild role grants resources=["*"]. The shipped sample does this on DeployDemoApp and DeployExamples. SYS-REQ-011 assumes the host environment does not grant this together with deploy_actions_are_star.
+domain:
+    tables:
+        - name: technique_catalog
+          source: techniques_step_functions/technique_stacks.py and techniques_bedrock_flows/technique_stacks.py
+          inputs:
+            - name: technique_name
+              type: enum
+              values: [ModelInvocation, PromptTemplating, SequentialChain, ParallelChain, ConditionalChain, HumanInput, Map, AwsServiceInvocation, Validation]
+            - name: technique_family
+              type: enum
+              values: [sfn, flows]
+          output:
+            name: named_technique_exists
+            type: bool
+          rows:
+            - technique_name: ModelInvocation
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: PromptTemplating
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: SequentialChain
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: ParallelChain
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: ConditionalChain
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: HumanInput
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: Map
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: AwsServiceInvocation
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: Validation
+              technique_family: sfn
+              named_technique_exists: true
+            - technique_name: ModelInvocation
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: PromptTemplating
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: SequentialChain
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: ParallelChain
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: ConditionalChain
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: HumanInput
+              technique_family: flows
+              named_technique_exists: false
+            - technique_name: Map
+              technique_family: flows
+              named_technique_exists: true
+            - technique_name: AwsServiceInvocation
+              technique_family: flows
+              named_technique_exists: false
+            - technique_name: Validation
+              technique_family: flows
+              named_technique_exists: false

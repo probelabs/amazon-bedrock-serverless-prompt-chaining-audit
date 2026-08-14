@@ -1,0 +1,33 @@
+component: github_http
+variables:
+    - name: trending_fetch_requested
+      type: bool
+      direction: input
+      description: True when an agent requests the trending page.
+    - name: trending_http_get_issued
+      type: bool
+      direction: output
+      description: True when HTTP GET is issued to github.com/trending.
+    - name: status_code
+      type: int
+      direction: input
+      description: HTTP status from GET github.com/trending. Non-200 raises.
+      range:
+        max: 599
+        min: 100
+    - name: trending_fetch_raises
+      type: bool
+      direction: output
+      description: True when trending GET raises because status_code is not 200.
+
+    - name: user_agent_header_set
+      type: bool
+      direction: output
+      description: True when the trending GET sets a User-Agent header.
+    - name: requests_timeout_s
+      type: int
+      direction: output
+      description: Timeout in seconds for requests.get to github.com/trending. Code currently omits timeout. Spec bound that SHALL hold is 1-30.
+      range:
+        max: 30
+        min: 1
