@@ -9,7 +9,7 @@ results:
       command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pdf_creator.py::test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf -q --tb=short
       status: pass
       observed_result: known_issue_reproduced
-      executed_at: "2026-08-14T12:14:19Z"
+      executed_at: "2026-08-14T16:14:31Z"
       input_set:
         - functions/trip_planner/pdf_creator/index.py
         - tests/test_pdf_creator.py
@@ -18,6 +18,11 @@ results:
       freshness_hashes:
         functions/trip_planner/pdf_creator/index.py: sha256:abfacd866f113928cce2d1218f080a5409e7d146677f1db2b5a61523bbd1e274
         proof/evidence/codex-security-CPeyWd/artifacts/02_discovery/validation_artifacts/candidate-8f0e6e3f7eec765a/jinja_ssti_probe.txt: sha256:4deb674c954344b3b91221b5bfc2e8f735e589c01eac1bd437c5eb4b0c5772e7
-        tests/test_pdf_creator.py: sha256:65c347e98f03479ea98a3e20bf4d7dd6c4cbd40733dd6399b87819189bae6dfe
+        tests/test_pdf_creator.py: sha256:58ae2b3b0cc3f81f4604e7a08e3b05d2b64884c653f19d887513fa4a08e591f9
+      covered_files:
+        - functions/trip_planner/pdf_creator/index.py
+      tests:
+        - name: test_pdf_creator_does_not_pass_unsandboxed_jinja_to_md2pdf
+          status: skip
       known_issues:
         - KI-pdf-md2pdf-ssti
