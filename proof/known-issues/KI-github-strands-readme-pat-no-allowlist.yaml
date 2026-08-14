@@ -13,6 +13,7 @@ severity: medium
 severity_basis: reproducer
 risk: security
 cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N
 affected_api: get_github_repository_readme (functions/most_popular_repo_strands/index.py:54-91)
 attacker_input: Strands agent tool argument input (e.g. https://github.com/evil/private) that is not the trending-selected public URL
 sanitizer: manual:missing-allowlist
@@ -53,6 +54,10 @@ history:
       by: agent:grok
       action: edit
       detail: set-risk,add-evidence-manifest
+    - at: "2026-08-14T15:32:17Z"
+      by: human:dev
+      action: edit
+      detail: cvss=CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false
@@ -65,5 +70,4 @@ poc_quality:
     no_inflation: true
     operational_path_verified: true
     reachability_verified: true
-    notes: |-
-        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). The bound test calls the handler/tool entry with attacker-shaped input. Current published aws-samples tree still contains the defect.
+    notes: 'Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). The bound test calls the handler/tool entry with attacker-shaped input. Current published aws-samples tree still contains the defect.'

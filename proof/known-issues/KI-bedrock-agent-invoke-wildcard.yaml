@@ -24,6 +24,7 @@ severity: medium
 severity_basis: reproducer
 risk: security
 cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:L/I:L/A:N
 affected_api: grant_invoke (stacks/most_popular_repo_bedrock_agent_stack.py:63-72)
 attacker_input: Any Bedrock agent in the same account (confused deputy) invoking the GitHub actions Lambda; not anonymous webapp users
 sanitizer: manual:iam-agent-wildcard
@@ -59,6 +60,10 @@ history:
       by: agent:grok
       action: edit
       detail: add-evidence-manifest
+    - at: "2026-08-14T15:32:17Z"
+      by: human:dev
+      action: edit
+      detail: cvss=CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:L/I:L/A:N
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false
@@ -71,7 +76,6 @@ poc_quality:
     no_inflation: true
     operational_path_verified: true
     reachability_verified: false
-    notes: |-
-        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    notes: 'Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.'
     not_applicable:
         reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

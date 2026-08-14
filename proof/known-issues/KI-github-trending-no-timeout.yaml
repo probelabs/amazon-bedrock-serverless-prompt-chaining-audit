@@ -22,6 +22,7 @@ severity: medium
 severity_basis: reproducer
 risk: availability
 cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:H
 affected_api: get_github_trending_page_agent_action / get_trending_github_repositories (github_agent_actions/index.py:16-18, most_popular_repo_strands/index.py:32-35)
 attacker_input: Network stall or slow-loris on https://github.com/trending (or any on-path delay); no attacker body required
 sanitizer: manual:missing-timeout
@@ -57,6 +58,10 @@ history:
       by: agent:grok
       action: edit
       detail: add-evidence-manifest
+    - at: "2026-08-14T15:32:17Z"
+      by: human:dev
+      action: edit
+      detail: cvss=CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:H
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false
@@ -69,7 +74,6 @@ poc_quality:
     no_inflation: true
     operational_path_verified: true
     reachability_verified: false
-    notes: |-
-        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    notes: 'Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.'
     not_applicable:
         reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'

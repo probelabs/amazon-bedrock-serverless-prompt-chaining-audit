@@ -12,11 +12,12 @@ severity: high
 severity_basis: reproducer
 risk: security
 cve_surface: possible
+cvss: CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H
 affected_api: pipeline_stack.py add_to_role_policy (pipeline/pipeline_stack.py:286-288)
 attacker_input: Compromised pipeline source artifact or CodeStar-connected branch executed by DeployDemoApp CodeBuild (not anonymous webapp users)
 sanitizer: manual:iam-star-star
 reproducer_command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_pipeline_deploy_iam.py::test_deploy_demo_app_role_has_no_star_star_policy -q
-tripwire_mutation: 'Remove DeployDemoApp PolicyStatement(actions=["*"], resources=["*"]) and scope the CodeBuild role.'
+tripwire_mutation: Remove DeployDemoApp PolicyStatement(actions=["*"], resources=["*"]) and scope the CodeBuild role.
 reproduction_steps:
     - Read proof/evidence/codex-security-CPeyWd/report.md#finding-2 and pipeline/pipeline_stack.py:286-288.
     - Run python3 -m pytest --rootdir=/workspace /workspace/tests/test_pipeline_deploy_iam.py::test_deploy_demo_app_role_has_no_star_star_policy -q
@@ -57,6 +58,10 @@ history:
       by: agent:grok
       action: edit
       detail: set-risk,add-evidence-manifest
+    - at: "2026-08-14T15:32:16Z"
+      by: human:dev
+      action: edit
+      detail: cvss=CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false
@@ -69,7 +74,8 @@ poc_quality:
     no_inflation: true
     operational_path_verified: true
     reachability_verified: false
-    notes: |-
-        Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.
+    notes: 'Offline sample: unit Reproduces xfail is the allowed proof (real_infrastructure satisfied by that bound xfail; no live AWS in this environment). Control path covered by the bound xfail asserting the secure contract. Current published aws-samples tree still contains the defect.'
     not_applicable:
         reachability_verified: 'local-behavioral unit assertion (IAM AST / regex / call-kwargs): no ingress access-control layer to traverse, so end-to-end exploit reachability is not applicable'
+dedup_armor: |
+    Distinct from KI-pipeline-deploy-examples-star-star: independent CodeBuild project DeployDemoApp (pipeline_stack.py:270-288) with its own service role and cdk_stacks.py --all deploy principal. Merging would hide a second account-admin equivalent identity.
