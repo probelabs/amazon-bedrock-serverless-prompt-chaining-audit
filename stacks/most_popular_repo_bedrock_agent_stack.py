@@ -56,7 +56,12 @@ class MostPopularRepoBedrockAgentStack(Stack):
             entry="functions/most_popular_repo_bedrock_agent/github_agent_actions",
             timeout=Duration.seconds(30),
             memory_size=512,
-            environment={"GITHUB_TOKEN_SECRET": github_secret.secret_name},
+            environment={
+                "GITHUB_TOKEN_SECRET": github_secret.secret_name,
+                "GITHUB_ALLOWED_REPO_URLS": os.environ.get(
+                    "GITHUB_ALLOWED_REPO_URLS", ""
+                ),
+            },
         )
         github_secret.grant_read(github_agent_actions_lambda)
 

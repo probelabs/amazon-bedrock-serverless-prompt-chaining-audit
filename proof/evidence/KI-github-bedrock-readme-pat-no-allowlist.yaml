@@ -8,14 +8,23 @@ results:
         - INT-REQ-004
       command: python3 -m pytest --rootdir=/workspace /workspace/tests/test_github_repo.py::test_bedrock_readme_rejects_non_allowlisted_repo -q --tb=short
       status: pass
-      observed_result: known_issue_reproduced
-      executed_at: "2026-08-14T12:58:59Z"
+      observed_result: defect_fixed
+      executed_at: "2026-08-19T00:00:00Z"
       input_set:
         - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
         - tests/test_github_repo.py
         - KI-github-bedrock-readme-pat-no-allowlist
       freshness_hashes:
-        functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py: sha256:fe00c734aa30d1d503d701552d9ff9e1257936812332a7887dd358a1f1d94c55
-        tests/test_github_repo.py: sha256:5324319c465b6c1f0142665ae20c19b26a743fa2cfef7a6fc8a2b89a8a598a3b
+        functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py: sha256:75663ad9da74ffcc728a91ef8975ea00727b8c0d6a3c2abe0c114da74ef40aab
+        tests/test_github_repo.py: sha256:20ef4e96f652c8831970334a7e817347b12014de7d4c973c7cadb3798530474c
       known_issues:
         - KI-github-bedrock-readme-pat-no-allowlist
+      notes: >-
+        Defect fixed: get_github_repository_readme_agent_action now enforces a
+        GITHUB_ALLOWED_REPO_URLS allowlist (fail-closed, comma-separated full
+        URLs) plus a strict https://github.com/{owner}/{repo} fullmatch before
+        the PAT is loaded or Github.get_repo is reached. The tripwire test no
+        longer xfails; it passes as a normal assertion (also covered by
+        test_bedrock_readme_rejects_non_full_github_url for bad-form entries).
+        The sibling Strands tool (KI-github-strands-readme-pat-no-allowlist)
+        remains open; the defect class is not fully closed.

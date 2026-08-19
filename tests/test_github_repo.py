@@ -206,6 +206,7 @@ def test_readme_truncated_when_longer_than_5000(monkeypatch):
     # Verifies: SYS-REQ-007
     # SW-REQ-006:boundary:nominal
     mod = _load_actions_mod()
+    monkeypatch.setenv("GITHUB_ALLOWED_REPO_URLS", "https://github.com/owner/repo")
     monkeypatch.setattr(
         mod.secrets_client,
         "get_secret_value",
@@ -246,6 +247,7 @@ def test_readme_full_when_under_5000(monkeypatch):
     # Independent-effect pair for get_github_repository_readme_agent_action:
     # len(readme_content) > 5000 is false here; the sibling test drives true.
     mod = _load_actions_mod()
+    monkeypatch.setenv("GITHUB_ALLOWED_REPO_URLS", "https://github.com/owner/repo")
     monkeypatch.setattr(
         mod.secrets_client,
         "get_secret_value",
@@ -365,6 +367,7 @@ def test_readme_path_uses_github_client(monkeypatch):
     # Verifies: SW-REQ-006
     # Verifies: SYS-REQ-007
     mod = _load_actions_mod()
+    monkeypatch.setenv("GITHUB_ALLOWED_REPO_URLS", "https://github.com/owner/repo")
     monkeypatch.setattr(
         mod.secrets_client,
         "get_secret_value",
@@ -407,11 +410,7 @@ def _mock_github_client(mod, monkeypatch):
 
 
 # Reproduces: KI-github-bedrock-readme-pat-no-allowlist
-# Asserts the secure contract; fails while the defect is open.
-@pytest.mark.xfail(
-    strict=True,
-    reason="KI-github-bedrock-readme-pat-no-allowlist: PAT get_readme has no repo allowlist",
-)
+# Asserts the fixed contract; passes only while the allowlist is enforced.
 def test_bedrock_readme_rejects_non_allowlisted_repo(monkeypatch):
     mod = _load_actions_mod()
     github_client = _mock_github_client(mod, monkeypatch)
@@ -422,6 +421,25 @@ def test_bedrock_readme_rejects_non_allowlisted_repo(monkeypatch):
                 parameters=[{"name": "repo", "value": "https://github.com/evil/private"}],
             ),
             None,
+        )
+    except Exception:
+        github_client.get_repo.assert_not_called()
+        return
+    github_client.get_repo.assert_not_called()
+
+
+# Reproduces: KI-github-bedrock-readme-pat-no-allowlist
+# Asserts the fixed contract; rejects non-full https://github.com/{owner}/{repo}
+# form even when the string is configured in the allowlist.
+def test_bedrock_readme_rejects_non_full_github_url(monkeypatch):
+    mod = _load_actions_mod()
+    github_client = _mock_github_client(mod, monkeypatch)
+    monkeypatch.setenv(
+        "GITHUB_ALLOWED_REPO_URLS", "https://github.com/owner/repo/extra"
+    )
+    try:
+        mod.get_github_repository_readme_agent_action(
+            "https://github.com/owner/repo/extra"
         )
     except Exception:
         github_client.get_repo.assert_not_called()

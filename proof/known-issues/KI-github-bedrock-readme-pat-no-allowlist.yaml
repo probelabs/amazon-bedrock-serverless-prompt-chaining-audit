@@ -30,14 +30,32 @@ disclosure: public
 minimization_status: minimized
 mitigation: Use a public-only GitHub PAT; do not grant private-repo scopes. No live AWS or GitHub token in this environment.
 remediation: Allowlist README fetches to the single repository URL selected by the trending lookup step; validate strict https://github.com/{owner}/{repo} form; use a least-privilege PAT (public-only) and reject other hosts/paths.
+fix:
+    state: fixed
+    applied_at: "2026-08-19"
+    change:
+        - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+        - stacks/most_popular_repo_bedrock_agent_stack.py
+        - tests/test_github_repo.py
+    detail: >-
+        get_github_repository_readme_agent_action now rejects any repo argument
+        not in the GITHUB_ALLOWED_REPO_URLS allowlist (comma-separated full
+        URLs, fail-closed when unset) or that fails a strict
+        https://github.com/{owner}/{repo} fullmatch, before the PAT is loaded
+        or Github.get_repo is reached. The stack passes the allowlist env var
+        through. The Reproduces tripwire test was un-xfailed and now passes;
+        test_bedrock_readme_rejects_non_full_github_url covers bad-form
+        entries. Sibling KI-github-strands-readme-pat-no-allowlist is NOT
+        fixed; the pat_tool_no_allowlist class remains open on the Strands tool.
 notes:
     - Classification is public because the defect is in the published aws-samples tree.
     - evidence path proof/evidence/codex-security-CPeyWd/report.md#finding-5
+    - 'Fixed 2026-08-19: allowlist enforced at the tool boundary before PAT use. Reproducer test_bedrock_readme_rejects_non_allowlisted_repo passes without xfail; evidence manifest observed_result=defect_fixed.'
 customer_impact: A steered agent can read any repository README the shared GitHub PAT can access, including private repos if the token is over-scoped.
 owner: agent:grok
 review_date: "2026-09-12"
 release_disposition: ship_with_known_issue
-status: reviewed
+status: fixed
 history:
     - at: "2026-08-13T15:18:18Z"
       by: agent:grok
@@ -58,6 +76,15 @@ history:
       by: human:dev
       action: edit
       detail: cvss=CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N
+    - at: "2026-08-19"
+      by: agent:opencode
+      action: edit
+      detail: set-status=fixed,add-fix-record,update-evidence-manifest
+      fix: >-
+        Allowlist enforced in get_github_repository_readme_agent_action
+        (GITHUB_ALLOWED_REPO_URLS, fail-closed) + strict fullmatch form check
+        before PAT load / get_repo; stack wires the env var; tripwire test
+        un-xfailed and passing.
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false

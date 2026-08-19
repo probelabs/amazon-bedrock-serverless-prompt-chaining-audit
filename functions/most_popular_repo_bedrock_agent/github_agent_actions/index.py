@@ -38,6 +38,16 @@ def get_github_trending_page_agent_action():
 
 # Return the contents of a repository's README file
 def get_github_repository_readme_agent_action(input):
+    allowed_repo_urls = {
+        url.strip()
+        for url in os.environ.get("GITHUB_ALLOWED_REPO_URLS", "").split(",")
+        if url.strip()
+    }
+    if input not in allowed_repo_urls or not re.fullmatch(
+        r"https://github.com/[^/]+/[^/]+", input
+    ):
+        raise ValueError(f"Repository {input} is not allowlisted for README access")
+
     github_token_secret_value = secrets_client.get_secret_value(
         SecretId=github_token_secret_name
     )
