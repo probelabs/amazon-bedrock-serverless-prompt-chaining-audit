@@ -13,7 +13,7 @@ informal_verification:
     verified: false
 parent: SYS-REQ-007
 component: github_repo_lookup
-rationale: Bedrock Agents and Strands agents scrape trending pages. Intended URL contract is fullmatch ^https://github.com/[^/]+/[^/]+$. Code uses unanchored re.match and re.search (KI-github-url-unanchored-match), so this is not SSRF protection. requests.get currently has no timeout (KI-github-trending-no-timeout); the spec bound that SHALL hold is 1-30 seconds. README fetch uses a GitHub PAT with no repo allowlist (KI-github-bedrock-readme-pat-no-allowlist, KI-github-strands-readme-pat-no-allowlist). Bedrock grant_invoke SourceArn is agent/* (KI-bedrock-agent-invoke-wildcard). This requirement does not claim PAT allowlist or pinned agent invoke. extract_attempt_count < 3 is the Bedrock range(3) loop. README length uses readme_len <= 5000.
+rationale: Bedrock Agents and Strands agents scrape trending pages. Intended URL contract is fullmatch ^https://github.com/[^/]+/[^/]+$. Code uses unanchored re.match and re.search (KI-github-url-unanchored-match), so this is not SSRF protection. requests.get currently has no timeout (KI-github-trending-no-timeout); the spec bound that SHALL hold is 1-30 seconds. The Bedrock README tool now enforces a GITHUB_ALLOWED_REPO_URLS allowlist plus strict fullmatch before PAT use (DEFECT-260819-TBXH; KI-github-bedrock-readme-pat-no-allowlist fixed); the Strands tool still lacks the allowlist (KI-github-strands-readme-pat-no-allowlist). Pinned Bedrock agent invoke is not claimed (KI-bedrock-agent-invoke-wildcard). extract_attempt_count < 3 is the Bedrock range(3) loop. README length uses readme_len <= 5000.
 tags: []
 variables:
     - extracted_url_is_invalid
@@ -82,24 +82,17 @@ verification:
 history:
     created_by: human:cli
     created_at: "2026-08-12T20:13:57Z"
-    last_modified_by: agent:grok
-    last_modified_at: "2026-08-14T10:32:17Z"
+    last_modified_by: human:cli
+    last_modified_at: "2026-08-19T16:54:13Z"
 obligation_checklist:
     - boundary
+    - confused_deputy_prevented
     - error_handling
     - malformed_input
     - nominal
     - request_timeout_bounded
     - security_decision_matches_enforcement_identity
 obligation_suppressions:
-    - id: confused_deputy_prevented
-      reason: This requirement does not claim a PAT repo allowlist or a pinned Bedrock agent invoke SourceArn. Those product defects stay on KI-github-bedrock-readme-pat-no-allowlist, KI-github-strands-readme-pat-no-allowlist, and KI-bedrock-agent-invoke-wildcard.
-      suppressed_by: agent:grok
-      suppressed_at: "2026-08-14T10:50:24Z"
-      framework_refs:
-        - CWE CWE-441,CWE-285
-        - NIST-800-53 AC-3,AC-6
-        - OWASP-ASVS-v4 V4.1.3,V1.4.1
     - id: ssrf_protection
       reason: Rationale already says the owner/repo regex is not SSRF protection. Unanchored match is owned as security_decision_matches_enforcement_identity and tracked as KI-github-url-unanchored-match.
       suppressed_by: agent:grok
@@ -129,7 +122,7 @@ obligation_hazards:
       severity: medium
 hazard_review:
     reviewed_at: "2026-08-14T10:50:24Z"
-    reviewed_by: agent:grok
+    reviewed_by: human:cli
     reviewed_against_catalog_version: 1.9.1
     categories:
         - category: scenario
@@ -142,10 +135,10 @@ hazard_review:
           applied:
             - request_timeout_bounded
             - security_decision_matches_enforcement_identity
+            - confused_deputy_prevented
           suppressed:
             - ssrf_protection
-            - confused_deputy_prevented
-          rationale: FRETish owns requests_timeout_s 1-30 and full GitHub owner/repo identity. Those map to request_timeout_bounded and security_decision_matches_enforcement_identity. ssrf_protection and confused_deputy_prevented stay suppressed because PAT allowlist and pinned agent invoke are not claimed. The 5000-char README cap remains a boundary, not untrusted_input_bounded deserialization.
+          rationale: 'FRETish owns requests_timeout_s 1-30 and full GitHub owner/repo identity (request_timeout_bounded, security_decision_matches_enforcement_identity). The Bedrock README tool now enforces a GITHUB_ALLOWED_REPO_URLS allowlist + strict fullmatch before PAT use (DEFECT-260819-TBXH), so confused_deputy_prevented applies and is no longer suppressed. ssrf_protection stays suppressed: the owner/repo regex is not SSRF protection (KI-github-url-unanchored-match).'
         - category: property
           disposition: not_applicable
           rationale: No load-bearing cross-input property (determinism, idempotency, commutativity) is claimed; scenario classes suffice.
