@@ -2,7 +2,7 @@ schema_version: 1
 id: DEFECT-260819-TBXH
 title: Bedrock GitHub agent action fetches arbitrary repository READMEs with a shared PAT
 introduced_in: 3d207b6
-description: >-
+description: |
   get_github_repository_readme_agent_action stripped only a https://github.com/
   prefix and called Github(auth=Auth.Token(PAT)).get_repo(repo_name).get_readme()
   with no allowlist binding to the trending-selected public repository, so a
@@ -10,13 +10,21 @@ description: >-
   access (including private repos if the token was over-scoped). The handler
   forwarded the model-chosen repo parameter unsanitized
   (functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py:42-93;
-  stacks/most_popular_repo_bedrock_agent_stack.py:48-61). Codex finding-5
-  (proof/evidence/codex-security-CPeyWd/report.md#finding-5), tracked as
-  KI-github-bedrock-readme-pat-no-allowlist. Fixed by commit f70a4e1.
+  stacks/most_popular_repo_bedrock_agent_stack.py:48-61).
+
+  This DEFECT is the product closure of KI-github-bedrock-readme-pat-no-allowlist
+  (Codex finding-5). Fixed in f70a4e1: GITHUB_ALLOWED_REPO_URLS allowlist
+  (fail-closed) plus a strict https://github.com/{owner}/{repo} fullmatch before
+  the PAT is loaded or Github.get_repo is reached. The KI is status=fixed;
+  observed_result=defect_fixed. The Strands sibling
+  (KI-github-strands-readme-pat-no-allowlist) is a different instance of the
+  same class and remains open.
 source:
     type: audit_finding
-    commit: 6c5f386
-    reference: proof/evidence/codex-security-CPeyWd/report.md#finding-5
+    repo: amazon-bedrock-serverless-prompt-chaining
+    commit: f70a4e1
+    reference: proof/known-issues/KI-github-bedrock-readme-pat-no-allowlist.yaml
+    date: "2026-08-13"
 classification:
     surface: security_behavior
     defect_class: missing_allowlist
@@ -26,12 +34,11 @@ root_cause:
     missing_requirement: true
     missing_test_partition: true
     missing_mcdc_variable: false
-    notes: >-
-      The PAT-allowlist property was explicitly unclaimed: SW-REQ-006's
-      rationale and hazard review suppressed confused_deputy_prevented with
-      'PAT allowlist ... not claimed', and no test asserted rejection of a
-      non-allowlisted repo before Github.get_repo. The failure mode was only
-      pinned by the audit's tripwire test.
+    notes: |
+      The PAT-allowlist property was unclaimed on SW-REQ-006 (confused_deputy_prevented
+      was suppressed). No test asserted rejection of a non-allowlisted repo before
+      Github.get_repo. The failure mode was pinned only by the audit tripwire on
+      KI-github-bedrock-readme-pat-no-allowlist.
 impact_analysis:
     affected_requirements:
         - SW-REQ-006
@@ -39,6 +46,12 @@ impact_analysis:
         - INT-REQ-004
     affected_code:
         - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
+        - stacks/most_popular_repo_bedrock_agent_stack.py
+        - tests/test_github_repo.py
+    affected_evidence:
+        - proof/known-issues/KI-github-bedrock-readme-pat-no-allowlist.yaml
+        - proof/evidence/KI-github-bedrock-readme-pat-no-allowlist.yaml
+        - proof/evidence/codex-security-CPeyWd/report.md
 disposition:
     status: covered_by_requirement
     requirements:
@@ -57,18 +70,22 @@ disposition:
             - requirement: SW-REQ-006
               obligation_class: confused_deputy_prevented
               evidence_type: test
-    rationale: >-
-      The Bedrock README tool now enforces a GITHUB_ALLOWED_REPO_URLS allowlist
-      (fail-closed) plus a strict https://github.com/{owner}/{repo} fullmatch
-      before the PAT is loaded or Github.get_repo is reached (commit f70a4e1).
-      SW-REQ-006 was strengthened: confused_deputy_prevented is attached and no
-      longer suppressed, and the regression tests assert rejection before
-      get_repo. The four linked known issues remain open on the same
-      requirements (different failure modes / sibling instances) and are
-      aligned here so this closure does not mask them; this closure covers only
-      the Bedrock README allowlist instance.
-    reviewer: agent:opencode
-    reviewed_at: "2026-08-19"
+    rationale: |
+      This DEFECT closes KI-github-bedrock-readme-pat-no-allowlist (status=fixed,
+      evidence observed_result=defect_fixed). The Bedrock README tool now
+      enforces GITHUB_ALLOWED_REPO_URLS (fail-closed) plus a strict
+      https://github.com/{owner}/{repo} fullmatch before PAT load /
+      Github.get_repo (commit f70a4e1). SW-REQ-006 was strengthened:
+      confused_deputy_prevented is attached and no longer suppressed. The KI's
+      Reproduces tests (test_bedrock_readme_rejects_non_allowlisted_repo,
+      test_bedrock_readme_rejects_non_full_github_url) now pass without xfail.
+
+      disposition.known_issues lists the OTHER still-open KIs that share
+      SW-REQ-006 so this closure does not mask them. The closed KI is linked
+      from source.reference and impact_analysis.affected_evidence; it is not
+      repeated under known_issues because it is no longer active.
+    reviewer: agent:grok
+    reviewed_at: "2026-08-26T12:00:00Z"
 hardening:
     strengthened_requirements:
         - SW-REQ-006
@@ -80,18 +97,21 @@ hardening:
     mcdc_witnesses:
         - requirement: SW-REQ-006
           witness: >-
-            repo URL not in GITHUB_ALLOWED_REPO_URLS (or not an exact
-            https://github.com/{owner}/{repo} form) => ValueError raised before
-            the PAT is loaded and before Github.get_repo is reached; asserted
-            by both regression tests (negative polarities of the allowlist
-            decision).
+            repo URL not in GITHUB_ALLOWED_REPO_URLS, or not an exact
+            https://github.com/{owner}/{repo} form, => ValueError before PAT
+            load and before Github.get_repo; asserted by
+            test_bedrock_readme_rejects_non_allowlisted_repo and
+            test_bedrock_readme_rejects_non_full_github_url
+            (# Reproduces: KI-github-bedrock-readme-pat-no-allowlist).
     sibling_sweep:
         scope:
             - functions/most_popular_repo_bedrock_agent/github_agent_actions/index.py
             - functions/most_popular_repo_strands/index.py
-        checked_at: "2026-08-19"
-        reviewer: agent:opencode
-        result: "found: Strands README tool (get_github_repository_readme) still fetches any repo string after prefix strip with the shared PAT"
+            - stacks/most_popular_repo_bedrock_agent_stack.py
+            - stacks/most_popular_repo_strands_stack.py
+        checked_at: "2026-08-26"
+        reviewer: agent:grok
+        result: "found: Strands README tool still fetches any repo string after prefix strip with the shared PAT"
         found:
             - KI-github-strands-readme-pat-no-allowlist
 history:
@@ -102,9 +122,13 @@ history:
       by: agent:opencode
       action: edit
       detail: >-
-        Fixed by commit f70a4e1 (GITHUB_ALLOWED_REPO_URLS allowlist, fail-closed,
-        plus strict https://github.com/{owner}/{repo} fullmatch before PAT load
-        / Github.get_repo; Lambda env wired; tripwire un-xfailed). Closed
-        covered_by_requirement with hardening: confused_deputy_prevented
-        attached to SW-REQ-006, regression tests recorded, sibling sweep found
-        the Strands instance still open (KI-github-strands-readme-pat-no-allowlist).
+        Closed covered_by_requirement after f70a4e1. Linked remaining open
+        SW-REQ-006 KIs for alignment.
+    - at: "2026-08-26T12:00:00Z"
+      by: agent:grok
+      action: edit
+      detail: >-
+        Point source.reference, impact.affected_evidence, and rationale at
+        KI-github-bedrock-readme-pat-no-allowlist (the KI this DEFECT closes).
+        Keep disposition.known_issues as the still-open overlapping KIs
+        required by known_issue_alignment_missing.

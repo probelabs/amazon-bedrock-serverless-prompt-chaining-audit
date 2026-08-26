@@ -50,7 +50,7 @@ fix:
 notes:
     - Classification is public because the defect is in the published aws-samples tree.
     - evidence path proof/evidence/codex-security-CPeyWd/report.md#finding-5
-    - 'Fixed 2026-08-19: allowlist enforced at the tool boundary before PAT use. Reproducer test_bedrock_readme_rejects_non_allowlisted_repo passes without xfail; evidence manifest observed_result=defect_fixed.'
+    - 'Fixed 2026-08-19: allowlist enforced at the tool boundary before PAT use. Reproducer test_bedrock_readme_rejects_non_allowlisted_repo passes without xfail; evidence manifest observed_result=defect_fixed. Closure record: DEFECT-260819-TBXH.'
 customer_impact: A steered agent can read any repository README the shared GitHub PAT can access, including private repos if the token is over-scoped.
 owner: agent:grok
 review_date: "2026-09-12"
@@ -85,6 +85,10 @@ history:
         (GITHUB_ALLOWED_REPO_URLS, fail-closed) + strict fullmatch form check
         before PAT load / get_repo; stack wires the env var; tripwire test
         un-xfailed and passing.
+    - at: "2026-08-26T12:00:00Z"
+      by: agent:grok
+      action: edit
+      detail: link-closure-defect DEFECT-260819-TBXH
 poc_quality:
     real_infrastructure: true
     quantitative_impact: false
