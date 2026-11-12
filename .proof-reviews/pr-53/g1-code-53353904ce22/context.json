@@ -1,0 +1,45 @@
+{
+  "audience": "contributor",
+  "checklist": "pr_code_review_v1",
+  "checkout": {
+    "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+    "fetchRef": "refs/pull/53/head",
+    "headSha": "53353904ce22e34f7a02bd152691d88b362c5280",
+    "repositoryUrl": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit.git"
+  },
+  "ci": null,
+  "context": null,
+  "contextDigest": null,
+  "contextUnavailable": "the PR's changed files are not known for this head",
+  "depth": "code",
+  "mode": "first",
+  "objections": [],
+  "permalinkBase": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/53353904ce22e34f7a02bd152691d88b362c5280/",
+  "policy": {
+    "autoPost": false,
+    "escalation": "suggest",
+    "maxWords": 450
+  },
+  "portal": {
+    "slug": "bedrock-prompt-chaining",
+    "url": "https://portal.reqproof.com"
+  },
+  "pr": {
+    "author": "buger",
+    "baseRef": "main",
+    "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+    "body": "When the Map state runs over an empty list, the merge step indexes `event[0]` and raises `IndexError`, which fails the whole state machine execution. This returns an empty conversation instead.\n\nSandbox PR in a probelabs test repository, opened to rehearse the code-review lane end to end. Not for merge.",
+    "bodyTruncated": false,
+    "changedFiles": [],
+    "headSha": "53353904ce22e34f7a02bd152691d88b362c5280",
+    "linkedIssues": [],
+    "number": 53,
+    "repo": "probelabs/amazon-bedrock-serverless-prompt-chaining-audit",
+    "title": "merge_map_output: return an empty conversation for an empty Map result list",
+    "url": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/pull/53"
+  },
+  "prior": null,
+  "role": "contributor-pr-code-review",
+  "round": 1,
+  "schema": "proof-portal.pr-code-review.packet.v1"
+}
