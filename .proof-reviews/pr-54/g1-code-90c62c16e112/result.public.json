@@ -1,0 +1,273 @@
+{
+  "asks": [
+    {
+      "text": "Add a test that a multiline surrounding fence parses to the object, that a fenced body that is not JSON still raises, and that a fenced body that fails the schema still raises. Say whether a fence with no newline should be accepted, and whether the Step Functions technique copy should strip fences too.",
+      "to": "author"
+    }
+  ],
+  "checks": [],
+  "comment": {
+    "body": "TL;DR: The generic parser accepts JSON wrapped in one multiline Markdown fence, and that path needs a test before merge.\n\n**Recommendation:** merge after the changes below\n\nThanks for teaching the parser to accept a fenced JSON answer.\n\n**What I checked**\n\nThe saved review context for this pull request names no requirement and no known issue. The diff adds a fence strip in front of the existing parse, in [`_strip_code_fence`](https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/90c62c16e112a8b479bfb7383846841a85dc7c68/functions/generic/parse_json_response/index.py#L5), and [`handler`](https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/90c62c16e112a8b479bfb7383846841a85dc7c68/functions/generic/parse_json_response/index.py#L19) still takes the same event and returns the parsed object.\n\nI loaded that handler and ran the existing parser tests: 9 passed, 0 failed. They cover a raw object, malformed text, and a schema miss. They never send a fence. A further run of the same handler showed a multiline fence (with or without a language tag, closing fence on the last line or on its own line) returns the object. A fenced body that is not JSON still raises. A fenced body that fails the schema still raises. A value that ends in backticks is kept when the closing fence is on its own line.\n\n**Findings**\n\nA fence with no newline is not stripped, so parsing still fails. The newline test is in [`_strip_code_fence`](https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/90c62c16e112a8b479bfb7383846841a85dc7c68/functions/generic/parse_json_response/index.py#L9). The same run sent a single line that starts and ends with a fence and has no newline, and parsing raised a JSON decode error. A lead-in sentence before a proper fence does the same, because the whole text must start with the fence.\n\n**Questions**\n\nShould the Step Functions technique copy strip fences too? [`handler`](https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/90c62c16e112a8b479bfb7383846841a85dc7c68/techniques_step_functions/functions/parse_json_response/index.py#L8) still parses the response text directly, with no fence strip.\n\n**Checks on this PR**\n\nNo check runs are recorded on 90c62c16e112a8b479bfb7383846841a85dc7c68. The check-run list for that commit is empty.\n\n**Open points**\n\nThe pull request description, comments, and reviews were read at 90c62c16e112a8b479bfb7383846841a85dc7c68. There are no comments and no bot findings to confirm or refute.\n\n**What I'm asking**\n\nAuthor: Add a test that a multiline surrounding fence parses to the object, that a fenced body that is not JSON still raises, and that a fenced body that fails the schema still raises. Say whether a fence with no newline should be accepted, and whether the Step Functions technique copy should strip fences too.\n",
+    "shape": "request_changes"
+  },
+  "commentLint": {
+    "at": "2026-11-13T09:26:44.176Z",
+    "bodyDigest": "sha256:a73a8266d6ed04c575a5e71124f6e1f67452af91ccc3ff8350fdb0cd8fde1818",
+    "engine": "proof version 0.1.0-dev+gc4ea21de74f6",
+    "failing": [],
+    "rules": [
+      {
+        "id": "footer",
+        "ok": true,
+        "severity": "error",
+        "skipped": true
+      },
+      {
+        "id": "closing-ref",
+        "ok": true,
+        "severity": "error",
+        "skipped": true
+      },
+      {
+        "id": "placeholders",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "pinned-revisions",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "apologies",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "internal-words",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "video",
+        "ok": true,
+        "severity": "error",
+        "skipped": true
+      },
+      {
+        "id": "fails-on-base",
+        "ok": true,
+        "severity": "error",
+        "skipped": true
+      },
+      {
+        "id": "updated-note",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "template-version",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "sections",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "labels",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "footer-separator",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "checked-items",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "soft-placeholders",
+        "ok": true,
+        "severity": "warning"
+      },
+      {
+        "id": "hedges",
+        "ok": true,
+        "severity": "warning"
+      },
+      {
+        "id": "home-path",
+        "ok": true,
+        "severity": "warning"
+      },
+      {
+        "id": "closing-ref-first",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "failure-line",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "updated-note-style",
+        "ok": true,
+        "severity": "warning"
+      },
+      {
+        "id": "video-narration",
+        "ok": true,
+        "severity": "warning",
+        "skipped": true
+      },
+      {
+        "id": "comment-tldr",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "comment-scaffold",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "comment-visible-length",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "comment-engine-ids",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "comment-advisory-compat",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "comment-verdict",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-recommendation",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-ask",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-internal-ids",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-unseeable-refs",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-checks-disclosed",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-permalink-head",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-count-breakdown",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-mentions",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-host-obfuscation",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-security-redaction",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-claim-basis",
+        "ok": true,
+        "severity": "error"
+      },
+      {
+        "id": "review-length",
+        "ok": true,
+        "severity": "error"
+      }
+    ],
+    "status": "passed"
+  },
+  "escalate": null,
+  "findings": [
+    {
+      "basis": "validated",
+      "evidence": "review-test python3 /tmp/fence_probe.py at 90c62c16e112a8b479bfb7383846841a85dc7c68: one-line fence with no newline raised JSONDecodeError; multiline ```json fence returned the object.",
+      "failureScenario": "A model returns JSON on one line inside a fence, with no newline. The handler leaves the fence in place and parsing fails, so the chain takes the parse-error retry that this change was meant to avoid.",
+      "id": "fence-newline",
+      "severity": "P3",
+      "title": "A fence with no newline is not stripped",
+      "visibility": "public"
+    },
+    {
+      "basis": "desk_review",
+      "failureScenario": "A technique flow that calls techniques_step_functions/functions/parse_json_response still rejects fenced model text, because that copy passes response_string straight to json.loads.",
+      "id": "technique-copy",
+      "severity": "P3",
+      "title": "The Step Functions technique parser is unchanged",
+      "visibility": "public"
+    }
+  ],
+  "headSha": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+  "knownIssues": [],
+  "recommendation": "merge_after_changes",
+  "requirements": [],
+  "schema": "proof-portal.pr-code-review.result.v1",
+  "tests": {
+    "newBehaviourUntested": [
+      {
+        "path": "functions/generic/parse_json_response/index.py",
+        "symbol": "_strip_code_fence"
+      }
+    ],
+    "ran": [
+      {
+        "cmd": "python3 -m pytest tests/test_parse_json_response.py -q --tb=line",
+        "outcome": "pass"
+      },
+      {
+        "cmd": "python3 /tmp/fence_probe.py",
+        "outcome": "pass"
+      }
+    ],
+    "verifyingTestsTouched": false
+  }
+}

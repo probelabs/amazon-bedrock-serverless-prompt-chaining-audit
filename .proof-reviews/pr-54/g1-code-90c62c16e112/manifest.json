@@ -1,0 +1,32 @@
+{
+  "schema": "proof.review-generation.v1",
+  "pr": 54,
+  "generation": 1,
+  "depth": "code",
+  "mode": "first",
+  "status": "complete",
+  "reason": null,
+  "headSha": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+  "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+  "baselineSha": null,
+  "reviewedTree": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+  "proofWorkTip": null,
+  "evidenceCommit": null,
+  "priorGeneration": null,
+  "claimId": "4c93c935-9fa9-41d6-84c2-7d18c49aa9bf",
+  "draftId": "cmwer0mse009ai3w4pwygudvy",
+  "family": "xai",
+  "model": null,
+  "startedAt": "2026-11-13T09:06:06.146Z",
+  "endedAt": "2026-11-13T09:26:56Z",
+  "redaction": {
+    "publicFork": true,
+    "manifestOnly": false
+  },
+  "files": {
+    "comment.md": "sha256:a73a8266d6ed04c575a5e71124f6e1f67452af91ccc3ff8350fdb0cd8fde1818",
+    "context.json": "sha256:8781aafe33069e6916cd092962b8921926a8e755e5f1052ec4588acf875c98ce",
+    "result.public.json": "sha256:d4491c340f776976b1ef80098da395f8799306a81e5860ea5e0d59ee3f79912a"
+  },
+  "omitted": []
+}

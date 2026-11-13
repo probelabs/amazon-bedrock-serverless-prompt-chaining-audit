@@ -1,0 +1,83 @@
+{
+  "audience": "contributor",
+  "checklist": "pr_code_review_v1",
+  "checkout": {
+    "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+    "fetchRef": "refs/pull/54/head",
+    "headSha": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+    "repositoryUrl": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit.git"
+  },
+  "ci": null,
+  "context": {
+    "baseline": {
+      "caveat": "The trace is the baseline's: code that this change adds has no trace yet, and a requirement it newly touches can be missing here.",
+      "errorCount": 0,
+      "failingChecks": [],
+      "indexPresent": false,
+      "warnCount": 0
+    },
+    "blastRadius": {
+      "components": [],
+      "nodes": []
+    },
+    "components": [],
+    "diff": {
+      "base": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+      "head": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+      "hunksKnown": true,
+      "input": "files",
+      "mergeBase": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+      "pr": "54",
+      "repo": "probelabs/amazon-bedrock-serverless-prompt-chaining-audit"
+    },
+    "digest": "sha256:5550736b92a3d1075181fa8be50b5fc620c079c0f0d4a032fbfab2c87e6d5121",
+    "files": [],
+    "knownIssues": [],
+    "notes": [
+      "No audit run is recorded in this checkout, so the baseline verdict is unknown.",
+      "No proof index was found, so the proof sections are empty. The project owner's `proof audit` writes it."
+    ],
+    "obligations": [],
+    "priorReviews": [],
+    "requirements": [],
+    "schema": "proof.review-context.v1",
+    "source": "engine",
+    "specGaps": [],
+    "tests": []
+  },
+  "contextDigest": "sha256:5550736b92a3d1075181fa8be50b5fc620c079c0f0d4a032fbfab2c87e6d5121",
+  "contextUnavailable": null,
+  "depth": "code",
+  "mode": "first",
+  "objections": [],
+  "permalinkBase": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/blob/90c62c16e112a8b479bfb7383846841a85dc7c68/",
+  "policy": {
+    "autoPost": false,
+    "escalation": "suggest",
+    "maxWords": 450
+  },
+  "portal": {
+    "slug": "bedrock-prompt-chaining",
+    "url": "https://portal.reqproof.com"
+  },
+  "pr": {
+    "author": "buger",
+    "baseRef": "main",
+    "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+    "body": "Sandbox PR for the code-review lane rehearsal (2026-11-13). Models often wrap their JSON answer in a Markdown code fence; strip one surrounding fence before parsing.",
+    "bodyTruncated": false,
+    "changedFiles": [
+      "functions/generic/parse_json_response/index.py"
+    ],
+    "headSha": "90c62c16e112a8b479bfb7383846841a85dc7c68",
+    "linkedIssues": [],
+    "number": 54,
+    "repo": "probelabs/amazon-bedrock-serverless-prompt-chaining-audit",
+    "title": "parse_json_response: accept JSON wrapped in a Markdown code fence",
+    "url": "https://github.com/probelabs/amazon-bedrock-serverless-prompt-chaining-audit/pull/54"
+  },
+  "prior": null,
+  "role": "contributor-pr-code-review",
+  "round": 1,
+  "schema": "proof-portal.pr-code-review.packet.v1"
+}
