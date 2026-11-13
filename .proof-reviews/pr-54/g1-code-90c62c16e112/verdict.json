@@ -1,0 +1,15 @@
+{
+  "schema": "proof.review-settle.v1",
+  "generation": 1,
+  "outcome": "verified",
+  "state": "done",
+  "verdicts": [
+    {
+      "round": 1,
+      "verdict": "confirmed",
+      "at": "2026-11-13T09:34:38.217Z",
+      "objections": []
+    }
+  ],
+  "postedCommentUrl": null
+}
