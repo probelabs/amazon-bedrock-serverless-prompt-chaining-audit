@@ -1,0 +1,30 @@
+{
+  "schema": "proof.review-generation.v1",
+  "pr": 53,
+  "generation": 2,
+  "depth": "code",
+  "mode": "first",
+  "status": "partial",
+  "reason": "the agent ended (exit 0)",
+  "headSha": "53353904ce22e34f7a02bd152691d88b362c5280",
+  "baseSha": "552f296e53104ac043f7a4d20cd68c8d07be7ce4",
+  "baselineSha": null,
+  "reviewedTree": "53353904ce22e34f7a02bd152691d88b362c5280",
+  "proofWorkTip": null,
+  "evidenceCommit": null,
+  "priorGeneration": 1,
+  "claimId": "707857f5-51d6-42ed-91c3-b3af594c1179",
+  "draftId": "cmwe01xnk01781mw4v1zun7f8",
+  "family": "xai",
+  "model": null,
+  "startedAt": "2026-11-13T08:26:21.344Z",
+  "endedAt": "2026-11-13T09:06:02Z",
+  "redaction": {
+    "publicFork": true,
+    "manifestOnly": false
+  },
+  "files": {
+    "context.json": "sha256:6e5aa0126ce34a23e05f02794b62b2948bea5adc036ff71a5240252f26943a50"
+  },
+  "omitted": []
+}
